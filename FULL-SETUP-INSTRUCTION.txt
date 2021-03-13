@@ -1,0 +1,180 @@
+# Last edited 13/03/2021 Gerhard Malberg
+
+# This is instruction to setup development environment on Nvidia Jetson Nano Dev Kit
+# and to build, compile and run cmake project of DJI Onboard SDK (OSDK) 3.9.0
+# DJI M100 is only compatible with OSDK 3.9.0 and NOT newer.
+# This build is made to Nvidia Jetson Nano Dev kit Ubuntu 18.04 LTS Desktop version.
+# Simply run commands in sequence written to this text file to avoid issues.
+# If issues occour then MAKE ISSUE or PULL REQUEST
+
+# THIS PART IS TO SETUP LINUX FOR DEVELOPMENT PROJECTS
+#
+#
+#
+
+# Upgrade software
+
+# Install gcc compiler
+sudo apt install build-essential
+
+# Install Codeblocks for C++ and C specific development
+sudo apt install codeblocks
+
+# Install git desktop version
+wget -qO - https://packagecloud.io/shiftkey/desktop/gpgkey | sudo apt-key add -
+sudo sh -c 'echo "deb [arch=amd64] https://packagecloud.io/shiftkey/desktop/any/ any main" > /etc/apt/sources.list.d/packagecloud-shiftky-desktop.list'
+sudo apt-get update
+sudo apt install github-desktop
+
+# Install ATOM for overall code development and easy git control
+sudo apt install software-properties-common apt-transport-https wget
+wget -q https://packagecloud.io/AtomEditor/atom/gpgkey -O- | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main"
+sudo apt install atom
+
+# Install nano
+sudo apt install nano
+
+# Install emacs
+sudo apt-get install vim
+
+# Install Python
+sudo apt install build-essential zlib1g-dev \
+libncurses5-dev libgdbm-dev libnss3-dev \
+libssl-dev libreadline-dev libffi-dev curl
+
+sudo apt-get install python
+sudo apt-get install python3
+
+# Python package Install
+sudo apt-get install python-pip
+
+# SDL2 packages
+sudo apt-get install libsdl2-dev
+
+# Install necessary packages for OpenSSL
+sudo apt update
+sudo apt install build-essential checkinstall zlib1g-dev -y
+
+# If problem occours check https://www.howtoforge.com/tutorial/how-to-install-openssl-from-source-on-linux/
+
+# Download OpenSSL and install it
+cd /usr/local/src/
+sudo wget https://www.openssl.org/source/openssl-1.0.2o.tar.gz
+sudo tar -xf openssl-1.0.2o.tar.gz
+cd openssl-1.0.2o
+cd /usr/local/src/openssl-1.0.2o
+sudo ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib
+sudo make
+sudo make test
+sudo make install
+cd /etc/ld.so.conf.d/
+nano openssl-1.0.2o.conf
+# Paste "/usr/local/ssl/lib" without quotations to file, save and close it
+sudo ldconfig -v
+nano /etc/environment
+# Now to file, add directory as below (as it is), save and close it
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/local/ssl/bin"
+# Navigate to root
+cd /
+source /etc/environment
+echo $PATH
+which openssl
+openssl version -a
+# Now you should see respond which starts with "OpenSSL 1.0.2 and so on....."
+
+
+# THIS PART IS TO BUILD, COMPILE AND RUN OSDK SAMPLE
+# DRONE NEED TO BE CONNECTED TO ONBOARD COMPUTER IN THIS PART
+#
+#
+#
+
+# Add user to dialout group 
+sudo usermod -a -G dialout $USER
+# Replace $USER with username for example our onboard computer user name is uwb5 thereby
+sudo usermod -a -G dialout uwb5
+
+# Create a udev file called DJIDevice.rules inside /etc/udev/rules.d/
+# Add SUBSYSTEM=="usb", ATTRS{idVendor}=="2ca3", MODE="0666"
+
+# Give user access to serial port (xxx = ttyACM0 by default)
+sudo chmod 777 /dev/xxx
+
+# Check user access status for serial port (remember to navigate to root directory)
+cd /
+ls -l /dev/xxx
+
+# Run following command to install needed packages for FFMPEG
+sudo apt install libavcodec-dev libavformat-dev libavfilter-dev
+
+# Install more development packages 
+sudo apt-get install libpcap-dev libssl-dev
+
+# Make directory for cmake build
+mkdir uwb
+
+# Go to directory "uwb" and clone OSDK git repository 
+# MAKE SURE YOU CLONE 3.9.0 other versions do not work
+cd uwb
+git clone https://github.com/dji-sdk/Onboard-SDK.git --branch 3.9.0
+
+# Go to directory "uwb/Onboard-SDK" and make directory named "build"
+cd
+cd uwb/Onboard-SDK
+mkdir build
+
+# Go to directory "build" and make CMake project build into that directory
+cd build
+cmake ..
+
+# Compile using makefiles
+make
+
+# Go to your sample directory and git-clone UserConfig.txt
+# Check that everything matches your setup in the UserConfig.txt file (Default should match)
+cd uwb/Onboard-SDK/build/bin/
+git clone xxxx
+nano UserConfig.txt
+
+# UserConfig.txt should look like this
+app_id : 1101325
+app_key : 2fc591d88512403919e1b76fb8301a2432e9d3861f369a77ac8acf4bc804a5b6
+device : /dev/ttyUSB0
+baudrate : 921600
+acm_port : /dev/ttyACM0
+
+# Navigate to test sample in bin directory
+cd
+cd uwb/Onboard-SDK/build/bin/
+
+# Execute the test sample
+./djiosdk-logging-sample UserConfig.txt
+
+# First line should look like this
+STATUS/1 @ main, L40: Logging is completely independent of DJI::OSDK::Vehicle.
+
+
+# UNFINISHED PART. SKIP THIS PART UNTIL IT IS FINISHED 
+# 
+#
+#
+
+# ROS install
+https://www.stereolabs.com/blog/ros-and-nvidia-jetson-nano/
+
+https://developer.dji.com/onboard-sdk/documentation/quickstart/development-environment.html
+
+# SDL2 packages
+sudo apt-get install libsdl2-dev
+
+# ROSDEP package Install
+sudo apt-get install python-pip
+sudo pip install -U rosdep
+sudo rosdep init
+rosdep update
+sudo pip install -U rosinstall vcstools rospkg
+sudo apt-get install python-rosdep
+
+#NMEA Packages
+sudo apt-get install ros-melodic-nmea-msgs
