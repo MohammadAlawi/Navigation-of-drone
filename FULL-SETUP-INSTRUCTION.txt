@@ -20,18 +20,6 @@ sudo apt install build-essential
 # Install Codeblocks for C++ and C specific development
 sudo apt install codeblocks
 
-# Install git desktop version
-wget -qO - https://packagecloud.io/shiftkey/desktop/gpgkey | sudo apt-key add -
-sudo sh -c 'echo "deb [arch=amd64] https://packagecloud.io/shiftkey/desktop/any/ any main" > /etc/apt/sources.list.d/packagecloud-shiftky-desktop.list'
-sudo apt-get update
-sudo apt install github-desktop
-
-# Install ATOM for overall code development and easy git control
-sudo apt install software-properties-common apt-transport-https wget
-wget -q https://packagecloud.io/AtomEditor/atom/gpgkey -O- | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main"
-sudo apt install atom
-
 # Install nano
 sudo apt install nano
 
