@@ -1,27 +1,30 @@
-# Last edited 03/03/2021 Gerhard Malberg
+# Last edited 13/03/2021 Gerhard Malberg
 
 # This is instruction to setup development environment on Nvidia Jetson Nano Dev Kit
 # and to build, compile and run cmake project of DJI Onboard SDK (OSDK) 3.9.0
 # DJI M100 is only compatible with OSDK 3.9.0 and NOT newer.
 # This build is made to Nvidia Jetson Nano Dev kit Ubuntu 18.04 LTS Desktop version.
 # Simply run commands in sequence written to this text file to avoid issues.
+# If issue occur then MAKE ISSUE or PULL REQUEST.
 
 # THIS PART IS TO SETUP LINUX FOR DEVELOPMENT PROJECTS
 #
 #
 #
 
+# Upgrade software
+
 # Install gcc compiler
 sudo apt install build-essential
 
-# Install Codeblocks
+# Install Codeblocks for C++ and C specific development
 sudo apt install codeblocks
 
 # Install nano
 sudo apt install nano
 
 # Install emacs
-sudo apt-get install emacs
+sudo apt-get install vim
 
 # Install Python
 sudo apt install build-essential zlib1g-dev \
@@ -73,8 +76,9 @@ openssl version -a
 # DRONE NEED TO BE CONNECTED TO ONBOARD COMPUTER IN THIS PART
 #
 #
+#
 
-# Add user to dialout group 
+# Add user to dialout group
 sudo usermod -a -G dialout $USER
 # Replace $USER with username for example our onboard computer user name is uwb5 thereby
 sudo usermod -a -G dialout uwb5
@@ -92,13 +96,13 @@ ls -l /dev/xxx
 # Run following command to install needed packages for FFMPEG
 sudo apt install libavcodec-dev libavformat-dev libavfilter-dev
 
-# Install more development packages 
+# Install more development packages
 sudo apt-get install libpcap-dev libssl-dev
 
 # Make directory for cmake build
 mkdir uwb
 
-# Go to directory "uwb" and clone OSDK git repository 
+# Go to directory "uwb" and clone OSDK git repository
 # MAKE SURE YOU CLONE 3.9.0 other versions do not work
 cd uwb
 git clone https://github.com/dji-sdk/Onboard-SDK.git --branch 3.9.0
@@ -115,10 +119,9 @@ cmake ..
 # Compile using makefiles
 make
 
-# Go to your sample directory and git-clone UserConfig.txt
+# Go to your sample directory and copy the cloned UserConfig.txt to execute directory
 # Check that everything matches your setup in the UserConfig.txt file (Default should match)
 cd uwb/Onboard-SDK/build/bin/
-git clone xxxx
 nano UserConfig.txt
 
 # UserConfig.txt should look like this
@@ -132,96 +135,17 @@ acm_port : /dev/ttyACM0
 cd
 cd uwb/Onboard-SDK/build/bin/
 
-# Execute the test sample
+# Execute the test sample (In this case UserConfig.txt must be in same directory)
 ./djiosdk-logging-sample UserConfig.txt
 
 # First line should look like this
 STATUS/1 @ main, L40: Logging is completely independent of DJI::OSDK::Vehicle.
 
 
-
-* Git Commands
-*
-*
-*
-
-# Initilize directory as git repository
-git init
-
-# Get your remote repository to local repository
-git remote add origin 'your_url_name'
-
-# Git show origin URL
-git remote show origin
-
-# Set new orgin
-git remote set-url origin git://new.url.here
-
-# Git fetch and checkout (Our case myBranch is "master"
-git fetch --all
-git checkout Master
-
-# Get status of commits
-git status
-
-# Add edited files to commit list
-git add .
-
-# Commit and add you message
-git commit -m 'Just added the test333'
-
-# Push your commit to to git
-git push -u origin master
-
-# Check information about the commits
-git log
-
-# Revert your local repo to specific commit and clean 
-git reset --hard <commit-hash>
-
-# Push your reverted to main
-git push -f origin master
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# SKIP THIS IF ROS NOT USED
+# UNFINISHED PART. SKIP THIS PART UNTIL IT IS FINISHED
+#
+#
+#
 
 # ROS install
 https://www.stereolabs.com/blog/ros-and-nvidia-jetson-nano/
@@ -241,9 +165,3 @@ sudo apt-get install python-rosdep
 
 #NMEA Packages
 sudo apt-get install ros-melodic-nmea-msgs
-
-
-
-
-
-
