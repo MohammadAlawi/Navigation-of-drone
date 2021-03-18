@@ -68,6 +68,69 @@ which openssl
 openssl version -a
 # Now you should see respond which starts with "OpenSSL 1.0.2 and so on....."
 
+# This part is to setup VNC
+#
+#
+#
+
+# Download and install VNC
+sudo apt update
+sudo apt install xfce4 xfce4-goodies
+sudo apt install tightvncserver
+
+# Run VNC for first time (for first time fill in your password)
+vncserver
+
+# You should now see this
+Would you like to enter a view-only password (y/n)? n
+xauth:  file /home/sammy/.Xauthority does not exist
+
+New 'X' desktop is your_hostname:1
+
+Creating default startup script /home/sammy/.vnc/xstartup
+Starting applications specified in /home/sammy/.vnc/xstartup
+Log file is /home/sammy/.vnc/your_hostname:1.log
+
+# kill VNC process, backup and configure files
+vncserver -kill :1
+mv ~/.vnc/xstartup ~/.vnc/xstartup.bak
+
+nano ~/.vnc/xstartup
+# This how your file should look like
+#!/bin/sh
+
+xrdb $HOME/.Xresources
+xsetroot -solid grey
+#x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
+#x-window-manager &
+# Fix to make GNOME work
+export XKL_XMODMAP_DISABLE=1
+/etc/X11/Xsession
+exec /usr/bin/startxfce4 &
+
+# Save and exit
+# Give xstartup permission
+sudo chmod +x ~/.vnc/xstartup
+
+# Restart server
+vncserver
+# You should see this
+New 'X' desktop is your_hostname:1
+
+Starting applications specified in /home/sammy/.vnc/xstartup
+Log file is /home/sammy/.vnc/your_hostname:1.log
+
+# On windows PC follow this
+https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-vnc-on-ubuntu-20-04
+
+# Remember to set set in putty following configuration
+Source port: 5901
+Destination: localhost:5901
+
+# Then open tightvnc viewer and login using your password 
+# (onboard computer password = 88888888)
+
+
 
 # THIS PART IS TO BUILD, COMPILE AND RUN OSDK SAMPLE
 # DRONE NEED TO BE CONNECTED TO ONBOARD COMPUTER IN THIS PART
@@ -140,10 +203,26 @@ STATUS/1 @ main, L40: Logging is completely independent of DJI::OSDK::Vehicle.
 
 
 
-* Git Commands
-*
-*
-*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Git Commands
+# ONLY USE THESE COMMANDS IF NEEDED
+#
+#
 
 # Initilize directory as git repository
 git init
@@ -181,11 +260,6 @@ git reset --hard <commit-hash>
 
 # Push your reverted to main
 git push -f origin master
-
-
-
-
-
 
 
 
