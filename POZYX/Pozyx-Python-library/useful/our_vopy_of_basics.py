@@ -16,8 +16,12 @@ def device_check(pozyx, remote_id=None):
     pozyx.getDeviceDetails(system_details, remote_id=remote_id)
 
     if remote_id is None:
-        print("Local %s wi; th id 0x%0.4x" % (system_details.device_name, system_details.id))
+        print("OUR MODIFICATIONS******************************************")
+
+        print("Local %s with id 0x%0.4x" % (system_details.device_name, system_details.id))
     else:
+ print("OUR MODIFICATIONS******************************************")
+
         print("%s with id 0x%0.4x" % (system_details.device_name.capitalize(), system_details.id))
 
     print("\tWho am i: 0x%0.2x" % system_details.who_am_i)
