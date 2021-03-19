@@ -261,6 +261,10 @@ git reset --hard <commit-hash>
 # Push your reverted to main
 git push -f origin master
 
+# For untracked modules/libraries
+git rm -rf --cached myuntrackedfolder
+git add myuntrackedfolder
+
 
 
 
