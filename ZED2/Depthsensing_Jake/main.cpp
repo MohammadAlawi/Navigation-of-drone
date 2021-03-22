@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     int i = 0;
     sl::Mat image, depth, point_cloud;
 
-    while (i < 5000) {
+    while (i < 50) {
         // A new image is available if grab() returns ERROR_CODE::SUCCESS
         if (zed.grab(runtime_parameters) == ERROR_CODE::SUCCESS) {
             // Retrieve left image
@@ -61,15 +61,14 @@ int main(int argc, char **argv) {
 
             // Get and print distance value in mm at the center of the image
             // We measure the distance camera - object using Euclidean distance
-            //int x = image.getWidth() / 2;
-            int x = 50;
+            int x = image.getWidth() / 2;
             int y = image.getHeight() / 2;
             sl::float4 point_cloud_value;
             point_cloud.getValue(x, y, &point_cloud_value);
 
             if(std::isfinite(point_cloud_value.z)){
                 float distance = sqrt(point_cloud_value.x * point_cloud_value.x + point_cloud_value.y * point_cloud_value.y + point_cloud_value.z * point_cloud_value.z);
-                cout<<"Distance to Camera at TEST {"<<x<<";"<<y<<"}: "<<distance<<"mm"<<endl;
+                cout<<"Distance to Camera at position {"<<x<<";"<<y<<"}: "<<distance<<"mm"<<endl;
             }else
                 cout<<"The Distance can not be computed at {"<<x<<";"<<y<<"}"<<endl;
 
@@ -77,6 +76,13 @@ int main(int argc, char **argv) {
             i++;
         }
     }
+
+    // Print image width and height
+    cout<<"Image width: "<<image.getWidth()<<endl;
+    cout<<"Image height: "<<image.getHeight()<<endl;
+
+    // Test print statement
+    cout<<"Version three"<<endl;
     // Close the camera
     zed.close();
     return EXIT_SUCCESS;

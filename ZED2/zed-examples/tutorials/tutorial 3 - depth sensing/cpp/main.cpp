@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
 
             if(std::isfinite(point_cloud_value.z)){
                 float distance = sqrt(point_cloud_value.x * point_cloud_value.x + point_cloud_value.y * point_cloud_value.y + point_cloud_value.z * point_cloud_value.z);
-                cout<<"Distance to Camera at TEST {"<<x<<";"<<y<<"}: "<<distance<<"mm"<<endl;
+                cout<<"Distance to Camera at position {"<<x<<";"<<y<<"}: "<<distance<<"mm"<<endl;
             }else
                 cout<<"The Distance can not be computed at {"<<x<<";"<<y<<"}"<<endl;
 
