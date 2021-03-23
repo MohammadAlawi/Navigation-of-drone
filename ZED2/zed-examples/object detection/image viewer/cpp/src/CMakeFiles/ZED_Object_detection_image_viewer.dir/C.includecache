@@ -1,0 +1,12 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/uwb5/git/ZED2/zed-examples/object detection/image viewer/cpp/src/CMakeFiles/3.10.2/CompilerIdC/CMakeCCompilerId.c
+
+/home/uwb5/git/ZED2/zed-examples/object detection/image viewer/cpp/src/CMakeFiles/feature_tests.c
+
