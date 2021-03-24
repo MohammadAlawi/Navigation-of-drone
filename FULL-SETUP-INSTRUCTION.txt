@@ -1,10 +1,11 @@
-# Last edited 03/03/2021 Gerhard Malberg
 
 # This is instruction to setup development environment on Nvidia Jetson Nano Dev Kit
 # and to build, compile and run cmake project of DJI Onboard SDK (OSDK) 3.9.0
 # DJI M100 is only compatible with OSDK 3.9.0 and NOT newer.
 # This build is made to Nvidia Jetson Nano Dev kit Ubuntu 18.04 LTS Desktop version.
 # Simply run commands in sequence written to this text file to avoid issues.
+
+######################################################################################################
 
 # THIS PART IS TO SETUP LINUX FOR DEVELOPMENT PROJECTS
 #
@@ -68,6 +69,8 @@ which openssl
 openssl version -a
 # Now you should see respond which starts with "OpenSSL 1.0.2 and so on....."
 
+######################################################################################################
+
 # This part is to setup VNC
 #
 #
@@ -120,17 +123,23 @@ New 'X' desktop is your_hostname:1
 Starting applications specified in /home/sammy/.vnc/xstartup
 Log file is /home/sammy/.vnc/your_hostname:1.log
 
-# On windows PC follow this
+# (Option1) On windows PC for PuTTY configuration follow this:
 https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-vnc-on-ubuntu-20-04
 
 # Remember to set set in putty following configuration
 Source port: 5901
 Destination: localhost:5901
 
+# (Option2) On windows on command line configuration follow this:
+# Use this command to setup
+ssh -L 5901:localhost:5901 user@address
+
 # Then open tightvnc viewer and login using your password 
 # (onboard computer password = 88888888)
 
 
+
+######################################################################################################
 
 # THIS PART IS TO BUILD, COMPILE AND RUN OSDK SAMPLE
 # DRONE NEED TO BE CONNECTED TO ONBOARD COMPUTER IN THIS PART
@@ -201,23 +210,7 @@ cd uwb/Onboard-SDK/build/bin/
 # First line should look like this
 STATUS/1 @ main, L40: Logging is completely independent of DJI::OSDK::Vehicle.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+######################################################################################################
 
 # Git Commands
 # ONLY USE THESE COMMANDS IF NEEDED
@@ -265,63 +258,33 @@ git push -f origin master
 git rm -rf --cached myuntrackedfolder
 git add myuntrackedfolder
 
+######################################################################################################
 
+# CGI Server setup
+# To run CGI scripts modify apache2 config file 
+# apache2.conf at /etc/apache2/
+# Add this to directories
+# To handle .cgi .pl .py
 
+<Directory "/usr/lib/cgi-bin">
+   AllowOverride None
+   Options ExecCGI
+   Order allow,deny
+   Allow from all
+</Directory>
+ 
+<Directory "/usr/lib/cgi-bin">
+   Options All
+</Directory>
 
+# Enable CGI module
+sudo ln -s /etc/apache2/mods-available/cgi.load /etc/apache2/mods-enabled/
 
+# Restart Apache2
+sudo systemctl restart apache2
 
+# Remember to give permission to your file before you copy them to your server AND also at the server locations
+sudo chmod 755 <filename>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# SKIP THIS IF ROS NOT USED
-
-# ROS install
-https://www.stereolabs.com/blog/ros-and-nvidia-jetson-nano/
-
-https://developer.dji.com/onboard-sdk/documentation/quickstart/development-environment.html
-
-# SDL2 packages
-sudo apt-get install libsdl2-dev
-
-# ROSDEP package Install
-sudo apt-get install python-pip
-sudo pip install -U rosdep
-sudo rosdep init
-rosdep update
-sudo pip install -U rosinstall vcstools rospkg
-sudo apt-get install python-rosdep
-
-#NMEA Packages
-sudo apt-get install ros-melodic-nmea-msgs
-
-
-
-
-
-
+# Restart Apache2
+sudo systemctl restart apache2
