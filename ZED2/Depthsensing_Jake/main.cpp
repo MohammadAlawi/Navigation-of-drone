@@ -23,6 +23,8 @@
 
 
 #include <sl/Camera.hpp>
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 using namespace sl;
@@ -56,8 +58,7 @@ int main(int argc, char **argv) {
 
     // Capture 50 images and depth, then stop
     int i = 0;
-    int j = 0;
-    int k = 0;
+
     sl::Mat image, depth, point_cloud;
 
 
@@ -66,11 +67,15 @@ int main(int argc, char **argv) {
     int mat_rows = 72;
 
     int mat_xoffset, mat_yoffset;
+    float maxdistance = 40.0;
+    float distance, closestdistance;
+    int closest_x, closest_y;
 
     int x = 0;
     int y = 0;
 
-    while (i < 5) {
+    while (i < 5000) {
+
         // A new image is available if grab() returns ERROR_CODE::SUCCESS
         if (zed.grab(runtime_parameters) == ERROR_CODE::SUCCESS) {
             // Retrieve left image
@@ -92,25 +97,53 @@ int main(int argc, char **argv) {
             x = mat_xoffset / 2;
             y = mat_yoffset / 2;
 
-            // Go through the columns
-            while (j <= mat_columns)
-
-            // This is nowhere near finished, do not use
-
-            // Probe the center of current sector
-            x = 0;
-            y = 0;
             sl::float4 point_cloud_value;
-            point_cloud.getValue(x, y, &point_cloud_value);
 
-            if(std::isfinite(point_cloud_value.z)){
-                distance1 = sqrt(point_cloud_value.x * point_cloud_value.x + point_cloud_value.y * point_cloud_value.y + point_cloud_value.z * point_cloud_value.z);
-                // cout<<"Distance to Camera at position {"<<x<<";"<<y<<"}: "<<distance<<"mm"<<endl;
-            }else {
-                cout<<"The Distance can not be computed at {"<<x<<";"<<y<<"}"<<endl;
-                distance1 = 0;
+            // Reset shortest distance
+            closestdistance = maxdistance;
+            int j = 0;
+            int k = 0;
+
+            // Go through the columns and rows
+            while (j < mat_rows) {
+                while (k < mat_columns) {
+                    // Get current value
+                    point_cloud.getValue(x, y, &point_cloud_value);
+
+                    // If it is valid, calculate distance
+                    if(std::isfinite(point_cloud_value.z)){
+                        distance = sqrt(point_cloud_value.x * point_cloud_value.x + point_cloud_value.y * point_cloud_value.y + point_cloud_value.z * point_cloud_value.z);
+                        //cout<<"Distance to Camera at position {"<<x<<";"<<y<<"}: "<<distance<<unit<<endl;
+
+                        // IF valid and closer than shortestdistance, save dist and pos
+                        if (distance < closestdistance) {
+                        closestdistance = distance;
+                        closest_x = x;
+                        closest_y = y;
+                        // print every shortest distance found to debug
+                        //cout<<"new shortest distance found at {"<<x<<";"<<y<<"}: "<<distance<<unit<<endl;
+                        }
+
+                    }else {
+                        //cout<<"The Distance can not be computed at {"<<x<<";"<<y<<"}"<<endl;
+                        distance = maxdistance;
+                        }
+
+                    // Sector scanned, change sector
+                    //cout<<"k iteration {"<<k<<"}"<<" at "<<x<<";"<<y<<endl;
+                    x = x + mat_xoffset;
+                    k++;
+                    }
+
+                    //cout<<"j iteration {"<<j<<"}"<<" at "<<x<<";"<<y<<endl;
+                    // Row scanned, change row
+                    x = mat_xoffset / 2;
+                    k = 0;
+                    y = y + mat_yoffset;
+                    j++;
                 }
-
+            // Print results
+            cout<<"Shortest distance found at{"<<closest_x<<";"<<closest_y<<"}: "<<closestdistance<<unit<<endl;
 
             // Increment the loop
             i++;
