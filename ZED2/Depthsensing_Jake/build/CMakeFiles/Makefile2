@@ -60,39 +60,39 @@ CMAKE_SOURCE_DIR = /home/uwb5/git/ZED2/Depthsensing_Jake
 CMAKE_BINARY_DIR = /home/uwb5/git/ZED2/Depthsensing_Jake/build
 
 #=============================================================================
-# Target rules for target CMakeFiles/ZED_Tutorial_3.dir
+# Target rules for target CMakeFiles/DepthsensingV1.dir
 
 # All Build rule for target.
-CMakeFiles/ZED_Tutorial_3.dir/all:
-	$(MAKE) -f CMakeFiles/ZED_Tutorial_3.dir/build.make CMakeFiles/ZED_Tutorial_3.dir/depend
-	$(MAKE) -f CMakeFiles/ZED_Tutorial_3.dir/build.make CMakeFiles/ZED_Tutorial_3.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/uwb5/git/ZED2/Depthsensing_Jake/build/CMakeFiles --progress-num=1,2 "Built target ZED_Tutorial_3"
-.PHONY : CMakeFiles/ZED_Tutorial_3.dir/all
+CMakeFiles/DepthsensingV1.dir/all:
+	$(MAKE) -f CMakeFiles/DepthsensingV1.dir/build.make CMakeFiles/DepthsensingV1.dir/depend
+	$(MAKE) -f CMakeFiles/DepthsensingV1.dir/build.make CMakeFiles/DepthsensingV1.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/uwb5/git/ZED2/Depthsensing_Jake/build/CMakeFiles --progress-num=1,2 "Built target DepthsensingV1"
+.PHONY : CMakeFiles/DepthsensingV1.dir/all
 
 # Include target in all.
-all: CMakeFiles/ZED_Tutorial_3.dir/all
+all: CMakeFiles/DepthsensingV1.dir/all
 
 .PHONY : all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/ZED_Tutorial_3.dir/rule: cmake_check_build_system
+CMakeFiles/DepthsensingV1.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/uwb5/git/ZED2/Depthsensing_Jake/build/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/ZED_Tutorial_3.dir/all
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/DepthsensingV1.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/uwb5/git/ZED2/Depthsensing_Jake/build/CMakeFiles 0
-.PHONY : CMakeFiles/ZED_Tutorial_3.dir/rule
+.PHONY : CMakeFiles/DepthsensingV1.dir/rule
 
 # Convenience name for target.
-ZED_Tutorial_3: CMakeFiles/ZED_Tutorial_3.dir/rule
+DepthsensingV1: CMakeFiles/DepthsensingV1.dir/rule
 
-.PHONY : ZED_Tutorial_3
-
-# clean rule for target.
-CMakeFiles/ZED_Tutorial_3.dir/clean:
-	$(MAKE) -f CMakeFiles/ZED_Tutorial_3.dir/build.make CMakeFiles/ZED_Tutorial_3.dir/clean
-.PHONY : CMakeFiles/ZED_Tutorial_3.dir/clean
+.PHONY : DepthsensingV1
 
 # clean rule for target.
-clean: CMakeFiles/ZED_Tutorial_3.dir/clean
+CMakeFiles/DepthsensingV1.dir/clean:
+	$(MAKE) -f CMakeFiles/DepthsensingV1.dir/build.make CMakeFiles/DepthsensingV1.dir/clean
+.PHONY : CMakeFiles/DepthsensingV1.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/DepthsensingV1.dir/clean
 
 .PHONY : clean
 

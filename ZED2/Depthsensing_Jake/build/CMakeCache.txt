@@ -140,7 +140,7 @@ CMAKE_OBJCOPY:FILEPATH=/usr/bin/objcopy
 CMAKE_OBJDUMP:FILEPATH=/usr/bin/objdump
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=ZED_Tutorial_3
+CMAKE_PROJECT_NAME:STATIC=DepthsensingV1
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/usr/bin/ranlib
@@ -331,6 +331,12 @@ CUDA_npps_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libnpps.so
 
 //Path to a library.
 CUDA_rt_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/librt.so
+
+//Value Computed by CMake
+DepthsensingV1_BINARY_DIR:STATIC=/home/uwb5/git/ZED2/Depthsensing_Jake/build
+
+//Value Computed by CMake
+DepthsensingV1_SOURCE_DIR:STATIC=/home/uwb5/git/ZED2/Depthsensing_Jake
 
 //Single output directory for building all executables.
 EXECUTABLE_OUTPUT_PATH:PATH=

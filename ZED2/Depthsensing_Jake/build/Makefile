@@ -111,31 +111,31 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named ZED_Tutorial_3
+# Target rules for targets named DepthsensingV1
 
 # Build rule for target.
-ZED_Tutorial_3: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 ZED_Tutorial_3
-.PHONY : ZED_Tutorial_3
+DepthsensingV1: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 DepthsensingV1
+.PHONY : DepthsensingV1
 
 # fast build rule for target.
-ZED_Tutorial_3/fast:
-	$(MAKE) -f CMakeFiles/ZED_Tutorial_3.dir/build.make CMakeFiles/ZED_Tutorial_3.dir/build
-.PHONY : ZED_Tutorial_3/fast
+DepthsensingV1/fast:
+	$(MAKE) -f CMakeFiles/DepthsensingV1.dir/build.make CMakeFiles/DepthsensingV1.dir/build
+.PHONY : DepthsensingV1/fast
 
 # target to build an object file
 main.o:
-	$(MAKE) -f CMakeFiles/ZED_Tutorial_3.dir/build.make CMakeFiles/ZED_Tutorial_3.dir/main.o
+	$(MAKE) -f CMakeFiles/DepthsensingV1.dir/build.make CMakeFiles/DepthsensingV1.dir/main.o
 .PHONY : main.o
 
 # target to preprocess a source file
 main.i:
-	$(MAKE) -f CMakeFiles/ZED_Tutorial_3.dir/build.make CMakeFiles/ZED_Tutorial_3.dir/main.i
+	$(MAKE) -f CMakeFiles/DepthsensingV1.dir/build.make CMakeFiles/DepthsensingV1.dir/main.i
 .PHONY : main.i
 
 # target to generate assembly for a file
 main.s:
-	$(MAKE) -f CMakeFiles/ZED_Tutorial_3.dir/build.make CMakeFiles/ZED_Tutorial_3.dir/main.s
+	$(MAKE) -f CMakeFiles/DepthsensingV1.dir/build.make CMakeFiles/DepthsensingV1.dir/main.s
 .PHONY : main.s
 
 # Help Target
@@ -145,7 +145,7 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
-	@echo "... ZED_Tutorial_3"
+	@echo "... DepthsensingV1"
 	@echo "... edit_cache"
 	@echo "... main.o"
 	@echo "... main.i"

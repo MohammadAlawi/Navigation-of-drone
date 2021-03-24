@@ -62,7 +62,9 @@ int main(int argc, char **argv) {
     sl::Mat image, depth, point_cloud;
 
 
-    // Define a matrix of sectors
+    // Define a matrix of sectors seems to perform ok
+    // 640x360 maximum
+    // 128x72 works
     int mat_columns = 128;
     int mat_rows = 72;
 
@@ -74,7 +76,21 @@ int main(int argc, char **argv) {
     int x = 0;
     int y = 0;
 
-    while (i < 5000) {
+    int sector_j, sector_k;
+
+    // Create or open textfile
+    ofstream write("depthdetections.txt", ios::app);
+    if (!write) {
+        cout << "Error Opening File" << endl;
+        return -1;
+        }
+
+    string currentline;
+    string startmessage = "----- Logging started -----";
+
+    write << startmessage << endl;
+
+    while (i < 500) {
 
         // A new image is available if grab() returns ERROR_CODE::SUCCESS
         if (zed.grab(runtime_parameters) == ERROR_CODE::SUCCESS) {
@@ -120,6 +136,8 @@ int main(int argc, char **argv) {
                         closestdistance = distance;
                         closest_x = x;
                         closest_y = y;
+                        sector_j = j;
+                        sector_k = k;
                         // print every shortest distance found to debug
                         //cout<<"new shortest distance found at {"<<x<<";"<<y<<"}: "<<distance<<unit<<endl;
                         }
@@ -142,8 +160,35 @@ int main(int argc, char **argv) {
                     y = y + mat_yoffset;
                     j++;
                 }
+
+            // Print a graphical representation
+            // This is a mess
+            j = 0;
+            k = 0;
+            while (j < mat_rows) {
+                // Check every row
+                if (j == sector_j) {
+                    // Check every sector on this row
+                    while (k < mat_columns) {
+                        if (k == sector_k) {
+                            cout<<"#";
+                        }
+                        else {
+                            cout<<" ";
+                        }
+                        k++;
+                        }
+                        cout<<endl;
+                    }
+                else {
+                cout<<" "<<endl;
+                }
+                j++;
+                }
+
             // Print results
             cout<<"Shortest distance found at{"<<closest_x<<";"<<closest_y<<"}: "<<closestdistance<<unit<<endl;
+            write<<"Shortest distance found at{"<<closest_x<<";"<<closest_y<<"}: "<<closestdistance<<unit<<endl;
 
             // Increment the loop
             i++;
@@ -153,6 +198,11 @@ int main(int argc, char **argv) {
     // Print image width and height
     cout<<"Image width: "<<image.getWidth()<<endl;
     cout<<"Image height: "<<image.getHeight()<<endl;
+
+    // Close file
+    string endmessage = "----- Logging ended -----";
+    write << endmessage << endl;
+    write.close();
 
     // End message
     cout<<"Exiting program"<<endl;
