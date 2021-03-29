@@ -1,0 +1,3 @@
+/home/uwb5/git/ZED2/Objectdetection_Jake/birds eye viewer/cpp/build/CMakeFiles/rebuild_cache.dir
+/home/uwb5/git/ZED2/Objectdetection_Jake/birds eye viewer/cpp/build/CMakeFiles/ZED_Object_detection_birds_eye_viewer.dir
+/home/uwb5/git/ZED2/Objectdetection_Jake/birds eye viewer/cpp/build/CMakeFiles/edit_cache.dir
