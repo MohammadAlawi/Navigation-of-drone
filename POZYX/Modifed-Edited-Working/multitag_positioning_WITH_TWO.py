@@ -154,11 +154,11 @@ if __name__ == "__main__":
 
 
     # IDs of the tags to position, add None to position the local tag as well.
-    tag_ids = [None, None]
+    tag_ids = [None, 0x6e5a]
 
     # necessary data for calibration
     anchors = [DeviceCoordinates(0x6776, 1, Coordinates(4250, 4500, 1760)),
-               DeviceCoordinates(0x6a06, 1, Coordinates(60, 270, 80)),
+               DeviceCoordinates(0x6a06, 1, Coordinates(0, 270, 80)),
                DeviceCoordinates(0x6a11, 1, Coordinates(0, 4440, 90)),
                DeviceCoordinates(0x6a2a, 1, Coordinates(0, 2180, 2050)),
                DeviceCoordinates(0x6a2d, 1, Coordinates(6840, 0, 1700)),
