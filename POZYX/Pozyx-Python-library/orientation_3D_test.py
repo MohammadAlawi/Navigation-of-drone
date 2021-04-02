@@ -25,7 +25,7 @@ from pypozyx.definitions.bitmasks import POZYX_INT_MASK_IMU
 from pythonosc.osc_message_builder import OscMessageBuilder
 from pythonosc.udp_client import SimpleUDPClient
 
-from pypozyx.tools.version_check import perform_latest_version_check
+#from pypozyx.tools.version_check import perform_latest_version_check
 
 
 class Orientation3D(object):
@@ -47,11 +47,22 @@ class Orientation3D(object):
         """Gets new IMU sensor data"""
         sensor_data = SensorData()
         calibration_status = SingleRegister()
+
+	
         if self.remote_id is not None or self.pozyx.checkForFlag(POZYX_INT_MASK_IMU, 0.01) == POZYX_SUCCESS:
             status = self.pozyx.getAllSensorData(sensor_data, self.remote_id)
             status &= self.pozyx.getCalibrationStatus(calibration_status, self.remote_id)
             if status == POZYX_SUCCESS:
                 self.publishSensorData(sensor_data, calibration_status)
+"""Prints the Pozyx's position and possibly sends it as a OSC packet"""
+	    if network_id is None:
+		network_id = 0
+	    s = "POS ID: {}, x(mm): {}, y(mm): {}, z(mm): {}".format("0x%0.4x" % network_id,
+		                                            orientation.x,orientation.y, position.z)
+	    print(s)
+		if self.osc_udp_client is not None:
+		    self.osc_udp_client.send_message(
+		        "/position", [network_id, position.x, position.y, position.z])
 
     def publishSensorData(self, sensor_data, calibration_status):
         """Makes the OSC sensor data package and publishes it"""
@@ -87,10 +98,10 @@ class Orientation3D(object):
 
 
 if __name__ == '__main__':
-    # Check for the latest PyPozyx version. Skip if this takes too long or is not needed by setting to False.
-    check_pypozyx_version = True
+    '''# Check for the latest PyPozyx version. Skip if this takes too long or is not needed by setting to False.
+    check_pypozyx_version = False
     if check_pypozyx_version:
-        perform_latest_version_check()
+        perform_latest_version_check()'''
 
     # shortcut to not have to find out the port yourself
     serial_port = get_first_pozyx_serial_port()
@@ -99,7 +110,7 @@ if __name__ == '__main__':
         quit()
 
     # remote device network ID
-    remote_id = 0x6e66
+    remote_id = 0x6e5
     # whether to use a remote device. If on False, remote_id is set to None which means the local device is used
     remote = False
     if not remote:

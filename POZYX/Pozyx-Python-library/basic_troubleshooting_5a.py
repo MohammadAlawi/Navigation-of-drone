@@ -44,7 +44,7 @@ if __name__ == '__main__':
     pozyx = PozyxSerial(serial_port)
 
     # change to remote ID for troubleshooting that device
-    remote_id = 0x6e5a
+    remote_id = 0x6e5a 
 
     device_check(pozyx, remote_id)
     network_check_discovery(pozyx, remote_id)
