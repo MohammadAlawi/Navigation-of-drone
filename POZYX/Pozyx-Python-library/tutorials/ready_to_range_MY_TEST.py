@@ -102,7 +102,7 @@ if __name__ == "__main__":
         print("No Pozyx connected. Check your USB cable or your driver!")
         quit()
 
-    remote_id = 0x6a11            # the network ID of the remote device
+    remote_id = 0x6e5e            # the network ID of the remote device
     remote = False               # whether to use the given remote device for ranging
     if not remote:
         remote_id = None

@@ -288,3 +288,15 @@ sudo chmod 755 <filename>
 
 # Restart Apache2
 sudo systemctl restart apache2
+
+######################################################################################################
+
+# Flight Setup
+
+# Before flight always calibrate the compass
+# Takeoff, fly and land the drone manually first before flying it autonomusly
+# Set the remote on P-Atti mode
+
+ 
+
+

@@ -1,0 +1,3 @@
+/home/uwb5/git/ZED2/zed-examples/plane detection/cpp/build/CMakeFiles/rebuild_cache.dir
+/home/uwb5/git/ZED2/zed-examples/plane detection/cpp/build/CMakeFiles/ZED_Plane_Detection.dir
+/home/uwb5/git/ZED2/zed-examples/plane detection/cpp/build/CMakeFiles/edit_cache.dir
