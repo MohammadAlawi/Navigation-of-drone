@@ -37,19 +37,23 @@ namespace MyNameSpaceFirst                          // Namespace declaration
                 int OnlyPrivateIntegerOne;          // Private Attribute(Variable) declaration THIS IS CAN NOT BE ACCESSED OUTSIDE OF CURRENT CLASS
             public:
                 void PrintFromFirstClass(void);     // Function declaration 
-                void ~PrintFromFirstClass(void);    // Destructor is not needed this time but is here to show
+                //void ~PrintFromFirstClass(void);  // Destructor is not needed this time but is here to show
                 int PublicIntegerOne;               // Attribute(Variable) declaration
                 typedef struct MyStructOne
                 {
-                    const static int MyIntInStructOne;          // Declaration of member in struct
-                    const static int MyIntInStructTwo;          // Declaration of member in struct
-                    const static int MyIntInStructThree;        // Declaration of member in struct
+                    int MyIntInStructOne;                                   // Declaration of member in struct THIS CAN BE READ AND WRITE BY SOURCE FILE
+                    int MyIntInStructTwo = 2222;                            // Declaration of member in struct THIS CAN BE READ AND WRITE BY SOURCE FILE
+                    const static int MyIntInStructThree = 3;                // Declaration of member in struct THIS CAN ONLY BE READ AND NEED TO BE DEFINED IN HEADER ONLY
+                    char MyIntInStructFour = 'C';                           // Declaration of member in struct THIS CAN BE READ AND WRITE BY SOURCE FILE
+                    float MyIntInStructFive = 3.1456785;                    // Declaration of member in struct THIS CAN BE READ AND WRITE BY SOURCE FILE
+                    char MyIntInStructSix[10] = "MMMMOO";                   // Declaration of member in struct THIS CAN ONLY BE READ AND NEED TO BE DEFINED IN HEADER ONLY
+
                 }MyStructOne;
                 enum MyEnumOne                      // Enum declaration
                 {
-                    MyEnumMemberOne,                // Enum member declaration
-                    MyEnumMemberTwo                 // Enum member declaration
-                }
+                    MyEnumMemberOne = 1,            // Enum member declaration
+                    MyEnumMemberTwo = 2             // Enum member declaration
+                };
         };
         class MyClassTwo                            // Class declaration
         {
@@ -57,9 +61,9 @@ namespace MyNameSpaceFirst                          // Namespace declaration
                 float OnlyPrivateFloatTwo;          // Private Attribute(Variable) declaration THIS IS CAN NOT BE ACCESSED OUTSIDE OF CURRENT CLASS
             public:
                 void PrintFromSecondClass(void);    // Method(Function) declaration
-                void ~PrintFromSecondClass(void);   // Destructor is not needed this time but is here to show
+                //void ~PrintFromSecondClass(void); // Destructor is not needed this time but is here to show
                 int PublicIntegerTwo;               // Attribute(Variable) declaration
         };
     }
 }
-endif                                               // Guards
+#endif                                               // Guards

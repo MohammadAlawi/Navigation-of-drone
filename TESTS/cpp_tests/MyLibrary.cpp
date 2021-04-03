@@ -17,15 +17,17 @@
 using namespace MyNameSpaceFirst;                                   // Namespace definition
 using namespace MyNameSpaceFirst::MyNameSpaceSecond;                // Namespace definition
 
+MyClassOne::MyStructOne InstanceStructOneInLibrary;                 // Create instance of typedef struct
+MyClassOne::MyEnumOne InstanceEnumOne;                              // Create instance of typedef enum
+
 void MyClassOne::PrintFromFirstClass(void)                          // Method(function) definition
-{                                                                   // Method(function) definition
-    std::cout << "This is print from first class" << std::endl;     // Method(function) definition
-}                                                                   // Method(function) definition
+{                                                                   
+    std::cout << "This is print from first class" << std::endl;     
+              
+}                                                                   
 
-MyClassOne::MyStructOne::MyIntInStructOne = 1;                      // Attribute(variable) definition
-MyClassOne::MyStructOne::MyIntInStructTwo = 2;                      // Attribute(variable) definition
 
-MyClassOne::MyEnumOne::MyEnumMemberOne = 10;                        // Attribute(variable) definition
-MyClassOne::MyEnumOne::MyEnumMemberTwo = 20;                        // Attribute(variable) definition
+
+
 
 
