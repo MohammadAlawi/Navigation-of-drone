@@ -1,0 +1,171 @@
+// Workflow when writing C++ program
+// 1. Create header file for library/class you are going to use
+// 2. Create source file for library/class you are going to use
+// 3. Create main program file and include header file that you are going to use
+
+*************************************************************************************************
+
+// Including libraries
+
+Use #include <someheader.h> for header files in system locations.
+Use #include "someheader.h" for header files in defined locations.
+#include "someheader.h" would try to include the file someheader.h in the directory of your .cpp file.
+
+*************************************************************************************************
+
+// Car is object
+//	Car has attributes(variables) such as weight and color == Class members
+//	Car has methods(functions) such as drive() and brake() == Class members
+// Class is object constructor or blueprint
+// Use class to make an object
+
+// Good example of constructor and destructor
+// spec1_destructors.cpp
+#include <string>
+
+class String {
+public:
+   String( char *ch );  // Declare constructor
+   ~String();           //  and destructor.
+private:
+   char    *_text;
+   size_t  sizeOfText;
+};
+
+// Define the constructor.
+String::String( char *ch ) {
+   sizeOfText = strlen( ch ) + 1;
+
+   // Dynamically allocate the correct amount of memory.
+   _text = new char[ sizeOfText ];
+
+   // If the allocation succeeds, copy the initialization string.
+   if( _text )
+      strcpy_s( _text, sizeOfText, ch );
+}
+
+// Define the destructor.
+String::~String() {
+   // Deallocate the memory that was previously reserved
+   //  for this string.
+   delete[] _text;
+}
+
+int main() {
+   String str("The piper in the glen...");
+} 
+
+*************************************************************************************************
+
+// new and delete (for allocating memory)
+// new operator initializes the memory and returns the address of the newly allocated and
+// initialized memory to the pointer variable.
+pointer-variable = new data-type;
+// or
+pointer-variable = new data-type(value);
+
+*************************************************************************************************
+
+// this pointer
+// The this pointer holds the address of current object, in simple words you can say 
+// that this pointer points to the current object of the class. 
+
+#include <iostream>
+using namespace std;
+class Demo {
+private:
+  int num;
+  char ch;
+public:
+  void setMyValues(int num, char ch){
+    this->num =num;
+    this->ch=ch;
+  }
+  void displayMyValues(){
+    cout<<num<<endl;
+    cout<<ch;
+  }
+};
+int main(){
+  Demo obj;
+  obj.setMyValues(100, 'A');
+  obj.displayMyValues();
+  return 0;
+}
+
+OUTPUT: 
+100
+A
+
+// Chaining call using pointer (this is complicated and should be avoided)
+
+#include <iostream>
+using namespace std;
+class Demo {
+private:
+  int num;
+  char ch;
+public:
+  Demo &setNum(int num){
+    this->num =num;
+    return *this;
+  }
+  Demo &setCh(char ch){
+    this->num++;
+    this->ch =ch;
+    return *this;
+  }
+  void displayMyValues(){
+    cout<<num<<endl;
+    cout<<ch;
+  }
+};
+int main(){
+  Demo obj;
+  //Chaining calls
+  obj.setNum(100).setCh('A');
+  obj.displayMyValues();
+  return 0;
+}
+
+OUTPUT:
+101
+A
+
+*************************************************************************************************
+
+// -> pointer
+// a->b means (*a).b.
+// If a is a pointer, a->b is the member b of which a points to.
+// It is a Member access operator. To put it simply "->" allows access to member 
+// variables of a structure, class or union data type.
+
+// Example
+struct Person
+{
+	string name;
+	int age;
+};
+
+Person *Bob = new Person;
+Bob -> age = 21;
+
+// Example
+// The real reason for its inclusion its that in certain programs, 
+// it’s very common to have linked-list and tree structures, such as this:
+
+struct Node { 
+   int val; 
+   Node *next; 
+} *root; 
+
+// Given such a definition, it’s common to reference the next node in the list, 
+// and the next after that, etc., so that you might have code like this:
+
+root->next->next->val = 100;
+// following means same
+(*(*(*root).next).next).val = 100; 
+
+
+
+
