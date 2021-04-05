@@ -67,9 +67,13 @@ int main(int argc, char **argv) {
     char text_rotation[MAX_CHAR];
     char text_translation[MAX_CHAR];
 
+    // define filepath for area file
+    sl::String areafile = "/home/uwb5/git/ZED2/Positionaltracking_Jake/cpp/areafiles/input.area";
+
     // Set parameters for Positional Tracking
     PositionalTrackingParameters positional_tracking_param;
     positional_tracking_param.enable_area_memory = true;
+    positional_tracking_param.area_file_path = areafile;
     // enable Positional Tracking
     returned_state = zed.enablePositionalTracking(positional_tracking_param);
     if (returned_state != ERROR_CODE::SUCCESS) {
@@ -109,7 +113,7 @@ int main(int argc, char **argv) {
                 // Timestamp is only since last image, not since last successful position
                 cout << "Position updated [";
                 cout << camera_path.timestamp.getMilliseconds() - lasttimestamp.getMilliseconds();
-                cout << " ms]"<<endl;
+                cout << " ms] "<< "Confidence: ["<<camera_path.pose_confidence<<"]"<<endl;
                 cout << "translation: "<< text_translation << endl;
                 cout << "rotation "<< text_rotation << endl;
             }
@@ -130,6 +134,13 @@ int main(int argc, char **argv) {
             sleep_ms(1);
     }
 
+    // Export the spatial memory for future sessions
+    zed.saveAreaMap("/home/uwb5/git/ZED2/Positionaltracking_Jake/cpp/areafiles/output.area"); // The actual file will be created asynchronously.
+    cout << "Saving area file - "<<zed.getAreaExportState() << endl;
+    // the function seems to output success even if no file is created/modified
+    // Make sure there is enough tracked data to create file
+
+    // zed.close should already disable this
     zed.disablePositionalTracking();
 
     //zed.disableRecording();

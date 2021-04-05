@@ -1,0 +1,442 @@
+// Workflow when writing C++ program
+// 1. Create header file for library/class you are going to use
+// 2. Create source file for library/class you are going to use
+// 3. Create main program file and include header file that you are going to use
+
+*************************************************************************************************
+// Including libraries
+
+Use #include <someheader.h> for header files in system locations.
+Use #include "someheader.h" for header files in defined or local locations.
+#include "someheader.h" would try to include the file someheader.h in the directory of your .cpp file.
+
+*************************************************************************************************
+OBJECTS
+
+// Car is object
+//	Car has attributes(variables) such as weight and color == Class members
+//	Car has methods(functions) such as drive() and brake() == Class members
+// Class is object constructor or blueprint
+// Use class to make an object
+
+// Good example of constructor and destructor
+// spec1_destructors.cpp
+#include <string>
+
+class String {
+public:
+   String( char *ch );  // Declare constructor
+   ~String();           //  and destructor.
+private:
+   char    *_text;
+   size_t  sizeOfText;
+};
+
+// Define the constructor.
+String::String( char *ch ) {
+   sizeOfText = strlen( ch ) + 1;
+
+   // Dynamically allocate the correct amount of memory.
+   _text = new char[ sizeOfText ];
+
+   // If the allocation succeeds, copy the initialization string.
+   if( _text )
+      strcpy_s( _text, sizeOfText, ch );
+}
+
+// Define the destructor.
+String::~String() {
+   // Deallocate the memory that was previously reserved
+   //  for this string.
+   delete[] _text;
+}
+
+int main() {
+   String str("The piper in the glen...");
+} 
+
+*************************************************************************************************
+// NEW and DELETE (for allocating memory)
+
+// new operator initializes the memory and returns the address of the newly allocated and
+// initialized memory to the pointer variable.
+pointer-variable = new data-type;
+// or
+pointer-variable = new data-type(value);
+// or Example
+// Dynamically allocate the correct amount of memory.
+char    *_text;
+size_t  sizeOfText;
+String::String( char *ch ) {
+sizeOfText = strlen( ch ) + 1;
+
+_text = new char[ sizeOfText ];
+
+*************************************************************************************************
+// THIS pointer
+
+// The this pointer holds the address of current object, in simple words you can say 
+// that this pointer points to the current object of the class. 
+
+#include <iostream>
+using namespace std;
+class Demo {
+private:
+  int num;
+  char ch;
+public:
+  void setMyValues(int num, char ch){
+    this->num =num;
+    this->ch=ch;
+  }
+  void displayMyValues(){
+    cout<<num<<endl;
+    cout<<ch;
+  }
+};
+int main(){
+  Demo obj;
+  obj.setMyValues(100, 'A');
+  obj.displayMyValues();
+  return 0;
+}
+
+OUTPUT: 
+100
+A
+
+// Chaining call using pointer (this is complicated and should be avoided)
+
+#include <iostream>
+using namespace std;
+class Demo {
+private:
+  int num;
+  char ch;
+public:
+  Demo &setNum(int num){
+    this->num =num;
+    return *this;
+  }
+  Demo &setCh(char ch){
+    this->num++;
+    this->ch =ch;
+    return *this;
+  }
+  void displayMyValues(){
+    cout<<num<<endl;
+    cout<<ch;
+  }
+};
+int main(){
+  Demo obj;
+  //Chaining calls
+  obj.setNum(100).setCh('A');
+  obj.displayMyValues();
+  return 0;
+}
+
+// OUTPUT:
+// 101
+// A
+
+*************************************************************************************************
+// -> Pointer use
+
+// a->b means (*a).b.
+// If a is a pointer, a->b is the member b of which a points to.
+// It is a Member access operator. To put it simply "->" allows access to member 
+// variables of a structure, class or union data type.
+
+// Example
+struct Person
+{
+	string name;
+	int age;
+};
+
+Person *Bob = new Person;
+Bob -> age = 21;
+
+// Example
+// The real reason for its inclusion its that in certain programs, 
+// it’s very common to have linked-list and tree structures, such as this:
+
+struct Node { 
+   int val; 
+   Node *next; 
+} *root; 
+
+// Given such a definition, it’s common to reference the next node in the list, 
+// and the next after that, etc., so that you might have code like this:
+
+root->next->next->val = 100;
+// following means same
+(*(*(*root).next).next).val = 100; 
+
+*************************************************************************************************
+//Struct instiation
+
+class E
+{
+public:
+    struct X
+    {
+        int v;
+    };
+
+    // 1. (a) Instantiate an 'X' within 'E':
+    X x;
+};
+
+int main()
+{
+    // 1. (b) Modify the 'x' within an 'E':
+    E e;
+    e.x.v = 9;
+
+    // 2. Instantiate an 'X' outside 'E':
+    E::X x;
+    x.v = 10;
+}
+
+
+*************************************************************************************************
+// Destructor use
+// 1. Stack -> Will do automatically
+// 2. Heap -> Need to be done manually
+
+// 1. Stack
+
+#include <iostream>
+ 
+using namespace std;
+class Line {
+   public:
+      void setLength( double len );
+      double getLength( void );
+      Line();   // This is the constructor declaration
+      ~Line();  // This is the destructor: declaration
+ 
+   private:
+      double length;
+};
+ 
+// Member functions definitions including constructor
+Line::Line(void) {
+   cout << "Object is being created" << endl;
+}
+Line::~Line(void) {
+   cout << "Object is being deleted" << endl;
+}
+void Line::setLength( double len ) {
+   length = len;
+}
+double Line::getLength( void ) {
+   return length;
+}
+
+// Main function for the program
+int main() {
+   Line line;
+ 
+   // set line length
+   line.setLength(6.0); 
+   cout << "Length of line : " << line.getLength() <<endl;
+ 
+   return 0;
+}
+
+// When the above code is compiled and executed, it produces the following result −
+// Object is being created
+// Length of line : 6
+// Object is being deleted
+
+// 2. Heap
+
+// When you create your object on the heap, you kinda need to delete your class 
+// before its destructor is called and memory is freed:
+
+int main()
+{
+  date* ob2 = new date(12); 	// ob2->day holds 12
+  delete ob2; 			// ob2's destructor will get called 				
+  return 0;			// here, after which it's memory is freed
+   				// ob2 is invalid at this point.
+}
+
+*************************************************************************************************
+// Passing as functions parameter
+
+// 1. Passing enum
+
+class CFoo
+{
+public:
+    enum Bar { baz, morp, bleep };
+    CFoo(Bar);
+};
+
+CFoo::CFoo(Bar barIn)
+{
+    barIn;
+}
+
+// 2. Passing struct
+
+#include <iostream>
+using namespace std;
+
+struct Distance
+{
+// Something
+};
+
+int main()
+{
+    	Distance *ptr, d;
+    	ptr = &d;
+	cin >> (*ptr).feet;
+    
+
+    return 0;
+}
+
+// There are Two options for this
+// Option 1
+// Passing Structure to Function Call by Value
+// When a structure is used as an argument to a function, the entire structure 
+// is passed using the standard call-by-value method. Of course, 
+// this means that any changes made to the contents of the structure 
+// inside the function to which it is passed do not affect the structure used as an argument.
+
+/* C++ Passing Structure to Function - Call by Value */
+
+#include<iostream.h>
+#include<conio.h>
+
+struct distance
+{
+	int feet;
+	int inches;
+};
+
+void prnsum(distance l1, distance l2);  // function prototype
+void main()
+{
+	clrscr();
+
+	distance length1, length2;   // two structures of type distance declared
+
+	/* Read values for length1 */
+	cout<<"Enter length 1:\n";
+	cout<<"Feet: ";
+	cin>>length1.feet;
+	cout<<"\nInches: ";
+	cin>>length1.inches;
+
+	/* Read values for length2 */
+	cout<<"\n\nEnter length 2:\n";
+	cout<<"Feet: ";
+	cin>>length2.feet;
+	cout<<"\nInches: ";
+	cin>>length2.inches;
+	prnsum(length1, length2);      // print sum of length1 and length2
+
+	getch();
+
+}     // end of main()
+
+void prnsum(distance l1, distance l2)
+{
+	distance l3;      // new structure
+	l3.feet=l1.feet+l2.feet+(l1.inches+l2.inches)/12;  // 1 feet=12 inches
+	l3.inches=(l1.inches+l2.inches)%12;
+	cout<<"\n\nTotal Feet: "<<l3.feet<<"\n";
+	cout<<"Total Inches: "<<l3.inches;
+}
+
+// Option 2
+// Passing Structure to Function Call by Reference
+// Structures can be passed by reference just as other simple types. 
+// When a structure is passed by reference the called function declares a reference 
+// for the passed structure and refers to the original structure 
+// elements through its reference. Thus, the called function works with the original values.
+
+/* C++ Passing Structure to Function
+ * Passing Structure to Function with
+ * Call by Reference Method in C++ */
+
+#include<iostream.h>
+#include<conio.h>
+
+struct distance
+{
+	int feet;
+	int inches;
+};
+
+void prnsum(distance &l1, distance &l2);  // watch the declaration
+
+void main()
+{
+	clrscr();
+
+	distance length1, length2;   // two structures of type distance declared
+
+	/* Read values for length1 */
+	cout<<"Enter Value for length 1:\n";
+	cout<<"Feet: ";
+	cin>>length1.feet;
+	cout<<"\nInches: ";
+	cin>>length1.inches;
+
+	/* Read values for length2 */
+	cout<<"\n\nEnter Value for length 2:\n";
+	cout<<"Feet: ";
+	cin>>length2.feet;
+	cout<<"\nInches: ";
+	cin>>length2.inches;
+	prnsum(length1, length2);   // print sum of length1 and length2
+
+	getch();
+}
+
+void prnsum(distance &l1, distance &l2)
+{
+	distance l3;          // new structure created
+	l3.feet=l1.feet+l2.feet+(l1.inches+l2.inches)/12;  // 1 feet=12 inches
+	l3.inches=(l1.inches+l2.inches)%12;
+	cout<<"\n\nTotal Feet: "<<l3.feet<<"\n";
+	cout<<"Total Inches: "<<l3.inches;
+}
+
+
+// For example in source file
+
+Control::flightCtrl(AdvancedCtrlData data)
+// Here AdvancedCtrlData is typedef struct and it first declares data
+// to be AdvancedCtrlData struct
+// Entire struct data is passed to function		
+{
+  if (vehicle->getFwVersion() > extendedVersionBase)
+  {
+    vehicle->protocolLayer->send(
+      0, vehicle->getEncryption(), OpenProtocolCMD::CMDSet::Control::control,
+      static_cast<void*>(&data), sizeof(AdvancedCtrlData), 500, 2, false, 1);
+  }
+  else
+  {
+    if (strcmp(vehicle->getHwVersion(), Version::M100) == 0)
+    {
+      DERROR("Advanced flight control not supported on Matrice 100!\n");
+    }
+    else
+    {
+      DERROR("This advanced Flight Control feature is only supported on newer version of firmware.\n");
+    }
+  }
+}
+
+
+
