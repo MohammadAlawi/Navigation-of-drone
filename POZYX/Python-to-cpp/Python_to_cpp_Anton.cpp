@@ -1,19 +1,11 @@
 /*
 #include <stdio.h>
 #include "python3.6/Python.h"
-=======
-#include <cstdlib>  // setenv, atoi
-#include <iostream> // cerr, cout, endl
-#include <boost/python.hpp> 
 
 struct World
 {
 	char filename[] = "testfile.py";
 	FILE* fp;
-  void set(std::string msg) { this->msg = msg; }
-  std::string greet()       { return msg;      }
-  std::string msg;
-};
 
 /// Staticly linking a Python extension for embedded Python.
 BOOST_PYTHON_MODULE(hello)
@@ -60,7 +52,6 @@ int main(int argc, char *argv[])
     // >>> result = module.fn(*args)
     python::object result = module.attr(function_name)(*python::tuple(args));
 
-<<<<<<< HEAD
 	fp = _Py_fopen(filename, "r");
 	PyRun_SimpleFile(fp, filename);
 
@@ -92,17 +83,24 @@ int main()
 {
 	CPyInstance hInstance;
 
+	PyRun_SimpleString("import sys");
+	PyRun_SimpleString("sys.path.append(\".\")");
+	
 	CPyObject pName = PyUnicode_FromString("testfile");
-	CPyObject pModule = PyImport_Import(pName);
+
+  PyRun_SimpleString("sys.path.append(os.getcwd())");
+	CPyObject pName = PyUnicode_FromString("multitag_positioning");
+
+CPyObject pModule = PyImport_Import(pName);
 
 	if(pModule)
 	{
-		CPyObject pFunc = PyObject_GetAttrString(pModule, "getInteger");
+		CPyObject pFunc = PyObject_GetAttrString(pModule, "getPosition");
 		if(pFunc && PyCallable_Check(pFunc))
 		{
 			CPyObject pValue = PyObject_CallObject(pFunc, NULL);
 
-			printf("C: getInteger() = %ld\n", PyLong_AsLong(pValue));
+			printf("C: POZYX multiposition = %s\n", PyLong_AsLong(pValue));
 		}
 		else
 		{
@@ -116,13 +114,4 @@ int main()
 	}
 
 	return 0;
-=======
-    // Print the result.
-    std::cout << python::extract<int>(result)() << std::endl;
-  }
-  catch (const python::error_already_set&)
-  {
-    PyErr_Print();
-    return 1;
-  }
 }
