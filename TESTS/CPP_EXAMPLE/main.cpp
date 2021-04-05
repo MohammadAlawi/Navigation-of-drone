@@ -1,10 +1,3 @@
-/* 
-TODO
-+ Struct pointer passing to function
-+ Makefile
-
-
-*/
 // Example of main source file
 // Library Source file must have
 // 1. Includes
@@ -13,8 +6,11 @@ TODO
 // 4. Calling object methods(functions) and writing or reading attributtes(variables)
 
 // Includes
-#include "MyLibrary.hpp"
-
+#include "MyLibrary.hpp"                                                                        // My library inclusion
+#include </usr/local/zed/include/sl/CameraUnderTest.hpp>                                        // ****ZED library inclusion (INSTALLED LIBRARY)
+#include "logging_sample.hpp"               // ****DJI OSDK library inclusion (CLONED LIBRARY)
+using namespace sl;                                                                             // ****Namespace definition for ZED library 
+using namespace DJI::OSDK;                                                                      // ****Namespace definition for DJI OSDK library
 using namespace MyNameSpaceFirst;                                                               // Namespace definition (OPTIONAL)
 using namespace MyNameSpaceFirst::MyNameSpaceSecond;                                            // Namespace definition (OPTIONAL)
 MyClassOne::MyStructOne InstanceStructOne;                                                      // Create instance of struct (utilizing namespace)
@@ -24,7 +20,7 @@ MyControlClass::ControlEnum controlenummain;                                    
 
 int main()                                                                                      // Main function definition without arguments ARGUMENTS ARE OPTIONAL
 {                                                                                               // THIS MEANS when running program ./main argument1 argument2
-    MyClassOne MyInstanceClassOne;                                                              // Create instance of class from the library
+    MyClassOne MyInstanceClassOne;                                                              // Create instance(object) of class from the library
     MyInstanceClassOne.PrintFromFirstClass();                                                   // Call function of class form the library
     InstanceStructOne.MyIntInStructOne = 88;                                                    // Overwrite value for member of struct in class
     std::cout << "MyIntInStructOne = " <<InstanceStructOne.MyIntInStructOne<< std::endl;        // Access to struct
@@ -35,9 +31,51 @@ int main()                                                                      
     std::cout << "MyIntInStructSix = " <<InstanceStructOne.MyIntInStructSix<< std::endl;        // Access to struct
     std::cout << "MyEnum = " <<MyClassOne::MyEnumOne::MyEnumMemberOne<< std::endl;              // Access to enum (CAN BE DONE DIRECTLY)
 
-    MyControlClass MyInstanceControlClass;                                                                                                          // Create instance of class from library
+    MyControlClass MyInstanceControlClass;                                                                                                          // Create instance(object) of class from library
     int VariableToBePointedAt = 9;                                                                                                                  // Create variable to be passed to function
     MyInstanceControlClass.FunctionThatTakesPointerVariableAndStructAndEnumAsParameter(&VariableToBePointedAt, controlstructmain, controlenummain); // Call function
 
+    //*********************************************************************************************************************************************
+    // ZED integration
+    
+    sl::Camera zed;                                                                                 // Create instance(object) of class from the ZED library
+
+    ERROR_CODE returned_state = zed.open();                                                     // Open the camera
+    if (returned_state != ERROR_CODE::SUCCESS) {
+        std::cout << "Error " << returned_state << ", exit program.\n";
+        return EXIT_FAILURE;
+    }
+    auto camera_infos = zed.getCameraInformation();                                             // Get camera information (ZED serial number)
+    printf("Hello! This is my serial number: %d\n", camera_infos.serial_number);
+    zed.close();                                                                                // Close the camera
+    
+    //*********************************************************************************************************************************************
+    // DJI OSDK integration
+
+    DSTATUS("Logging is completely independent of DJI::OSDK::Vehicle.");
+    DSTATUS("In this example, we don't instantiate a Vehicle at all.\n");
+    // Display interactive prompt
+    std::cout
+    << "| Available commands:                                            |"
+    << std::endl;
+    std::cout
+    << "| [a] Logging Example                                            |"
+    << std::endl;
+    char inputChar;
+    std::cin >> inputChar;
+    switch (inputChar)
+    {
+    case 'a':
+        // Waypoint call
+        dynamicLoggingControlExample();
+        break;
+        default:
+        break;
+    }
+
+
+
+
+    //*********************************************************************************************************************************************
     return 0;
 }

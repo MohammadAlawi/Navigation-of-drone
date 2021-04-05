@@ -59,4 +59,3 @@ void MyControlClass::FunctionThatTakesPointerVariableAndStructAndEnumAsParameter
     std::cout << "ControlEnumOne = " <<ControlEnum::ControlEnumOne<< std::endl;                                 // Printing
     std::cout << "ControlEnumTwo = " <<ControlEnum::ControlEnumTwo<< std::endl;                                 // Printing
 }
-

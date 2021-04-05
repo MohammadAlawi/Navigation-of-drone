@@ -80,8 +80,6 @@ namespace MyNameSpaceFirst                          // Namespace declaration
                 ControlEnumOne = 1,                                     // Member declaration in enum
                 ControlEnumTwo = 2                                      // Member declaration in enum
             }ControlEnum;
-            //void FunctionThatTakesPointerVariableAndStructAndEnumAsParameter(int *ControlPointer, ControlStruct controlstruct, ControlEnum controlenum);      // Method(Function) declaration
-            //void FunctionThatTakesPointerVariableAndStructAndEnumAsParameter(int *ControlPointer);
             void FunctionThatTakesPointerVariableAndStructAndEnumAsParameter(int *ControlPointer, ControlStruct controlstruct, ControlEnum controlenum);
         };
     }
