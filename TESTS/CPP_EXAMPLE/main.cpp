@@ -7,19 +7,21 @@
 
 // Includes
 #include "MyLibrary.hpp"                                                                        // My library inclusion
-#include </usr/local/zed/include/sl/CameraUnderTest.hpp>                                        // ****ZED library inclusion (INSTALLED LIBRARY)
-#include "logging_sample.hpp"               // ****DJI OSDK library inclusion (CLONED LIBRARY)
+/*
+ZED Integration
+#include <Camera.hpp>                                                                           // ****ZED library inclusion (INSTALLED LIBRARY)
 using namespace sl;                                                                             // ****Namespace definition for ZED library 
-using namespace DJI::OSDK;                                                                      // ****Namespace definition for DJI OSDK library
+*/
 using namespace MyNameSpaceFirst;                                                               // Namespace definition (OPTIONAL)
 using namespace MyNameSpaceFirst::MyNameSpaceSecond;                                            // Namespace definition (OPTIONAL)
 MyClassOne::MyStructOne InstanceStructOne;                                                      // Create instance of struct (utilizing namespace)
-MyClassOne::MyEnumOne myenumone;
+MyClassOne::MyEnumOne myenumone;                                                                // Create instance of enum (utilizing namespace)
 MyControlClass::ControlStruct controlstructmain;                                                // Create instance of struct (utilizing namespace)
 MyControlClass::ControlEnum controlenummain;                                                    // Create instance of enum (utilizing namespace)
 
 int main()                                                                                      // Main function definition without arguments ARGUMENTS ARE OPTIONAL
 {                                                                                               // THIS MEANS when running program ./main argument1 argument2
+    
     MyClassOne MyInstanceClassOne;                                                              // Create instance(object) of class from the library
     MyInstanceClassOne.PrintFromFirstClass();                                                   // Call function of class form the library
     InstanceStructOne.MyIntInStructOne = 88;                                                    // Overwrite value for member of struct in class
@@ -37,8 +39,8 @@ int main()                                                                      
 
     //*********************************************************************************************************************************************
     // ZED integration
-    
-    sl::Camera zed;                                                                                 // Create instance(object) of class from the ZED library
+    /*
+    sl::Camera zed;                                                                             // Create instance(object) of class from the ZED library
 
     ERROR_CODE returned_state = zed.open();                                                     // Open the camera
     if (returned_state != ERROR_CODE::SUCCESS) {
@@ -48,33 +50,9 @@ int main()                                                                      
     auto camera_infos = zed.getCameraInformation();                                             // Get camera information (ZED serial number)
     printf("Hello! This is my serial number: %d\n", camera_infos.serial_number);
     zed.close();                                                                                // Close the camera
-    
+    */
     //*********************************************************************************************************************************************
-    // DJI OSDK integration
-
-    DSTATUS("Logging is completely independent of DJI::OSDK::Vehicle.");
-    DSTATUS("In this example, we don't instantiate a Vehicle at all.\n");
-    // Display interactive prompt
-    std::cout
-    << "| Available commands:                                            |"
-    << std::endl;
-    std::cout
-    << "| [a] Logging Example                                            |"
-    << std::endl;
-    char inputChar;
-    std::cin >> inputChar;
-    switch (inputChar)
-    {
-    case 'a':
-        // Waypoint call
-        dynamicLoggingControlExample();
-        break;
-        default:
-        break;
-    }
-
-
-
+    // POZYX integration
 
     //*********************************************************************************************************************************************
     return 0;

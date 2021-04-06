@@ -6,11 +6,7 @@ sudo ./mainProgram
 
 
 # ZED Integration
-sudo g++ main.cpp MyLibrary.cpp -o ZED_Tutorial_1_IntegrationAndDjiOsdkLogging1 -std=c++11 -pthread -g -O0 -g -O2 -g -DNDEBUG -L/usr/local/zed/lib -Wl,-rpath,/usr/local/zed/lib:/usr/local/cuda/lib64 /usr/local/zed/lib/libsl_zed.so -lopenblas -lusb-1.0 -lcuda /usr/local/cuda/lib64/libcudart.so /home/uwb6/DJIOSDK/Onboard-SDK/build/libs/libdjiosdk-core.a -lpthread -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/api/inc/
+sudo g++ main.cpp MyLibrary.cpp -o ZED_Integration -std=c++11 -pthread -O2 -g -DNDEBUG -L/usr/local/zed/lib -Wl,-rpath,/usr/local/zed/lib:/usr/local/cuda/lib64 /usr/local/zed/lib/libsl_zed.so -lopenblas -lusb-1.0 -lcuda /usr/local/cuda/lib64/libcudart.so -lpthread -I/usr/local/zed/include/sl -I/usr/local/cuda/include
 
 # DJI OSDK Integration 
-sudo g++ main.cpp MyLibrary.cpp logging_sample.cpp -o ZED_Tutorial_1_IntegrationAndDjiOsdkLogging3 -std=c++11 -pthread -g -O0 -g -O2 -g -DNDEBUG -L/usr/local/zed/lib -Wl,-rpath,/usr/local/zed/lib:/usr/local/cuda/lib64 /usr/local/zed/lib/libsl_zed.so -lopenblas -lusb-1.0 -lcuda /usr/local/cuda/lib64/libcudart.so -L/home/uwb6/DJIOSDK/Onboard-SDK/build/libs -lpthread -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/api/inc/ -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/protocol/inc -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/hal/inc -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/utility/inc -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/platform/linux/inc -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/modules/inc/payload -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/modules/inc/flight -I/home/uwb6/DJIOSDK/Onboard-SDK/sample/platform/linux/common
-
--I/home/uwb6/DJIOSDK/Onboard-SDK/sample/platform/linux/common
-
--I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/modules/inc/flight
+sudo g++ main.cpp MyLibrary.cpp logging_sample.cpp -o ZED_Tutorial_1_IntegrationAndDjiOsdkLogging3 -std=c++11 -pthread -g -O0 -g -O2 -g -DNDEBUG -L/usr/local/zed/lib -Wl,-rpath,/usr/local/zed/lib:/usr/local/cuda/lib64 /usr/local/zed/lib/libsl_zed.so -lopenblas -lusb-1.0 -lcuda /usr/local/cuda/lib64/libcudart.so -L/home/uwb6/DJIOSDK/Onboard-SDK/build/libs -lpthread -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/api/inc/ -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/protocol/inc -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/hal/inc -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/utility/inc -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/platform/linux/inc -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/modules/inc/payload -I/home/uwb6/DJIOSDK/Onboard-SDK/osdk-core/modules/inc/flight -I/home/uwb6/DJIOSDK/Onboard-SDK/sample/platform/linux/common -I/home/uwb6/DJIOSDK/Onboard-SDK/sample/platform/linux/logging 
