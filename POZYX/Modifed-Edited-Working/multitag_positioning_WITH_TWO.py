@@ -18,6 +18,7 @@ from pythonosc.udp_client import SimpleUDPClient
 
 from pypozyx.tools.version_check import perform_latest_version_check
 
+import numpy as np
 
 class MultitagPositioning(object):
     """Continuously performs multitag positioning"""
@@ -68,12 +69,34 @@ class MultitagPositioning(object):
                 #print("HELLOOO")
                 self.printPublishErrorCode("positioning", tag_id)
 
+    def loopp(self):
+        """Performs positioning and prints the results. This piece of code added and for two tags comparience"""
+        tag_1 = tag_ids[0]
+        position1 = Coordinates()
+        status1 = self.pozyx.doPositioning(
+            position1, self.dimension, self.height, self.algorithm, remote_id=tag_1)
+
+        tag_2 = tag_ids[1]
+        position2 = Coordinates()
+        status2 = self.pozyx.doPositioning(
+            position2, self.dimension, self.height, self.algorithm, remote_id=tag_2)
+        
+        '''differentiation of x, y, z between tag1 and tag2'''
+        position_x = position1.x-position2.x
+        position_y = position1.y-position2.y
+        position_z = position1.z-position2.z
+        if status1 == POZYX_SUCCESS and status2 == POZYX_SUCCESS:
+            s = "x(mm): {}, y(mm): {}, z(mm): {}".format("%0.f" % position_x, position_y, position_z)
+            print(s)
+        else:
+            self.printPublishErrorCode("positioning", tag_1, tag_2)
+
     def printPublishPosition(self, position, network_id):
         """Prints the Pozyx's position and possibly sends it as a OSC packet"""
         if network_id is None:
             network_id = 0
         s = "POS ID: {}, x(mm): {}, y(mm): {}, z(mm): {}".format("0x%0.4x" % network_id,
-                                                                 position.x, position.y, position.z)
+                                                                 position_x, position_y, position_z)
         print(s)
         if self.osc_udp_client is not None:
             self.osc_udp_client.send_message(
@@ -181,4 +204,5 @@ if __name__ == "__main__":
                             algorithm, dimension, height)
     r.setup()
     while True:
-        r.loop()
+        r.loopp()
+	
