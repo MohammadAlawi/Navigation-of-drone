@@ -297,6 +297,33 @@ sudo systemctl restart apache2
 # Takeoff, fly and land the drone manually first before flying it autonomusly
 # Set the remote on P-Atti mode
 
+######################################################################################################
+
+# To Edit, Build & Execute MAIN program
+# 1. From MAIN directory copy all files to your MAIN diretory
+# /home/YOURUWB/YOURDJIFOLDER/Onboard-SDK/sample/platform/linux/flight-control
+# copy and replace with your current files. 
+# Before copying make sure that you have backup 
+# from your previous all files to avoid issues.
+# 2. Make sure that there are no compiler issues:
+
+# Go to YOURDJIFOLDER/Onboard-SDK/build
+cd /home/YOURUWB/YOURDJIFOLDER/Onboard-SDK/build
+
+# Run compiler
+sudo make
+
+# If problems occour:
+# 2.1. Check CMakeLists.txt file in directory (compare to files in CMAKE folder in git)
+# /home/YOURUWB/YOURDJIFOLDER/Onboard-SDK/sample/platform/linux/flight-control
+# 2.2 Check CMakeCache.txt file in directory (compare to files in CMAKE folder in git)
+# /home/YOURUWB/YOURDJIFOLDER/Onboard-SDK/build
+
+# 3. To edit codes go to source file directory
+cd /home/YOURUWB/YOURDJIFOLDER/Onboard-SDK/sample/platform/linux/flight-control
+
+# 4. Edit codes with your text editor or IDE
+
  
 
 
