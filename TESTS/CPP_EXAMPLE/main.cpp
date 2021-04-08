@@ -58,6 +58,10 @@ int main(int argc, char** argv) {
   std::cout << "MyIntInStructSix = " <<InstanceStructOne.MyIntInStructSix<< std::endl;        // Access to struct
   std::cout << "MyEnum = " <<MyClassOne::MyEnumOne::MyEnumMemberOne<< std::endl;              // Access to enum (CAN BE DONE DIRECTLY)
 
+  MyControlClass MyInstanceControlClass;                                                                                                          // Create instance of class from library
+  int VariableToBePointedAt = 9;                                                                                                                  // Create variable to be passed to function
+  MyInstanceControlClass.FunctionThatTakesPointerVariableAndStructAndEnumAsParameter(&VariableToBePointedAt, controlstructmain, controlenummain); // Call function
+
   //*********************************************************************************************************************************************
   // OSDK integration
   
