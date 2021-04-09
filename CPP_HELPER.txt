@@ -599,7 +599,7 @@ int main()
 
 
 
-
+*************************************************************************************************
 // Template
 
 // There is no difference between using <typename T> vs. <class T>;
@@ -696,6 +696,19 @@ T TestTemp<T>::Getalue()
 }
 
 
+*************************************************************************************************
+// Class pointers
+
+// Class pointer has been declared by 
+Vehicle *vehicle;
+// Control pointer has been declared by
+Control *control;
+
+
+
+vehicle->control->positionAndYawCtrl(xCmd, yCmd, zCmd,
+                                         yawDesiredRad / DEG2RAD);
+// This means
 
 
 
