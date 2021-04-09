@@ -1,24 +1,19 @@
-<<<<<<< HEAD
 /*
 #include <stdio.h>
 #include "python3.6/Python.h"
 =======
 #include <cstdlib>  // setenv, atoi
 #include <iostream> // cerr, cout, endl
-#include <boost/python.hpp>
->>>>>>> 4eae5912adff5331964cb35ee083eaa0c484d9df
+#include <boost/python.hpp> 
 
 struct World
 {
-<<<<<<< HEAD
 	char filename[] = "testfile.py";
 	FILE* fp;
-=======
   void set(std::string msg) { this->msg = msg; }
   std::string greet()       { return msg;      }
   std::string msg;
 };
->>>>>>> 4eae5912adff5331964cb35ee083eaa0c484d9df
 
 /// Staticly linking a Python extension for embedded Python.
 BOOST_PYTHON_MODULE(hello)
@@ -130,7 +125,4 @@ int main()
     PyErr_Print();
     return 1;
   }
-
-  // Do not call Py_Finalize() with Boost.Python.
->>>>>>> 4eae5912adff5331964cb35ee083eaa0c484d9df
 }
