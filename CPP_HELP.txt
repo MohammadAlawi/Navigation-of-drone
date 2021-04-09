@@ -1,0 +1,5 @@
+// When calling function from another library
+// Define object with a name and put this outside main function
+DJI::OSDK::Control object_for_control;
+// Then call specific function with that object name
+object_for_control.positionAndYawCtrl(2,2,2,0);

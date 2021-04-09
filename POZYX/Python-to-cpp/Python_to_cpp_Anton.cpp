@@ -82,9 +82,16 @@ int main()
 int main()
 {
 	CPyInstance hInstance;
+
+	PyRun_SimpleString("import sys");
+	PyRun_SimpleString("sys.path.append(\".\")");
+	
+	CPyObject pName = PyUnicode_FromString("testfile");
+
   PyRun_SimpleString("sys.path.append(os.getcwd())");
 	CPyObject pName = PyUnicode_FromString("multitag_positioning");
-	CPyObject pModule = PyImport_Import(pName);
+
+CPyObject pModule = PyImport_Import(pName);
 
 	if(pModule)
 	{

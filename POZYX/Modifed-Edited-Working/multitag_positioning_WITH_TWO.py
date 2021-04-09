@@ -68,6 +68,7 @@ class MultitagPositioning(object):
             else:
                 #print("HELLOOO")
                 self.printPublishErrorCode("positioning", tag_id)
+            #sleep(0.1)
 
     def loopp(self):
         """Performs positioning and prints the results. This piece of code added and for two tags comparience"""
@@ -82,21 +83,21 @@ class MultitagPositioning(object):
             position2, self.dimension, self.height, self.algorithm, remote_id=tag_2)
         
         '''differentiation of x, y, z between tag1 and tag2'''
-        position_x = position1.x-position2.x
-        position_y = position1.y-position2.y
-        position_z = position1.z-position2.z
+        position_x = (position1.x+position2.x)/2
+        position_y = (position1.y+position2.y)/2
+        position_z = ((position1.z+15)+position2.z)/2
         if status1 == POZYX_SUCCESS and status2 == POZYX_SUCCESS:
             s = "x(mm): {}, y(mm): {}, z(mm): {}".format("%0.f" % position_x, position_y, position_z)
             print(s)
         else:
-            self.printPublishErrorCode("positioning", tag_1, tag_2)
+            print ("positioning")
 
     def printPublishPosition(self, position, network_id):
         """Prints the Pozyx's position and possibly sends it as a OSC packet"""
         if network_id is None:
             network_id = 0
         s = "POS ID: {}, x(mm): {}, y(mm): {}, z(mm): {}".format("0x%0.4x" % network_id,
-                                                                 position_x, position_y, position_z)
+                                                                 position.x, position.y, position.z)
         print(s)
         if self.osc_udp_client is not None:
             self.osc_udp_client.send_message(
@@ -204,5 +205,5 @@ if __name__ == "__main__":
                             algorithm, dimension, height)
     r.setup()
     while True:
-        r.loopp()
+        r.loop()
 	
