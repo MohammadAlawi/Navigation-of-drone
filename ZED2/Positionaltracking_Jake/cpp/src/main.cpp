@@ -19,7 +19,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 /*************************************************************************
-Uses part of a ZED provided code for positional tracking and GLViewer to visualize
+Uses part of a ZED provided code for positional tracking
  **************************************************************************/
 
 // ZED includes
@@ -27,6 +27,12 @@ Uses part of a ZED provided code for positional tracking and GLViewer to visuali
 
 // Sample includes
 #include "GLViewer.hpp"
+
+// other includes
+#include <iostream>
+#include <thread>
+#include <future>
+#include <chrono>
 
 // Using std namespace
 using namespace std;
@@ -40,6 +46,8 @@ inline void setTxt(sl::float3 value, char* ptr_txt) {
 }
 
 void parseArgs(int argc, char **argv, sl::InitParameters& param);
+
+void userExit();
 
 int main(int argc, char **argv) {
 
@@ -59,9 +67,9 @@ int main(int argc, char **argv) {
     }
 
     auto camera_model = zed.getCameraInformation().camera_model;
-    GLViewer viewer;
-    // Initialize OpenGL viewer
-    viewer.init(argc, argv, camera_model);
+    //GLViewer viewer;
+    //Initialize OpenGL viewer
+    //viewer.init(argc, argv, camera_model);
 
     // Create text for GUI
     char text_rotation[MAX_CHAR];
@@ -91,7 +99,18 @@ int main(int argc, char **argv) {
     SensorsData sensors_data;
 #endif
 
-    while (viewer.isAvailable()) {
+    // create a promise and get its future
+    promise<bool>p;
+    auto future = p.get_future();
+
+    // New thread to supervise
+    thread t([&p] {
+        userExit();
+        p.set_value(true);
+        });
+
+    while(future.wait_for(0ms) != std::future_status::ready) {
+
         if (zed.grab() == ERROR_CODE::SUCCESS) {
             // Get the position of the camera in a fixed reference frame (the World Frame)
             // Get timestamp of last grab
@@ -101,7 +120,7 @@ int main(int argc, char **argv) {
 #if IMU_ONLY
             if (zed.getSensorsData(sensors_data, TIME_REFERENCE::IMAGE) == sl::ERROR_CODE::SUCCESS) {
                 setTxt(sensors_data.imu.pose.getEulerAngles(), text_rotation); //only rotation is computed for IMU
-                viewer.updateData(sensors_data.imu.pose, string(text_translation), string(text_rotation), sl::POSITIONAL_TRACKING_STATE::OK);
+                //viewer.updateData(sensors_data.imu.pose, string(text_translation), string(text_rotation), sl::POSITIONAL_TRACKING_STATE::OK);
             }
 #else
             if (tracking_state == POSITIONAL_TRACKING_STATE::OK) {
@@ -124,15 +143,18 @@ int main(int argc, char **argv) {
             }
 
             // Update rotation, translation and tracking state values in the OpenGL window
-            viewer.updateData(camera_path.pose_data, string(text_translation), string(text_rotation), tracking_state);
+            //viewer.updateData(camera_path.pose_data, string(text_translation), string(text_rotation), tracking_state);
 
 
 
 #endif
 
-        } else
+        } else  {
             sleep_ms(1);
+        }
     }
+    // join thread
+    t.join();
 
     // Export the spatial memory for future sessions
     zed.saveAreaMap("/home/uwb5/git/ZED2/Positionaltracking_Jake/cpp/areafiles/output.area"); // The actual file will be created asynchronously.
@@ -183,3 +205,13 @@ void parseArgs(int argc, char **argv, sl::InitParameters& param) {
     }
 }
 
+void userExit()  {
+    int inputchar = 0;
+    // ESC = ASCII 27, q = ASCII 113
+    while (inputchar != 27 && inputchar != 113) {
+        inputchar = getchar();
+    }
+    cout << "User terminated program" << endl;
+    // return
+
+}

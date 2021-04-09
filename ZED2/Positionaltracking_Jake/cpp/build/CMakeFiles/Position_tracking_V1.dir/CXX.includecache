@@ -35,6 +35,14 @@ sl/Camera.hpp
 -
 GLViewer.hpp
 /home/uwb5/git/ZED2/Positionaltracking_Jake/cpp/src/GLViewer.hpp
+iostream
+-
+thread
+-
+future
+-
+chrono
+-
 
 /usr/local/cuda/include/builtin_types.h
 device_types.h
