@@ -6,12 +6,12 @@
 *************************************************************************************************
 // Including libraries
 
-Use #include <someheader.h> for header files in system locations.
-Use #include "someheader.h" for header files in defined or local locations.
-#include "someheader.h" would try to include the file someheader.h in the directory of your .cpp file.
+// Use #include <someheader.h> for header files in system locations.
+// Use #include "someheader.h" for header files in defined or local locations.
+// #include "someheader.h" would try to include the file someheader.h in the directory of your .cpp file.
 
 *************************************************************************************************
-OBJECTS
+// OBJECTS
 
 // Car is object
 //	Car has attributes(variables) such as weight and color == Class members
@@ -554,6 +554,148 @@ int main()
         // a lovely elephant ;)
         Bar bar;
 }
+
+*************************************************************************************************
+// Vector use
+
+// Vectors are same as dynamic arrays with the ability to resize 
+// itself automatically when an element is inserted or deleted, with their 
+// storage being handled automatically by the container.
+// Vector is a sequential container to store elements and not index based. 
+// Array stores a fixed-size sequential collection of elements of the same type and it 
+// is index based. Vector is dynamic in nature so, size increases with insertion of elements. 
+// As array is fixed size, once initialized can't be resized.
+
+#include <iostream>
+#include <vector>
+  
+using namespace std;
+  
+int main()
+{
+    vector<int> g1;
+  
+    for (int i = 1; i <= 5; i++)
+        g1.push_back(i);
+  
+    cout << "Output of begin and end: ";
+    for (auto i = g1.begin(); i != g1.end(); ++i)
+        cout << *i << " ";
+  
+    cout << "\nOutput of cbegin and cend: ";
+    for (auto i = g1.cbegin(); i != g1.cend(); ++i)
+        cout << *i << " ";
+  
+    cout << "\nOutput of rbegin and rend: ";
+    for (auto ir = g1.rbegin(); ir != g1.rend(); ++ir)
+        cout << *ir << " ";
+  
+    cout << "\nOutput of crbegin and crend : ";
+    for (auto ir = g1.crbegin(); ir != g1.crend(); ++ir)
+        cout << *ir << " ";
+  
+    return 0;
+}
+
+
+
+
+// Template
+
+// There is no difference between using <typename T> vs. <class T>;
+
+#include <iostream>
+using namespace std;
+
+template <class T>
+class Calculator
+{
+private:
+	T num1, num2;
+	
+public:
+	Calculator(T n1, T n2)
+	{
+		num1 = n1;
+		num2 = n2;
+	}
+	
+	void displayResult()
+	{
+		cout << "Numbers are: " << num1 << " and " << num2 << "." << endl;
+		cout << "Addition is: " << add() << endl;
+		cout << "Subtraction is: " << subtract() << endl;
+		cout << "Product is: " << multiply() << endl;
+		cout << "Division is: " << divide() << endl;
+	}
+	
+	T add() { return num1 + num2; }
+	
+	T subtract() { return num1 - num2; }
+	
+	T multiply() { return num1 * num2; }
+	
+	T divide() { return num1 / num2; }
+};
+
+int main()
+{
+	Calculator<int> intCalc(2, 1);
+	Calculator<float> floatCalc(2.4, 1.2);
+	
+	cout << "Int results:" << endl;
+	intCalc.displayResult();
+	
+	cout << endl << "Float results:" << endl;
+	floatCalc.displayResult();
+	
+	return 0;
+}
+
+// Template Class Header File
+// C++
+// Copy Code
+// TestTemp.h
+#ifndef _TESTTEMP_H_
+#define _TESTTEMP_H_
+ 
+template<class T>
+class TestTemp  
+{
+ 
+public:
+ 
+    TestTemp();
+    void SetValue( T obj_i );
+    T Getalue();
+ 
+private:
+ 
+    T m_Obj;
+};
+#endif
+Template Class Source File
+C++
+Copy Code
+// TestTemp.cpp
+#include "TestTemp.h"
+ 
+template <class T>
+TestTemp<T>::TestTemp()
+{
+}
+template <class T>
+void TestTemp<T>::SetValue( T obj_i )
+{
+ 
+}
+template <class T>
+T TestTemp<T>::Getalue()
+{
+    return m_Obj;
+}
+
+
 
 
 

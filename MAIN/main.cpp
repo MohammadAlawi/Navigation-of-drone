@@ -1,4 +1,4 @@
-/*! @file flight-control/main.cpp
+/*! @file MAIN/main.cpp
  *  @version 1.0.0
  *  @date 07.04.2021
  *
@@ -8,7 +8,7 @@
 
 #include "flight_control_sample.hpp"
 #include "flight_sample.hpp"
-#include <MyLibrary.hpp>                                                                      // Local include
+#include "MyLibrary.hpp"                                                                      // Local include
 #include <Camera.hpp>                                                                         // ZED library inclusion (INSTALLED LIBRARY)
 
 using namespace sl;                                                                           // Namespace definition for ZED library 
@@ -61,6 +61,33 @@ int main(int argc, char** argv) {
   MyControlClass MyInstanceControlClass;                                                                                                          // Create instance of class from library
   int VariableToBePointedAt = 9;                                                                                                                  // Create variable to be passed to function
   MyInstanceControlClass.FunctionThatTakesPointerVariableAndStructAndEnumAsParameter(&VariableToBePointedAt, controlstructmain, controlenummain); // Call function
+
+  MyClassTwo MyInstanceClassTwo;
+
+  MyInstanceClassInControlClass.MyTemplateFunction<int>(x, y);                                                                                  // UNDER WORK
+  
+  MyClassTwo::MyVector g1;
+  
+    for (int i = 1; i <= 5; i++)
+        g1.push_back(i);
+  
+    std::cout << "Output of begin and end: ";
+    for (auto i = g1.begin(); i != g1.end(); ++i)
+        std::cout << *i << " ";
+  
+    std::cout << "\nOutput of cbegin and cend: ";
+    for (auto i = g1.cbegin(); i != g1.cend(); ++i)
+        std::cout << *i << " ";
+  
+    std::cout << "\nOutput of rbegin and rend: ";
+    for (auto ir = g1.rbegin(); ir != g1.rend(); ++ir)
+        std::cout << *ir << " ";
+  
+    std::cout << "\nOutput of crbegin and crend : ";
+    for (auto ir = g1.crbegin(); ir != g1.crend(); ++ir)
+        std::cout << *ir << " ";
+    
+   std::cout << "MyIntegerInMyClassTwo in MyClassTwo = " <<MyInstanceClassTwo.MyIntegerInMyClassTwo<< std::endl;
 
   //*********************************************************************************************************************************************
   // OSDK integration

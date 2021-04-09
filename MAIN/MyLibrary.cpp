@@ -38,6 +38,17 @@ void MyClassOne::PrintFromFirstClass(void)                          // Method(fu
 }
 
 //****************************************************************************************************************************************************
+// MyClassTwo definitions
+MyClassTwo::~MyClassTwo()                                           // Class constructor definition
+{
+    std::cout << "MyClassTwo constructor called" << std::endl;
+}
+
+MyClassTwo::MyClassTwo()                                            // Class destructor definition
+{
+    std::cout << "MyClassTwo destructor called" << std::endl;
+}
+//****************************************************************************************************************************************************
 // MyControlClass definitions
 MyControlClass::MyControlClass()                                    // Class constructor definition
 {
