@@ -82,20 +82,25 @@ int main()
 int main()
 {
 	CPyInstance hInstance;
+
 	PyRun_SimpleString("import sys");
 	PyRun_SimpleString("sys.path.append(\".\")");
 	
 	CPyObject pName = PyUnicode_FromString("testfile");
-	CPyObject pModule = PyImport_Import(pName);
+
+  PyRun_SimpleString("sys.path.append(os.getcwd())");
+	CPyObject pName = PyUnicode_FromString("multitag_positioning");
+
+CPyObject pModule = PyImport_Import(pName);
 
 	if(pModule)
 	{
-		CPyObject pFunc = PyObject_GetAttrString(pModule, "getInteger");
+		CPyObject pFunc = PyObject_GetAttrString(pModule, "getPosition");
 		if(pFunc && PyCallable_Check(pFunc))
 		{
 			CPyObject pValue = PyObject_CallObject(pFunc, NULL);
 
-			printf("C: getInteger() = %ld\n", PyLong_AsLong(pValue));
+			printf("C: POZYX multiposition = %s\n", PyLong_AsLong(pValue));
 		}
 		else
 		{
