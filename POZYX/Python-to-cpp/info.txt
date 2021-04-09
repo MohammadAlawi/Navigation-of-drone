@@ -1,6 +1,6 @@
 ## here are some steps to get it to work
 
-g++ $(python3-config --cflags) -fPIE -c Python_to_cpp_test.cpp -o test.o
+g++ $(python3-config --cflags) -fPIE -c Python_to_cpp_Anton.cpp -o test.o
 
 g++ test.o $(python3-config --ldflags) -o test
 

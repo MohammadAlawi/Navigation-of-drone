@@ -182,4 +182,5 @@ def getPosition():
                             algorithm, dimension, height)
     r.setup()
     
+    
     r.loop()

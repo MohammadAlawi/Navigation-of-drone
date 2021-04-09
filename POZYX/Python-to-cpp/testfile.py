@@ -1,4 +1,9 @@
 def getInteger():
     print('Python function getInteger() called')
-    c = 100*50/30
+    c = getNum()
+    return c
+
+
+def getNum():
+    c = 20 + 20
     return c
