@@ -176,14 +176,6 @@ root->next->next->val = 100;
 
 *************************************************************************************************
 // Struct pointer 
-// Here Vehicle* is typedef struct pointer Vehicle and it initializes vehicle and sets it to 0
-
-  Control(Vehicle* vehicle = 0);
-  ~Control();
-
-  Vehicle* vehicle;
-
-// Another example
 
 #include <stdio.h>
     
@@ -301,7 +293,7 @@ class Line {
       void setLength( double len );
       double getLength( void );
       Line();   // This is the constructor declaration
-      ~Line();  // This is the destructor: declaration
+      ~Line();  // This is the destructor declaration
  
    private:
       double length;
@@ -699,16 +691,33 @@ T TestTemp<T>::Getalue()
 *************************************************************************************************
 // Class pointers
 
-// Class pointer has been declared by 
+// Class pointer has been declared in vehicle.hpp and every other library class constructor by 
 Vehicle *vehicle;
-// Control pointer has been declared by
+// Class pointer Control pointer has been declared by
 Control *control;
+// Here in under Vehicle class in vehicle.hpp
+  OpenProtocol*        protocolLayer;
+  DataSubscription*    subscribe;
+  DataBroadcast*       broadcast;
+  Control*             control;
+  Camera*              camera;
+  Gimbal*              gimbal;
+  MFIO*                mfio;
+  MobileCommunication* moc;
+  MobileDevice*        mobileDevice;
+  MissionManager*      missionManager;
+  HardwareSync*        hardSync;
+  // Supported only on Matrice 100
+  VirtualRC* virtualRC;
+  PayloadDevice*       payloadDevice;
+  CameraManager*       cameraManager;
+  FlightController*    flightController;
+  PSDKManager*         psdkManager;
 
-
-
+// Here when calling this, the vehicle pointer points to control pointer which points to 
+// method(function) which is member of class named Control
 vehicle->control->positionAndYawCtrl(xCmd, yCmd, zCmd,
                                          yawDesiredRad / DEG2RAD);
-// This means
 
 
 

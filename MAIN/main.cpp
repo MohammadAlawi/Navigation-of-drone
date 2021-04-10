@@ -70,9 +70,18 @@ int main(int argc, char** argv) {
   MyInstanceClassTwo.PrintVectorCalculations(VectorInstanceToBePassed);                       // Call function that takes vector as parameter
   MyClassTwo::MyArray ArrayInstanceToBePassed;                                                // Create instance of array using typedef from library
   MyInstanceClassTwo.PrintArrayCalculations(ArrayInstanceToBePassed);                         // Call function that takes array as parameter
-  
   std::cout << "MyIntegerInMyClassTwo in MyClassTwo = " <<MyInstanceClassTwo.MyIntegerInMyClassTwo<< std::endl;      // Print integer from library
 
+  ClassUtilizingPointers* classutilizingpointers;                                             // Create instance of class pointer and point to class
+  classutilizingpointers->FunctionInClassUtilizingPointers();                                 // Call method(function) of class using pointers
+
+  ClassUtilizingPointers::ClassInClassUtilizingPointers* classinclassutilizingpointers;       // Create instance of class pointer and point to class
+  classinclassutilizingpointers->FunctionInClassInClassUtilizingPointers();                   // Call method(function) of class using pointers
+
+  classutilizingpointers->myclasstwo->PrintVectorCalculations(VectorInstanceToBePassed);      // Call method(function) of class using pointer from one class to other class
+  classutilizingpointers->myclassone->PrintFromFirstClass();                                  // Call method(function) of class using pointer from one class to other class
+  
+  
   //*********************************************************************************************************************************************
   // OSDK integration
   

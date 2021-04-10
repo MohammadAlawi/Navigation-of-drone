@@ -39,17 +39,17 @@ void MyClassOne::PrintFromFirstClass(void)                          // Method(fu
 
 //****************************************************************************************************************************************************
 // MyClassTwo definitions
-MyClassTwo::~MyClassTwo()                                           // Class constructor definition
+MyClassTwo::MyClassTwo()                                                                // Class constructor definition
 {
     std::cout << "MyClassTwo constructor called" << std::endl;
 }
 
-MyClassTwo::MyClassTwo()                                            // Class destructor definition
+MyClassTwo::~MyClassTwo()                                                               // Class destructor definition
 {
     std::cout << "MyClassTwo destructor called" << std::endl;
 }
 
-void MyClassTwo::PrintVectorCalculations(std::vector<int> MyVectorToBePassed)         // Method(function) defintion, passing vector to function
+void MyClassTwo::PrintVectorCalculations(std::vector<int> MyVectorToBePassed)           // Method(function) defintion, passing vector to function
 { 
     std::cout << "PrintVectorCalculations called, size of vector " <<MyVectorToBePassed.size()<< std::endl;
     for (int i = 10; i <= 16; i++)
@@ -112,4 +112,37 @@ MyControlClass::ClassInMyControlClass::~ClassInMyControlClass()                 
 void MyControlClass::ClassInMyControlClass::FunctionInClassInMyControlClass()       // Class method(function) definition
 {
     std::cout << "FunctionInClassInMyControlClass called" << std::endl;
+}
+
+//****************************************************************************************************************************************************
+// ClassUtilizingPointers definitions
+
+ClassUtilizingPointers::ClassUtilizingPointers()
+{
+    std::cout << "ClassUtilizingPointers constructor called" << std::endl;
+}
+
+ClassUtilizingPointers::~ClassUtilizingPointers()
+{
+    std::cout << "ClassUtilizingPointers destructor called" << std::endl;
+}
+
+void ClassUtilizingPointers::FunctionInClassUtilizingPointers()
+{
+    std::cout << "FunctionInClassUtilizingPointers called" << std::endl;
+}
+
+ClassUtilizingPointers::ClassInClassUtilizingPointers::ClassInClassUtilizingPointers()
+{
+    std::cout << "ClassInClassUtilizingPointers constructor called" << std::endl;
+}
+
+ClassUtilizingPointers::ClassInClassUtilizingPointers::~ClassInClassUtilizingPointers()
+{
+    std::cout << "ClassInClassUtilizingPointers destructor called" << std::endl;
+}
+
+void ClassUtilizingPointers::ClassInClassUtilizingPointers::FunctionInClassInClassUtilizingPointers()
+{
+    std::cout << "FunctionInClassInClassUtilizingPointers called" << std::endl;
 }

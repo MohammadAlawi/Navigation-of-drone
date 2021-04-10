@@ -60,7 +60,7 @@ namespace MyNameSpaceFirst                          // Namespace declaration
             private:
                 float OnlyPrivateFloatTwo;          // Private Attribute(Variable) declaration THIS IS CAN NOT BE ACCESSED OUTSIDE OF CURRENT CLASS
             public:
-                MyClassTwo();                                                       // Class Constructor declaration
+                MyClassTwo();         // Class Constructor declaration
                 ~MyClassTwo();                                                      // Class Destructor declaration
                 void PrintFromSecondClass(void);                                    // Method(Function) declaration
                 int PublicIntegerTwo;                                               // Attribute(Variable) declaration
@@ -106,6 +106,28 @@ namespace MyNameSpaceFirst                          // Namespace declaration
                 ClassInMyControlClass();                                // Class constructor declaration
                 ~ClassInMyControlClass();                               // Class destructor declaration
                 void FunctionInClassInMyControlClass();                 // Method(function) declaration
+            };
+        };
+        class ClassUtilizingPointers                                    // Class declaration
+        {
+            private:
+            // Private data here
+            public:
+            ClassUtilizingPointers();                                   // Constructor declaration
+            ~ClassUtilizingPointers();                                  // Destructor declaration
+            void FunctionInClassUtilizingPointers();                    // Method(function) declaration
+            MyClassTwo* myclasstwo;                                     // Pointer declaration from this class to other class (to access other class members using this class)
+            MyClassOne* myclassone;                                     // Pointer declaration from this class to other class (to access other class members using this class)              
+            
+            class ClassInClassUtilizingPointers                         // Class declaration
+            {
+                private:
+                // Private data here
+                public:
+                ClassInClassUtilizingPointers();                        // Constructor declaration
+                ~ClassInClassUtilizingPointers();                       // Destructor declaration
+                void FunctionInClassInClassUtilizingPointers();         // Method(function) declaration
+
             };
         };
     }
