@@ -689,7 +689,7 @@ T TestTemp<T>::Getalue()
 
 
 *************************************************************************************************
-// Class pointers
+// Class pointers in DJI
 
 // Class pointer has been declared in vehicle.hpp and every other library class constructor by 
 Vehicle *vehicle;
@@ -719,7 +719,44 @@ Control *control;
 vehicle->control->positionAndYawCtrl(xCmd, yCmd, zCmd,
                                          yawDesiredRad / DEG2RAD);
 
+*************************************************************************************************
+// Struct access in DJI
 
+// In telemetry.hpp
+namespace Telemetry
+{
+	typedef struct Quaternion
+	{
+  		float32_t q0; /*!< w */
+  		float32_t q1; /*!< x */
+  		float32_t q2; /*!< y */
+  		float32_t q3; /*!< z */
+	} Quaternion;   // pack(1)
+}
+
+// In broadcast.hpp
+Telemetry::Quaternion getQuaternion();
+
+// In broadcast.cpp
+Telemetry::Quaternion								// Quaternion is struct
+DataBroadcast::getQuaternion()							// DataBroadcast is class and getQuaternion returns struct
+{
+  Telemetry::Quaternion data;							// Create instance of struct
+  lockMSG();
+  data = q;
+  freeMSG();
+  return data;
+}
+
+// To call in main source file
+getBroadcastData(DJI::OSDK::Vehicle* vehicle, int responseTimeout)		// Remember to pass Vehicle* class pointer
+{ 			
+	Telemetry::Quaternion quaternion;					// Create instance of struct
+	quaternion = vehicle->broadcast->getQuaternion();			// Run function and return data to quaternion struct
+	std::cout << "Attitude Quaternion(w,x,y,z)= " << quaternion.q0 		// Access to struct members
+	<< ", " << quaternion.q1 << ", " << quaternion.q2 << ", "		// Access to struct members
+	<< quaternion.q3 << "\n";						// Access to struct members			
+}
 
 
 

@@ -80,7 +80,10 @@ int main(int argc, char** argv) {
 
   classutilizingpointers->myclasstwo->PrintVectorCalculations(VectorInstanceToBePassed);      // Call method(function) of class using pointer from one class to other class
   classutilizingpointers->myclassone->PrintFromFirstClass();                                  // Call method(function) of class using pointer from one class to other class
-  
+
+  TelemetryClass::Quaternion quaternion;                                                                // Create instance of struct that is going to hold returned struct data
+  quaternion = classutilizingpointers->telemetryclass->GetQuaternion();                                 // Run method(function) to get data and retunr it to struct        
+  std::cout << "Quaternion data " <<quaternion.x<<" "<<quaternion.y<<" "<<quaternion.z<< std::endl;     // Print returned struct data
   
   //*********************************************************************************************************************************************
   // OSDK integration

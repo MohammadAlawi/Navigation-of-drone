@@ -108,6 +108,23 @@ namespace MyNameSpaceFirst                          // Namespace declaration
                 void FunctionInClassInMyControlClass();                 // Method(function) declaration
             };
         };
+        class TelemetryClass
+        {
+            private:
+            // Private data here
+            public:
+            TelemetryClass();
+            ~TelemetryClass();
+
+            typedef struct Quaternion
+            {
+                float x;
+                float y;
+                float z;
+            }Quaternion;
+
+            Quaternion GetQuaternion();
+        };
         class ClassUtilizingPointers                                    // Class declaration
         {
             private:
@@ -117,7 +134,8 @@ namespace MyNameSpaceFirst                          // Namespace declaration
             ~ClassUtilizingPointers();                                  // Destructor declaration
             void FunctionInClassUtilizingPointers();                    // Method(function) declaration
             MyClassTwo* myclasstwo;                                     // Pointer declaration from this class to other class (to access other class members using this class)
-            MyClassOne* myclassone;                                     // Pointer declaration from this class to other class (to access other class members using this class)              
+            MyClassOne* myclassone;                                     // Pointer declaration from this class to other class (to access other class members using this class) 
+            TelemetryClass* telemetryclass;             
             
             class ClassInClassUtilizingPointers                         // Class declaration
             {
@@ -132,4 +150,5 @@ namespace MyNameSpaceFirst                          // Namespace declaration
         };
     }
 }
+
 #endif                                               // Guards

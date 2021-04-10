@@ -15,6 +15,7 @@
 
 using namespace MyNameSpaceFirst;                                   // Namespace definition (This is optional, classes can be accessed with full name)
 using namespace MyNameSpaceFirst::MyNameSpaceSecond;                // Namespace definition (This is optional, classes can be accessed with full name)
+//using namespace Telemetry;                                          // Namespace definition (This is optional, classes can be accessed with full name)                                     
 
 MyClassOne::MyStructOne InstanceStructOneInLibrary;                 // Create instance of typedef struct
 MyClassOne::MyEnumOne InstanceEnumOneInLibrary;                     // Create instance of enum
@@ -145,4 +146,16 @@ ClassUtilizingPointers::ClassInClassUtilizingPointers::~ClassInClassUtilizingPoi
 void ClassUtilizingPointers::ClassInClassUtilizingPointers::FunctionInClassInClassUtilizingPointers()
 {
     std::cout << "FunctionInClassInClassUtilizingPointers called" << std::endl;
+}
+
+//****************************************************************************************************************************************************
+// Telemetry definitions
+
+TelemetryClass::Quaternion TelemetryClass::GetQuaternion()                  // Quaternion is typedef struct and in this source file namespace Telemetry is not used
+{
+    TelemetryClass::Quaternion data;                         // Create instance of typedef struct
+    data.x = 1.11;                                      // Assign values to struct members
+    data.y = 2.22;                                      // Assign values to struct members
+    data.z = 3.33;                                      // Assign values to struct members
+    return data;                                        // Return struct
 }
