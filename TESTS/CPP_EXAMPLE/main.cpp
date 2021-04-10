@@ -1,6 +1,6 @@
-/*! @file flight-control/main.cpp
+/*! @file MAIN/main.cpp
  *  @version 1.0.0
- *  @date 07.04.2021
+ *  @date 10.04.2021
  *
  *  @brief
  *  Our brief
@@ -8,7 +8,7 @@
 
 #include "flight_control_sample.hpp"
 #include "flight_sample.hpp"
-#include <MyLibrary.hpp>                                                                      // Local include
+#include "MyLibrary.hpp"                                                                      // Local include
 #include <Camera.hpp>                                                                         // ZED library inclusion (INSTALLED LIBRARY)
 
 using namespace sl;                                                                           // Namespace definition for ZED library 
@@ -61,6 +61,17 @@ int main(int argc, char** argv) {
   MyControlClass MyInstanceControlClass;                                                                                                          // Create instance of class from library
   int VariableToBePointedAt = 9;                                                                                                                  // Create variable to be passed to function
   MyInstanceControlClass.FunctionThatTakesPointerVariableAndStructAndEnumAsParameter(&VariableToBePointedAt, controlstructmain, controlenummain); // Call function
+
+  MyClassTwo MyInstanceClassTwo;                                                              // Create instance(object) of class
+
+  //MyInstanceClassInControlClass.MyTemplateFunction<int>(x, y);                              // UNDER WORK
+  
+  MyClassTwo::MyVector VectorInstanceToBePassed;                                              // Create instance of vector using typedef from library
+  MyInstanceClassTwo.PrintVectorCalculations(VectorInstanceToBePassed);                       // Call function that takes vector as parameter
+  MyClassTwo::MyArray ArrayInstanceToBePassed;                                                // Create instance of array using typedef from library
+  MyInstanceClassTwo.PrintArrayCalculations(ArrayInstanceToBePassed);                         // Call function that takes array as parameter
+  
+  std::cout << "MyIntegerInMyClassTwo in MyClassTwo = " <<MyInstanceClassTwo.MyIntegerInMyClassTwo<< std::endl;      // Print integer from library
 
   //*********************************************************************************************************************************************
   // OSDK integration

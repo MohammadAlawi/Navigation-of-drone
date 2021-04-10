@@ -38,6 +38,45 @@ void MyClassOne::PrintFromFirstClass(void)                          // Method(fu
 }
 
 //****************************************************************************************************************************************************
+// MyClassTwo definitions
+MyClassTwo::~MyClassTwo()                                           // Class constructor definition
+{
+    std::cout << "MyClassTwo constructor called" << std::endl;
+}
+
+MyClassTwo::MyClassTwo()                                            // Class destructor definition
+{
+    std::cout << "MyClassTwo destructor called" << std::endl;
+}
+
+void MyClassTwo::PrintVectorCalculations(std::vector<int> MyVectorToBePassed)         // Method(function) defintion, passing vector to function
+{ 
+    std::cout << "PrintVectorCalculations called, size of vector " <<MyVectorToBePassed.size()<< std::endl;
+    for (int i = 10; i <= 16; i++)
+    {
+        MyVectorToBePassed.push_back(i);
+    }
+    std::cout << "Vector size now " <<MyVectorToBePassed.size()<< std::endl;
+    std::cout << "Vector first element " <<MyVectorToBePassed.front()<< std::endl;
+    std::cout << "Vector third element " <<MyVectorToBePassed.at(3)<< std::endl;
+}
+void MyClassTwo::PrintArrayCalculations(char MyArrayToBePassed[5])                      // Method(function) declaration which takes array as parameter
+{
+    std::cout << "PrintArrayCalculations called" << std::endl;
+    MyArrayToBePassed[0] = {'D'};                                                       // Accessing to array member and overwriting it
+    MyArrayToBePassed[1] = {'R'};                                                       // Accessing to array member and overwriting it
+    MyArrayToBePassed[2] = {'O'};                                                       // Accessing to array member and overwriting it
+    MyArrayToBePassed[3] = {'N'};                                                       // Accessing to array member and overwriting it
+    MyArrayToBePassed[4] = {'E'};                                                       // Accessing to array member and overwriting it
+    //MyArrayToBePassed = {'Z','Z'};
+    for(int i = 0; i <= 5; i++)
+    {
+        std::cout << "Array member " <<i<< " value " <<MyArrayToBePassed[i] << std::endl;
+    }
+    std::cout << "Size of array " <<sizeof(MyArrayToBePassed)<< std::endl;
+}
+
+//****************************************************************************************************************************************************
 // MyControlClass definitions
 MyControlClass::MyControlClass()                                    // Class constructor definition
 {

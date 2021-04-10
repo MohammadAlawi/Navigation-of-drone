@@ -1,6 +1,6 @@
 /*! @file MAIN/main.cpp
  *  @version 1.0.0
- *  @date 07.04.2021
+ *  @date 10.04.2021
  *
  *  @brief
  *  Our brief
@@ -62,32 +62,16 @@ int main(int argc, char** argv) {
   int VariableToBePointedAt = 9;                                                                                                                  // Create variable to be passed to function
   MyInstanceControlClass.FunctionThatTakesPointerVariableAndStructAndEnumAsParameter(&VariableToBePointedAt, controlstructmain, controlenummain); // Call function
 
-  MyClassTwo MyInstanceClassTwo;
+  MyClassTwo MyInstanceClassTwo;                                                              // Create instance(object) of class
 
-  MyInstanceClassInControlClass.MyTemplateFunction<int>(x, y);                                                                                  // UNDER WORK
+  //MyInstanceClassInControlClass.MyTemplateFunction<int>(x, y);                              // UNDER WORK
   
-  MyClassTwo::MyVector g1;
+  MyClassTwo::MyVector VectorInstanceToBePassed;                                              // Create instance of vector using typedef from library
+  MyInstanceClassTwo.PrintVectorCalculations(VectorInstanceToBePassed);                       // Call function that takes vector as parameter
+  MyClassTwo::MyArray ArrayInstanceToBePassed;                                                // Create instance of array using typedef from library
+  MyInstanceClassTwo.PrintArrayCalculations(ArrayInstanceToBePassed);                         // Call function that takes array as parameter
   
-    for (int i = 1; i <= 5; i++)
-        g1.push_back(i);
-  
-    std::cout << "Output of begin and end: ";
-    for (auto i = g1.begin(); i != g1.end(); ++i)
-        std::cout << *i << " ";
-  
-    std::cout << "\nOutput of cbegin and cend: ";
-    for (auto i = g1.cbegin(); i != g1.cend(); ++i)
-        std::cout << *i << " ";
-  
-    std::cout << "\nOutput of rbegin and rend: ";
-    for (auto ir = g1.rbegin(); ir != g1.rend(); ++ir)
-        std::cout << *ir << " ";
-  
-    std::cout << "\nOutput of crbegin and crend : ";
-    for (auto ir = g1.crbegin(); ir != g1.crend(); ++ir)
-        std::cout << *ir << " ";
-    
-   std::cout << "MyIntegerInMyClassTwo in MyClassTwo = " <<MyInstanceClassTwo.MyIntegerInMyClassTwo<< std::endl;
+  std::cout << "MyIntegerInMyClassTwo in MyClassTwo = " <<MyInstanceClassTwo.MyIntegerInMyClassTwo<< std::endl;      // Print integer from library
 
   //*********************************************************************************************************************************************
   // OSDK integration

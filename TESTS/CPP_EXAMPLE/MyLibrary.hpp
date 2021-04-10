@@ -21,6 +21,8 @@
 #include <iostream>                                 // Header in standard library
 #include <cstdlib>                                  // Header in standard library
 #include <unistd.h>                                 // Header in standard library
+#include <vector>                                   // Header in standard library
+#include <utility>                                  // Header in standard library
 // It is good practice to include all libraries in header file that are used in your library source file and only include this header 
 // library file in your library source file
 
@@ -58,10 +60,25 @@ namespace MyNameSpaceFirst                          // Namespace declaration
             private:
                 float OnlyPrivateFloatTwo;          // Private Attribute(Variable) declaration THIS IS CAN NOT BE ACCESSED OUTSIDE OF CURRENT CLASS
             public:
-                MyClassTwo();                       // Class Constructor declaration
-                ~MyClassTwo();                      // Class Destructor declaration
-                void PrintFromSecondClass(void);    // Method(Function) declaration
-                int PublicIntegerTwo;               // Attribute(Variable) declaration
+                MyClassTwo();                                                       // Class Constructor declaration
+                ~MyClassTwo();                                                      // Class Destructor declaration
+                void PrintFromSecondClass(void);                                    // Method(Function) declaration
+                int PublicIntegerTwo;                                               // Attribute(Variable) declaration
+                typedef char MyArray[5];                                            // Array declaration
+                typedef std::vector<int> MyVector;                                  // Vector declaration as typedef
+                int MyIntegerInMyClassTwo = 10;                                     // Integer declaration and definition
+                void PrintVectorCalculations(std::vector<int> MyVectorToBePassed);  // Method(function) declaration which takes vector as parameter
+                void PrintArrayCalculations(char MyArrayToBePassed[5]);             // Method(function) declaration which takes array as parameter
+                /*
+                template<class T>
+                MyTemplateFunction(T x, T y)
+                {
+                T z = x + y;
+                std::cout << "MyTemplateFunction returns = " <<z<< std::endl;
+                return z;
+                }
+                */
+                
         };
         class MyControlClass                                            // Class declaration
         {
