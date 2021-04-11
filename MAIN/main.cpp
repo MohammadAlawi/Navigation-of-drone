@@ -16,14 +16,21 @@ using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 using namespace MyNameSpaceFirst;                                                             // Namespace definition (OPTIONAL)
 using namespace MyNameSpaceFirst::MyNameSpaceSecond;                                          // Namespace definition (OPTIONAL)
+using std::chrono::high_resolution_clock;                                                     // Namespaces for measuring execution speed
+using std::chrono::duration_cast;                                                             // Namespaces for measuring execution speed
+using std::chrono::duration;                                                                  // Namespaces for measuring execution speed
+using std::chrono::milliseconds;                                                              // Namespaces for measuring execution speed
 
 MyClassOne::MyStructOne InstanceStructOne;                                                    // Create instance of struct (utilizing namespace)
 MyClassOne::MyEnumOne myenumone;                                                              // Create instance of enum (utilizing namespace)
 MyControlClass::ControlStruct controlstructmain;                                              // Create instance of struct (utilizing namespace)
 MyControlClass::ControlEnum controlenummain;                                                  // Create instance of enum (utilizing namespace)
 
-int main(int argc, char** argv) {
-  
+int main(int argc, char** argv) 
+{
+  //*********************************************************************************************************************************************
+  // Measuring exectuion time
+  auto t1 = high_resolution_clock::now();                                                     // Run function to measure execution time
   //*********************************************************************************************************************************************
   // ZED integration
   
@@ -74,6 +81,7 @@ int main(int argc, char** argv) {
 
   ClassUtilizingPointers* classutilizingpointers;                                             // Create instance of class pointer and point to class
   classutilizingpointers->FunctionInClassUtilizingPointers();                                 // Call method(function) of class using pointers
+  classutilizingpointers->FunctionThatAllocatesMemoryInTwoDifferentWays();
 
   ClassUtilizingPointers::ClassInClassUtilizingPointers* classinclassutilizingpointers;       // Create instance of class pointer and point to class
   classinclassutilizingpointers->FunctionInClassInClassUtilizingPointers();                   // Call method(function) of class using pointers
@@ -84,6 +92,13 @@ int main(int argc, char** argv) {
   TelemetryClass::Quaternion quaternion;                                                                // Create instance of struct that is going to hold returned struct data
   quaternion = classutilizingpointers->telemetryclass->GetQuaternion();                                 // Run method(function) to get data and retunr it to struct        
   std::cout << "Quaternion data " <<quaternion.x<<" "<<quaternion.y<<" "<<quaternion.z<< std::endl;     // Print returned struct data
+
+  classutilizingpointers->FunctionThatCreatesFourThreads();                                   // Call function that is accessed using class pointers
+
+  auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time
+  duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
+  std::cout << "Execution time in " << ms_double.count() << " ms" << std::endl;               // Print
+
   
   //*********************************************************************************************************************************************
   // OSDK integration
@@ -168,6 +183,5 @@ int main(int argc, char** argv) {
     default:
       break;
   }
-
   return 0;
 }

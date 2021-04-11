@@ -148,14 +148,75 @@ void ClassUtilizingPointers::ClassInClassUtilizingPointers::FunctionInClassInCla
     std::cout << "FunctionInClassInClassUtilizingPointers called" << std::endl;
 }
 
+void ClassUtilizingPointers::FunctionThatAllocatesMemoryInTwoDifferentWays()
+{
+    std::cout << "FunctionThatAllocatesMemoryInTwoDifferentWays called" << std::endl;
+    int* PointerVariable = NULL;                                                        // Declare pointer and define it to point nowhere(NULL pointer)          
+    PointerVariable = new int;                                                          // Allocate memory and call for object constructor
+    *PointerVariable = 8998;                                                            // Set value to variable where pointer is pointing to
+    std::cout << "Value add PointerVariable " <<*PointerVariable<< std::endl;           
+    std::cout << "Address of PointerVariable " <<PointerVariable<< std::endl;
+    delete PointerVariable;                                                             // Free allocated memory and delete pointer
+    std::cout << "PointerVariable deleted, address of PointerVariable now " <<PointerVariable<<" and value "<<*PointerVariable<< std::endl;
+
+    double* MallocPointer = NULL;                                                       // Declare pointer and define it to point nowhere(NULL pointer)
+    MallocPointer = (double*) malloc(4*sizeof(int));                                    // Allocate certain size of memory(bytes)  
+    for(int i = 0; i < 4; i++)
+    {
+        std::cout << "Address of Malloc pointer "<<i<<" "<<MallocPointer+i<< std::endl;
+    }
+    free(MallocPointer);
+    int* PointerSize;
+    std::cout << "Size of a pointers on this machine "<<sizeof(PointerSize)<<" "<<PointerSize<< std::endl;
+}
+
+void* ClassUtilizingPointers::ParameterlessFunction(void*)
+{
+    std::cout << "ParameterFunction called" << std::endl;
+    /*
+    int* c = NULL;
+    *c = a + b;
+    return c;
+    //return NULL;
+    */
+}
+
+void ClassUtilizingPointers::ParameterlessFunction2(void)
+{
+    std::cout << "ParameterFunction2 called" << std::endl;
+}
+
+void ClassUtilizingPointers::FunctionThatCreatesFourThreads()
+{
+    std::cout << "FunctionThatCreatesFourThreads called" << std::endl;
+    ClassUtilizingPointers::ParameterlessFunction2();                               // Calling method(function)
+
+    pthread_t Thread1, Thread2, Thread3, Thread4;                                   // Initializing and declaring threads (thread pointers)
+    int Thread1Return, Thread2Return, Thread3Return, Thread4Return;                 // Declaring variables
+    pthread_create( &Thread1, NULL, &FunctionOutsideOfAnyMember, NULL);             // Creating thread
+    pthread_join(Thread1, NULL);                                                    // Waiting for thread to complete
+    std::cout << "Threads are done" << std::endl;                                   // Print
+    //pthread_exit(NULL);                                                           // Terminate threading
+
+    //boost::thread
+}
+
 //****************************************************************************************************************************************************
 // Telemetry definitions
 
-TelemetryClass::Quaternion TelemetryClass::GetQuaternion()                  // Quaternion is typedef struct and in this source file namespace Telemetry is not used
+TelemetryClass::Quaternion TelemetryClass::GetQuaternion()  // Quaternion is typedef struct and in this source file namespace Telemetry is not used
 {
-    TelemetryClass::Quaternion data;                         // Create instance of typedef struct
-    data.x = 1.11;                                      // Assign values to struct members
-    data.y = 2.22;                                      // Assign values to struct members
-    data.z = 3.33;                                      // Assign values to struct members
-    return data;                                        // Return struct
+    TelemetryClass::Quaternion data;                        // Create instance of typedef struct
+    data.x = 1.11;                                          // Assign values to struct members
+    data.y = 2.22;                                          // Assign values to struct members
+    data.z = 3.33;                                          // Assign values to struct members
+    return data;                                            // Return struct
+}
+
+//****************************************************************************************************************************************************
+// Thread usage definitions
+
+void* FunctionOutsideOfAnyMember(void*)                     // Define method(function) that is outside of any member THIS IS NEEDED FOR THREADING
+{
+    std::cout << "FunctionOutsideOfAnyMember called" << std::endl;
 }

@@ -19,10 +19,16 @@
 
 // Includes
 #include <iostream>                                 // Header in standard library
+#include <stdlib.h>                                 // Header in standard library
 #include <cstdlib>                                  // Header in standard library
 #include <unistd.h>                                 // Header in standard library
 #include <vector>                                   // Header in standard library
 #include <utility>                                  // Header in standard library
+#include <cstddef>                                  // Header in standard library
+#include <chrono>                                   // Header in standard library
+#include <thread>                                   // Header in standard library
+#include <pthread.h>                                // Header in standard library
+
 // It is good practice to include all libraries in header file that are used in your library source file and only include this header 
 // library file in your library source file
 
@@ -113,17 +119,17 @@ namespace MyNameSpaceFirst                          // Namespace declaration
             private:
             // Private data here
             public:
-            TelemetryClass();
-            ~TelemetryClass();
+            TelemetryClass();                                           // Constructor declaration
+            ~TelemetryClass();                                          // Destructor declaration
 
-            typedef struct Quaternion
+            typedef struct Quaternion                                   // Typedef struct declaration
             {
                 float x;
                 float y;
                 float z;
             }Quaternion;
 
-            Quaternion GetQuaternion();
+            Quaternion GetQuaternion();                                 // Method(function) declaration that returns struct
         };
         class ClassUtilizingPointers                                    // Class declaration
         {
@@ -134,9 +140,13 @@ namespace MyNameSpaceFirst                          // Namespace declaration
             ~ClassUtilizingPointers();                                  // Destructor declaration
             void FunctionInClassUtilizingPointers();                    // Method(function) declaration
             MyClassTwo* myclasstwo;                                     // Pointer declaration from this class to other class (to access other class members using this class)
-            MyClassOne* myclassone;                                     // Pointer declaration from this class to other class (to access other class members using this class) 
-            TelemetryClass* telemetryclass;             
-            
+            MyClassOne* myclassone;                                     // Pointer declaration from this class to other class (to access other class members using this class)
+            TelemetryClass* telemetryclass;                             // Pointer declaration from this class to other class (to access other class members using this class)
+            void FunctionThatAllocatesMemoryInTwoDifferentWays();       // Method(function) declaration 
+            void FunctionThatCreatesFourThreads();                      // Method(function) declaration
+            void* ParameterlessFunction(void*);                         // Method(function) declaration
+            void ParameterlessFunction2(void);                          // Method(function) declaration
+
             class ClassInClassUtilizingPointers                         // Class declaration
             {
                 private:
@@ -145,10 +155,10 @@ namespace MyNameSpaceFirst                          // Namespace declaration
                 ClassInClassUtilizingPointers();                        // Constructor declaration
                 ~ClassInClassUtilizingPointers();                       // Destructor declaration
                 void FunctionInClassInClassUtilizingPointers();         // Method(function) declaration
-
             };
         };
     }
 }
+void* FunctionOutsideOfAnyMember(void*);                                // Methdo(function) declaration
 
 #endif                                               // Guards
