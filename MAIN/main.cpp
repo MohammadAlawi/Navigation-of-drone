@@ -94,6 +94,7 @@ int main(int argc, char** argv)
   std::cout << "Quaternion data " <<quaternion.x<<" "<<quaternion.y<<" "<<quaternion.z<< std::endl;     // Print returned struct data
 
   classutilizingpointers->FunctionThatCreatesFourThreads();                                   // Call function that is accessed using class pointers
+  classutilizingpointers->StringHandlingAndConvertingFunction();                       // Call function that is accessed using class pointers
 
   auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time
   duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double

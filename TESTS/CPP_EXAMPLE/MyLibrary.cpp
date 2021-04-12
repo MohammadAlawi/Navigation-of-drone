@@ -15,7 +15,8 @@
 
 using namespace MyNameSpaceFirst;                                   // Namespace definition (This is optional, classes can be accessed with full name)
 using namespace MyNameSpaceFirst::MyNameSpaceSecond;                // Namespace definition (This is optional, classes can be accessed with full name)
-//using namespace Telemetry;                                          // Namespace definition (This is optional, classes can be accessed with full name)                                     
+//using namespace Telemetry;                                        // Namespace definition (This is optional, classes can be accessed with full name)
+                                     
 
 MyClassOne::MyStructOne InstanceStructOneInLibrary;                 // Create instance of typedef struct
 MyClassOne::MyEnumOne InstanceEnumOneInLibrary;                     // Create instance of enum
@@ -197,12 +198,44 @@ void ClassUtilizingPointers::FunctionThatCreatesFourThreads()
     pthread_join(Thread1, NULL);                                                    // Waiting for thread to complete
     std::cout << "Threads are done" << std::endl;                                   // Print
     //pthread_exit(NULL);                                                           // Terminate threading
+}
 
-    //boost::thread
+void ClassUtilizingPointers::StringHandlingAndConvertingFunction(void)
+{
+    std::cout << "StringHandlingAndConvertingFunction called" << std::endl;
+    // Take string(char array) as input
+    char MyCharacterPointer[2] = {'A','B'};
+    std::cout << "*MyCharacterPointer " <<*MyCharacterPointer<<" Address "<<&MyCharacterPointer<< std::endl;
+    std::cout << "*MyCharacterPointer+4 " <<*MyCharacterPointer+1<< std::endl;
+    std::cout << "MyCharacterPointer[1] " <<MyCharacterPointer[1]<< std::endl;
+    char OverWritingChar[2] = {'S', 'T'};
+    MyCharacterPointer[0] = {'O'};
+    MyCharacterPointer[1] = OverWritingChar[0];
+    std::cout << "After overwrite MyArrayPointer[0] " <<MyCharacterPointer[0]<< std::endl;
+    std::cout << "After overwrite MyArrayPointer[1] " <<MyCharacterPointer[1]<< std::endl;
+    char* MyArrayPointer[2] = {"FirstInArray", "SecondinArray"};                                                        // Declare a pointer which points to first char at char array
+    std::cout << "*MyArrayPointer " <<*MyArrayPointer<<" Address "<<MyArrayPointer<< std::endl;
+    std::cout << "*MyArrayPointer+4 " <<*MyArrayPointer+4<< std::endl;
+    std::cout << "MyArrayPointer[1] " <<MyArrayPointer[1]<< std::endl;
+    char* OverWritingArray[2] = {"Y = 6000","3000"};
+    MyArrayPointer[0] = {"Z = 1000"};
+    MyArrayPointer[1] = OverWritingArray[1];
+    std::cout << "After overwrite MyArrayPointer[0] " <<MyArrayPointer[0]<< std::endl;
+    std::cout << "After overwrite MyArrayPointer[1] " <<MyArrayPointer[1]<< std::endl;
+    double ConvertedDouble = std::stod(MyArrayPointer[1]);
+    std::cout << "Converted string from MyArrayPointer[1] " <<ConvertedDouble<< std::endl;
+
+    std::string MyStringToBeSplitted = {"X4444+Y8888+Z9999+"};
+    std::size_t start = MyStringToBeSplitted.find("X");
+    std::size_t end = MyStringToBeSplitted.find("+");
+    std::string SplittedString3 = MyStringToBeSplitted.substr(start+1,end-1);
+    std::cout << "Separated manually " <<SplittedString3<< std::endl;
+    double SplittedString3Converted = std::stod(SplittedString3);
+    std::cout << "Converted string from SplittedString3 " <<SplittedString3Converted<< std::endl;
 }
 
 //****************************************************************************************************************************************************
-// Telemetry definitions
+// Telemetry definitions 
 
 TelemetryClass::Quaternion TelemetryClass::GetQuaternion()  // Quaternion is typedef struct and in this source file namespace Telemetry is not used
 {

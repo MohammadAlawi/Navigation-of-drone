@@ -146,6 +146,7 @@ namespace MyNameSpaceFirst                          // Namespace declaration
             void FunctionThatCreatesFourThreads();                      // Method(function) declaration
             void* ParameterlessFunction(void*);                         // Method(function) declaration
             void ParameterlessFunction2(void);                          // Method(function) declaration
+            void StringHandlingAndConvertingFunction(void);             // Method(function) declaration
 
             class ClassInClassUtilizingPointers                         // Class declaration
             {
