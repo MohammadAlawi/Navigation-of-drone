@@ -213,7 +213,7 @@ void ClassUtilizingPointers::StringHandlingAndConvertingFunction(void)
     MyCharacterPointer[1] = OverWritingChar[0];
     std::cout << "After overwrite MyArrayPointer[0] " <<MyCharacterPointer[0]<< std::endl;
     std::cout << "After overwrite MyArrayPointer[1] " <<MyCharacterPointer[1]<< std::endl;
-    char* MyArrayPointer[2] = {"FirstInArray", "SecondinArray"};                                                        // Declare a pointer which points to first char at char array
+    char* MyArrayPointer[2] = {"FirstInArray", "SecondinArray"};                                                        
     std::cout << "*MyArrayPointer " <<*MyArrayPointer<<" Address "<<MyArrayPointer<< std::endl;
     std::cout << "*MyArrayPointer+4 " <<*MyArrayPointer+4<< std::endl;
     std::cout << "MyArrayPointer[1] " <<MyArrayPointer[1]<< std::endl;

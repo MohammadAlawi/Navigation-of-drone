@@ -10,6 +10,7 @@
 #include "flight_sample.hpp"
 #include "MyLibrary.hpp"                                                                      // Local include
 #include <Camera.hpp>                                                                         // ZED library inclusion (INSTALLED LIBRARY)
+#include "FlightLibrary.hpp"
 
 using namespace sl;                                                                           // Namespace definition for ZED library 
 using namespace DJI::OSDK;
@@ -20,6 +21,7 @@ using std::chrono::high_resolution_clock;                                       
 using std::chrono::duration_cast;                                                             // Namespaces for measuring execution speed
 using std::chrono::duration;                                                                  // Namespaces for measuring execution speed
 using std::chrono::milliseconds;                                                              // Namespaces for measuring execution speed
+using namespace FlightLibrary;
 
 MyClassOne::MyStructOne InstanceStructOne;                                                    // Create instance of struct (utilizing namespace)
 MyClassOne::MyEnumOne myenumone;                                                              // Create instance of enum (utilizing namespace)
@@ -33,6 +35,7 @@ int main(int argc, char** argv)
   auto t1 = high_resolution_clock::now();                                                     // Run function to measure execution time
   //*********************************************************************************************************************************************
   // ZED integration
+  /*
   
   sl::Camera zed;                                                                             // Create instance(object) of class from the ZED library
   
@@ -45,12 +48,13 @@ int main(int argc, char** argv)
   auto camera_infos = zed.getCameraInformation();                                             // Get camera information (ZED serial number)
   printf("Hello! This is my serial number: %d\n", camera_infos.serial_number);
   zed.close();                                                                                // Close the camera
-  
+  */
   //*********************************************************************************************************************************************
   // POZYX integration
 
   //*********************************************************************************************************************************************
   // MyLibrary integration
+  /*
 
   MyClassOne MyInstanceClassOne;                                                              // Create instance(object) of class from the library
   MyControlClass::ClassInMyControlClass MyInstanceClassInControlClass;                        // Create instance(object) of class from the library
@@ -100,10 +104,12 @@ int main(int argc, char** argv)
   duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
   std::cout << "Execution time in " << ms_double.count() << " ms" << std::endl;               // Print
 
-  
+  */
   //*********************************************************************************************************************************************
   // OSDK integration
-  
+  FlightTelemetry* flighttelemetry;                                             // Instantiate FlightTelemetry class object pointer
+  FlightCommander* flightcommander;                                             // Instantiate FlightCommander class object pointer
+
   // Initialize variables
   int functionTimeout = 1;
   // Setup OSDK.
@@ -122,15 +128,11 @@ int main(int argc, char** argv)
       << "| Available commands:                                            |"
       << std::endl;
   std::cout
-      << "| [a] Monitored Takeoff + Landing                                |"
+      << "| [t] Test                                                       |"
       << std::endl;
   std::cout
-      << "| [b] Monitored Takeoff + Position Control + Landing             |"
+      << "| [l] Test                                                       |"
       << std::endl;
-  std::cout << "| [c] Monitored Takeoff + Position Control + Force Landing "
-               "Avoid Ground  |"
-            << std::endl;
-
   char inputChar;
   std::cin >> inputChar;
 
@@ -139,50 +141,28 @@ int main(int argc, char** argv)
       monitoredTakeoff(vehicle);
       monitoredLanding(vehicle);
       break;
-    case 'b':
-      monitoredTakeoff(vehicle);
-      moveByPositionOffset(vehicle, 0, 6, 6, 30);
-      moveByPositionOffset(vehicle, 6, 0, -3, -30);
-      moveByPositionOffset(vehicle, -6, -6, 0, 0);
-      monitoredLanding(vehicle);
+
+    case 't':
+      std::cout << "Test Case running" << std::endl;                          // Starting the Test case
+      //flighttelemetry->GetQuaternionData(vehicle);                          // Call method from FlightTelemetry class that returns and prints Quaternion data
+      //flighttelemetry->GetBatteryData(vehicle);                             // Call method from FlightTelemetry class that returns and prints Battery Data
+      //flighttelemetry->GetGlobalPositionData(vehicle);                      // Call method from FlightTelemetry class that returns and prints GPS Data
+      //moveByPositionOffset(vehicle, 1, 0, 0, 0);                            // Call modifed method from flight_control_sample that commands to move by position
+      flightcommander->ForceLanding(vehicle);                               // Call method from FlightCommander class that commands vehicle to force landing
       break;
 
-    /*! @NOTE: case 'c' only support for m210 V2*/
-    case 'c':
-      /*! Turn off rtk switch */
-      ErrorCode::ErrorCodeType ret;
-      ret = vehicle->flightController->setRtkEnableSync(
-          FlightController::RtkEnabled::RTK_DISABLE, 1);
-      if (ret != ErrorCode::SysCommonErr::Success) {
-        DSTATUS("Turn off rtk switch failed, ErrorCode is:%8x", ret);
-      } else {
-        DSTATUS("Turn off rtk switch successfully");
-      }
-
-      /*!  Take off */
-      monitoredTakeoff(vehicle);
-
-      /*! Move to higher altitude */
-      moveByPositionOffset(vehicle, 0, 0, 30, 0);
-
-      /*! Move a short distance*/
-      moveByPositionOffset(vehicle, 10, 0, 0, -30);
-
-      /*! Set aircraft current position as new home location */
-      setNewHomeLocation(vehicle);
-
-      /*! Set new go home altitude */
-      setGoHomeAltitude(vehicle, 50);
-
-      /*! Move to another position */
-      moveByPositionOffset(vehicle, 40, 0, 0, 0);
-
-      /*! go home and  confirm landing */
-      goHomeAndConfirmLanding(vehicle, 1);
-      break;
-
-    default:
-      break;
+    case 'l':
+      std::cout << "Test Case running" << std::endl;                          // Starting the Test case
+      //flighttelemetry->GetQuaternionData(vehicle);                          // Call method from FlightTelemetry class that returns and prints Quaternion data
+      //flighttelemetry->GetBatteryData(vehicle);                             // Call method from FlightTelemetry class that returns and prints Battery Data
+      //flighttelemetry->GetGlobalPositionData(vehicle);                      // Call method from FlightTelemetry class that returns and prints GPS Data
+      //moveByPositionOffset(vehicle, 1, 0, 0, 0);                            // Call modifed method from flight_control_sample that commands to move by position
+      flightcommander->ForceLanding(vehicle);                               // Call method from FlightCommander class that commands vehicle to force landing
   }
+
+  auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time
+  duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
+  std::cout << "Execution time in " << ms_double.count() << " ms" << std::endl;               // Print
+
   return 0;
 }

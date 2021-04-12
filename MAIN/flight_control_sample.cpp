@@ -320,7 +320,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
       ACK::getErrorCodeMessage(subscribeStatus, func);
       return false;
     }
-
+  /*
     // Telemetry: Subscribe to quaternion, fused lat/lon and altitude at freq 50
     // Hz
     pkgIndex                  = 0;
@@ -344,7 +344,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
       vehicle->subscribe->removePackage(pkgIndex, responseTimeout);
       return false;
     }
-
+  */
     // Also, since we don't have a source for relative height through subscription,
     // start using broadcast height
     if (!startGlobalPositionBroadcast(vehicle))
@@ -354,15 +354,16 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
       return false;
     }
   }
-
+  
   // Wait for data to come in
   sleep(1);
 
   // Get data
-
+  /*
   // Global position retrieved via subscription
   Telemetry::TypeMap<TOPIC_GPS_FUSED>::type currentSubscriptionGPS;
   Telemetry::TypeMap<TOPIC_GPS_FUSED>::type originSubscriptionGPS;
+  */
   // Global position retrieved via broadcast
   Telemetry::GlobalPosition currentBroadcastGP;
   Telemetry::GlobalPosition originBroadcastGP;
@@ -372,12 +373,13 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
 
   if (!vehicle->isM100() && !vehicle->isLegacyM600())
   {
+  /*
     currentSubscriptionGPS = vehicle->subscribe->getValue<TOPIC_GPS_FUSED>();
     originSubscriptionGPS  = currentSubscriptionGPS;
     localOffsetFromGpsOffset(vehicle, localOffset,
                              static_cast<void*>(&currentSubscriptionGPS),
                              static_cast<void*>(&originSubscriptionGPS));
-
+  */
     // Get the broadcast GP since we need the height for zCmd
     currentBroadcastGP = vehicle->broadcast->getGlobalPosition();
   }
@@ -389,7 +391,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
                              static_cast<void*>(&currentBroadcastGP),
                              static_cast<void*>(&originBroadcastGP));
   }
-
+  
   // Get initial offset. We will update this in a loop later.
   double xOffsetRemaining = xOffsetDesired - localOffset.x;
   double yOffsetRemaining = yOffsetDesired - localOffset.y;
@@ -398,26 +400,29 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   // Conversions
   double yawDesiredRad     = DEG2RAD * yawDesired;
   double yawThresholdInRad = DEG2RAD * yawThresholdInDeg;
-
+  
   //! Get Euler angle
-
+  /*
   // Quaternion retrieved via subscription
   Telemetry::TypeMap<TOPIC_QUATERNION>::type subscriptionQ;
+  */
   // Quaternion retrieved via broadcast
   Telemetry::Quaternion broadcastQ;
 
   double yawInRad;
   if (!vehicle->isM100() && !vehicle->isLegacyM600())
   {
+    /*
     subscriptionQ = vehicle->subscribe->getValue<TOPIC_QUATERNION>();
     yawInRad = toEulerAngle((static_cast<void*>(&subscriptionQ))).z / DEG2RAD;
+    */
   }
   else
   {
     broadcastQ = vehicle->broadcast->getQuaternion();
     yawInRad   = toEulerAngle((static_cast<void*>(&broadcastQ))).z / DEG2RAD;
   }
-
+  
   int   elapsedTimeInMs     = 0;
   int   withinBoundsCounter = 0;
   int   outOfBounds         = 0;
@@ -430,6 +435,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
    *  from the current position - until we get within a threshold of the goal.
    *  From that point on, we send the remaining distance as the setpoint.
    */
+
   if (xOffsetDesired > 0)
     xCmd = (xOffsetDesired < speedFactor) ? xOffsetDesired : speedFactor;
   else if (xOffsetDesired < 0)
@@ -467,6 +473,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     //! Get current position in required coordinates and units
     if (!vehicle->isM100() && !vehicle->isLegacyM600())
     {
+      /*
       subscriptionQ = vehicle->subscribe->getValue<TOPIC_QUATERNION>();
       yawInRad      = toEulerAngle((static_cast<void*>(&subscriptionQ))).z;
       currentSubscriptionGPS = vehicle->subscribe->getValue<TOPIC_GPS_FUSED>();
@@ -475,6 +482,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
                                static_cast<void*>(&originSubscriptionGPS));
 
       // Get the broadcast GP since we need the height for zCmd
+      */
       currentBroadcastGP = vehicle->broadcast->getGlobalPosition();
     }
     else
