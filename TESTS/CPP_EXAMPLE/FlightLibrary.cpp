@@ -9,8 +9,10 @@
 #include "FlightLibrary.hpp"                        // FlightLibrary header
 
 using namespace FlightLibrary;                      // Namespace for FlightLibrary
+using namespace DJI::OSDK;
+using namespace DJI::OSDK::Telemetry;
 
-
+/*
    template <TopicName TOPIC_ALTITUDE_BAROMETER>
 struct TypeMap
 {
@@ -18,7 +20,7 @@ struct TypeMap
 };
 
 TypeMap<TOPIC_ALTITUDE_BAROMETER>::type altitude_barometer;
-
+*/
 
 
 //*************************************************************************************************************************************************************************
@@ -52,7 +54,7 @@ void FlightTelemetry::GetBatteryData(DJI::OSDK::Vehicle* vehicle)
     std::cout << "Battery data " <<battery.voltage<< std::endl;                     // Print out returned data
 }
 
-void FlightTelemetry::GetGlobalPositionData(DJI::OSDK::Vehicle* vehicle)
+void FlightTelemetry::GetGlobalPositionData(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
 {
     Telemetry::GlobalPosition globalposition;                                           // Instantiate typedef struct
     for(int i = 0; i <= 100; i++)
@@ -67,6 +69,67 @@ void FlightTelemetry::GetGlobalPositionData(DJI::OSDK::Vehicle* vehicle)
         << std::endl;
         sleep(1); 
     }
+
+    ACK::ErrorCode subscribeStatus;
+    subscribeStatus = vehicle->subscribe->verify(responseTimeout);
+    if (ACK::getError(subscribeStatus) != ACK::SUCCESS)
+    {
+        ACK::getErrorCodeMessage(subscribeStatus, __func__);                                // Print error message
+    }
+    // Package 0: Subscribe to flight status at freq 1 Hz
+    int pkgIndex                = 0;                                                        // Package index
+    int freq                    = 1;                                                        // Refreshing frequency
+    TopicName topicList1Hz[]    = { TOPIC_STATUS_FLIGHT };                                  // Topic
+    int numTopic                = sizeof(topicList1Hz) / sizeof(topicList1Hz[0]);           // Topic size
+    bool enableTimestamp        = false;                                                    // Timestamp use
+    bool pkgStatus = vehicle->subscribe->initPackageFromTopicList(pkgIndex, numTopic, topicList1Hz, enableTimestamp, freq);     // Initialization
+    if (!(pkgStatus))
+    {
+        //return pkgStatus;
+    }
+    subscribeStatus = vehicle->subscribe->startPackage(pkgIndex, responseTimeout);
+    if (ACK::getError(subscribeStatus) != ACK::SUCCESS)
+    {
+        ACK::getErrorCodeMessage(subscribeStatus, __func__);                                // Print error message
+        vehicle->subscribe->removePackage(pkgIndex, responseTimeout);                       // Cleanup before return
+    }
+    TypeMap<TOPIC_STATUS_FLIGHT>::type flightStatus;                                        // Get all the data once before the loop to initialize vars
+    flightStatus = vehicle->subscribe->getValue<TOPIC_STATUS_FLIGHT>();                     // Run topic method and return values to struct  
+
+
+
+
+
+
+        // Package 1: Subscribe to flight status at freq 1 Hz
+           pkgIndex        = 0;
+           freq            = 1;
+    TopicName topicList50Hz[]  = { TOPIC_ALTITUDE_BAROMETER };
+           numTopic        = sizeof(topicList50Hz) / sizeof(topicList50Hz[0]);
+          enableTimestamp = false;
+
+     pkgStatus = vehicle->subscribe->initPackageFromTopicList(
+        pkgIndex, numTopic, topicList1Hz, enableTimestamp, freq);
+    if (!(pkgStatus))
+    {
+        //return pkgStatus;
+    }
+    subscribeStatus = vehicle->subscribe->startPackage(pkgIndex, responseTimeout);
+    if (ACK::getError(subscribeStatus) != ACK::SUCCESS)
+    {
+        ACK::getErrorCodeMessage(subscribeStatus, __func__);
+        // Cleanup before return
+        vehicle->subscribe->removePackage(pkgIndex, responseTimeout);
+        //return false;
+    }
+
+    TypeMap<TOPIC_ALTITUDE_BAROMETER>::type     barometer;
+
+    flightStatus = vehicle->subscribe->getValue<TOPIC_ALTITUDE_BAROMETER>();
+
+
+
+
 }
 
 void FlightTelemetry::GetLocalPositionData(DJI::OSDK::Vehicle* vehicle)
