@@ -25,14 +25,14 @@ Uses part of a ZED provided code for positional tracking
 // ZED includes
 #include <sl/Camera.hpp>
 
-// Sample includes
-#include "GLViewer.hpp"
-
 // other includes
 #include <iostream>
 #include <thread>
 #include <future>
 #include <chrono>
+
+// local includes
+#include "includetest.hpp"
 
 // Using std namespace
 using namespace std;
@@ -49,6 +49,7 @@ void parseArgs(int argc, char **argv, sl::InitParameters& param);
 
 void userExit();
 
+
 int main(int argc, char **argv) {
 
     Camera zed;
@@ -62,14 +63,11 @@ int main(int argc, char **argv) {
     // Open the camera
     auto returned_state = zed.open(init_parameters);
     if (returned_state != ERROR_CODE::SUCCESS) {
-        print("Camera Open", returned_state, "Exit program.");
+        cout << "Camera Open" << returned_state << "Exit program." << endl;
         return EXIT_FAILURE;
     }
 
     auto camera_model = zed.getCameraInformation().camera_model;
-    //GLViewer viewer;
-    //Initialize OpenGL viewer
-    //viewer.init(argc, argv, camera_model);
 
     // Create text for GUI
     char text_rotation[MAX_CHAR];
@@ -82,10 +80,11 @@ int main(int argc, char **argv) {
     PositionalTrackingParameters positional_tracking_param;
     positional_tracking_param.enable_area_memory = true;
     positional_tracking_param.area_file_path = areafile;
+
     // enable Positional Tracking
     returned_state = zed.enablePositionalTracking(positional_tracking_param);
     if (returned_state != ERROR_CODE::SUCCESS) {
-        print("Enabling positionnal tracking failed: ", returned_state);
+        cout<<"Enabling positionnal tracking failed: "<< returned_state << endl;
         zed.close();
         return EXIT_FAILURE;
     }
@@ -205,6 +204,11 @@ void parseArgs(int argc, char **argv, sl::InitParameters& param) {
     }
 }
 
+
+#include <iostream>
+
+using namespace std;
+
 void userExit()  {
     int inputchar = 0;
     // ESC = ASCII 27, q = ASCII 113
@@ -215,3 +219,4 @@ void userExit()  {
     // return
 
 }
+

@@ -59,8 +59,7 @@ CMakeFiles/Position_tracking_V1.dir/src/GLViewer.o: /usr/local/cuda/include/vect
 CMakeFiles/Position_tracking_V1.dir/src/GLViewer.o: /usr/local/cuda/include/vector_types.h
 CMakeFiles/Position_tracking_V1.dir/src/GLViewer.o: /usr/local/zed/include/sl/Camera.hpp
 
-CMakeFiles/Position_tracking_V1.dir/src/main.o: ../include/GLViewer.hpp
-CMakeFiles/Position_tracking_V1.dir/src/main.o: ../include/ZEDModel.hpp
+CMakeFiles/Position_tracking_V1.dir/src/main.o: ../src/includetest.hpp
 CMakeFiles/Position_tracking_V1.dir/src/main.o: ../src/main.cpp
 CMakeFiles/Position_tracking_V1.dir/src/main.o: /usr/local/cuda/include/builtin_types.h
 CMakeFiles/Position_tracking_V1.dir/src/main.o: /usr/local/cuda/include/channel_descriptor.h
