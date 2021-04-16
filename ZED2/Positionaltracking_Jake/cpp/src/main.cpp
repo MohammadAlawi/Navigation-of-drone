@@ -58,6 +58,14 @@ int main(int argc, char **argv) {
     init_parameters.coordinate_units = UNIT::METER;
     init_parameters.coordinate_system = COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP;
     init_parameters.sdk_verbose = true;
+
+    string unit = "M";
+
+    init_parameters.depth_mode = DEPTH_MODE::PERFORMANCE; // Depth mode, available is ULTRA, QUALITY, PERFORMANCE (quality somehow has the highest execution time)
+    init_parameters.coordinate_units = UNIT::METER; // Unit to use (for depth measurements)
+    init_parameters.depth_minimum_distance = 0.3 ; // Minimum depth perception, minimum setting for ZED 2 is 0.3m. Increase to increase performance
+    // zed.setDepthMaxRangeValue(40); // set maximum depth perception distance to 40m
+
     parseArgs(argc, argv, init_parameters);
 
     // Open the camera
@@ -79,7 +87,7 @@ int main(int argc, char **argv) {
     // Set parameters for Positional Tracking
     PositionalTrackingParameters positional_tracking_param;
     positional_tracking_param.enable_area_memory = true;
-    positional_tracking_param.area_file_path = areafile;
+    //positional_tracking_param.area_file_path = areafile;
 
     // enable Positional Tracking
     returned_state = zed.enablePositionalTracking(positional_tracking_param);
@@ -93,6 +101,39 @@ int main(int argc, char **argv) {
     POSITIONAL_TRACKING_STATE tracking_state;
 
     sl::Timestamp lasttimestamp;
+
+    // testing depth sensing simultaneously
+    sl::Mat image, depth, point_cloud;
+
+
+    // Define a matrix of sectors seems to perform ok
+    // 640x360 maximum
+    // 128x72 works
+    int mat_columns = 128;
+    int mat_rows = 72;
+
+    int mat_xoffset, mat_yoffset;
+    float maxdistance = 40.0;
+    float distance, closestdistance;
+    int closest_x, closest_y;
+
+    int x = 0;
+    int y = 0;
+
+    int sector_j, sector_k;
+
+    // Create or open textfile
+    ofstream write("depthdetections.txt", ios::app);
+    if (!write) {
+        cout << "Error Opening File" << endl;
+        return -1;
+        }
+
+    string currentline;
+    string startmessage = "----- Logging started -----";
+
+    write << startmessage << endl;
+
 
 #if IMU_ONLY
     SensorsData sensors_data;
@@ -141,9 +182,78 @@ int main(int argc, char **argv) {
                 cout << "Tracking state: "<<tracking_state<<endl;
             }
 
-            // Update rotation, translation and tracking state values in the OpenGL window
-            //viewer.updateData(camera_path.pose_data, string(text_translation), string(text_rotation), tracking_state);
+            // Depth sensing
 
+            // Retrieve left image
+            zed.retrieveImage(image, VIEW::LEFT);
+            // Retrieve depth map. Depth is aligned on the left image
+            zed.retrieveMeasure(depth, MEASURE::DEPTH);
+            // Retrieve colored point cloud. Point cloud is aligned on the left image.
+            zed.retrieveMeasure(point_cloud, MEASURE::XYZRGBA);
+
+            // Get and print distance value
+            // We measure the distance camera - object using Euclidean distance
+            // Note: x and y coordinates are in pixels, with 0,0 at top left corner
+
+            // Decide offsets for each sector
+            mat_xoffset = image.getWidth() / mat_columns;
+            mat_yoffset = image.getHeight() / mat_rows;
+
+            // set start sector center
+            x = mat_xoffset / 2;
+            y = mat_yoffset / 2;
+
+            sl::float4 point_cloud_value;
+
+            // Reset shortest distance
+            closestdistance = maxdistance;
+            int j = 0;
+            int k = 0;
+
+            // Go through the columns and rows
+            while (j < mat_rows) {
+                while (k < mat_columns) {
+                    // Get current value
+                    point_cloud.getValue(x, y, &point_cloud_value);
+
+                    // If it is valid, calculate distance
+                    if(std::isfinite(point_cloud_value.z)){
+                        distance = sqrt(point_cloud_value.x * point_cloud_value.x + point_cloud_value.y * point_cloud_value.y + point_cloud_value.z * point_cloud_value.z);
+                        //cout<<"Distance to Camera at position {"<<x<<";"<<y<<"}: "<<distance<<unit<<endl;
+
+                        // IF valid and closer than shortestdistance, save dist and pos
+                        if (distance < closestdistance) {
+                        closestdistance = distance;
+                        closest_x = x;
+                        closest_y = y;
+                        sector_j = j;
+                        sector_k = k;
+                        // print every shortest distance found to debug
+                        //cout<<"new shortest distance found at {"<<x<<";"<<y<<"}: "<<distance<<unit<<endl;
+                        }
+
+                    }else {
+                        //cout<<"The Distance can not be computed at {"<<x<<";"<<y<<"}"<<endl;
+                        distance = maxdistance;
+                        }
+
+                    // Sector scanned, change sector
+                    //cout<<"k iteration {"<<k<<"}"<<" at "<<x<<";"<<y<<endl;
+                    x = x + mat_xoffset;
+                    k++;
+                    }
+
+                    //cout<<"j iteration {"<<j<<"}"<<" at "<<x<<";"<<y<<endl;
+                    // Row scanned, change row
+                    x = mat_xoffset / 2;
+                    k = 0;
+                    y = y + mat_yoffset;
+                    j++;
+                }
+
+            // Print results
+            //cout<<"Shortest distance found at{"<<closest_x<<";"<<closest_y<<"}: "<<closestdistance<<unit<<endl;
+            //write<<"Shortest distance found at{"<<closest_x<<";"<<closest_y<<"}: "<<closestdistance<<unit<<endl;
 
 
 #endif
@@ -152,7 +262,7 @@ int main(int argc, char **argv) {
             sleep_ms(1);
         }
     }
-    // join thread
+    // join the userexit thread
     t.join();
 
     // Export the spatial memory for future sessions
@@ -160,6 +270,11 @@ int main(int argc, char **argv) {
     cout << "Saving area file - "<<zed.getAreaExportState() << endl;
     // the function seems to output success even if no file is created/modified
     // Make sure there is enough tracked data to create file
+
+    // Close file
+    string endmessage = "----- Logging ended -----";
+    write << endmessage << endl;
+    write.close();
 
     // zed.close should already disable this
     zed.disablePositionalTracking();
