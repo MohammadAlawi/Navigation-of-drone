@@ -8,9 +8,9 @@
 
 #include "flight_control_sample.hpp"
 #include "flight_sample.hpp"
-#include "MyLibrary.hpp"                                                                      // Local include
+#include "MyLibrary.hpp"                                                                      // Library for test purpose
 #include <Camera.hpp>                                                                         // ZED library inclusion (INSTALLED LIBRARY)
-#include "FlightLibrary.hpp"
+#include "FlightLibrary.hpp"                                                                  // Library for Flight control and Reading Data
 
 using namespace sl;                                                                           // Namespace definition for ZED library 
 using namespace DJI::OSDK;
@@ -31,7 +31,7 @@ MyControlClass::ControlEnum controlenummain;                                    
 int main(int argc, char** argv) 
 {
   //*********************************************************************************************************************************************
-  // Measuring exectuion time
+  // Measuring execution time
   auto t1 = high_resolution_clock::now();                                                     // Run function to measure execution time
   //*********************************************************************************************************************************************
   // ZED integration
@@ -109,6 +109,7 @@ int main(int argc, char** argv)
   // OSDK integration
   FlightTelemetry* flighttelemetry;                                             // Instantiate FlightTelemetry class object pointer
   FlightCommander* flightcommander;                                             // Instantiate FlightCommander class object pointer
+  signal(SIGINT, SafetyFunction);
 
   // Initialize variables
   int functionTimeout = 1;
@@ -122,42 +123,72 @@ int main(int argc, char** argv)
 
   // Obtain Control Authority
   vehicle->obtainCtrlAuthority(functionTimeout);
+  while(true)
+  {
+    // Display interactive prompt
+    std::cout << std::endl
+        << "| Available   commands:                                           |"
+        << std::endl;
+    std::cout
+        << "| [a] Arming  Command                                             |"
+        << std::endl;
+    std::cout
+        << "| [l] Land    Command                                             |"
+        << std::endl;
+    std::cout
+        << "| [t] Takeoff Command                                             |"
+        << std::endl;
+    std::cout
+        << "| [m] Move    Command                                             |"
+        << std::endl;
+    std::cout
+        << "| [n] Move    Command 2                                           |"
+        << std::endl;
+    std::cout
+        << "| [d] Data    Read                                                |"
+        << std::endl;
+    std::cout
+        << "| [e] End     Session                                             |"
+        << std::endl;
 
-  // Display interactive prompt
-  std::cout
-      << "| Available commands:                                            |"
-      << std::endl;
-  std::cout
-      << "| [t] Test                                                       |"
-      << std::endl;
-  std::cout
-      << "| [l] Test                                                       |"
-      << std::endl;
-  char inputChar;
-  std::cin >> inputChar;
+    char inputChar;
+    std::cin >> inputChar;
 
-  switch (inputChar) {
-    case 'a':
-      monitoredTakeoff(vehicle);
-      monitoredLanding(vehicle);
+    switch (inputChar) {
+
+      case 'a':
+        vehicle->control->armMotors(1);                                         // Call method from FlightCommander class that commands vehicle to force landing
+        break;
+
+      case 'l':
+        flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
+        break;
+
+      case 't' :
+        // Takeoff code here
+        vehicle->control->takeoff(1);
+        flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
+        break;
+
+      case 'm' :
+        // Move code here
+        flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
+        break;
+
+      case 'n' :
+        // Move code here
+        flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
+        break;
+
+      case 'd' :
+        // Data code here
+        break;
+
+    }
+    if(inputChar == 'e')                                                        // End session here
+    {
       break;
-
-    case 't':
-      std::cout << "Test Case running" << std::endl;                          // Starting the Test case
-      //flighttelemetry->GetQuaternionData(vehicle);                          // Call method from FlightTelemetry class that returns and prints Quaternion data
-      //flighttelemetry->GetBatteryData(vehicle);                             // Call method from FlightTelemetry class that returns and prints Battery Data
-      //flighttelemetry->GetGlobalPositionData(vehicle);                      // Call method from FlightTelemetry class that returns and prints GPS Data
-      //moveByPositionOffset(vehicle, 1, 0, 0, 0);                            // Call modifed method from flight_control_sample that commands to move by position
-      flightcommander->ForceLanding(vehicle);                               // Call method from FlightCommander class that commands vehicle to force landing
-      break;
-
-    case 'l':
-      std::cout << "Test Case running" << std::endl;                          // Starting the Test case
-      //flighttelemetry->GetQuaternionData(vehicle);                          // Call method from FlightTelemetry class that returns and prints Quaternion data
-      //flighttelemetry->GetBatteryData(vehicle);                             // Call method from FlightTelemetry class that returns and prints Battery Data
-      //flighttelemetry->GetGlobalPositionData(vehicle);                      // Call method from FlightTelemetry class that returns and prints GPS Data
-      //moveByPositionOffset(vehicle, 1, 0, 0, 0);                            // Call modifed method from flight_control_sample that commands to move by position
-      flightcommander->ForceLanding(vehicle);                               // Call method from FlightCommander class that commands vehicle to force landing
+    }
   }
 
   auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time

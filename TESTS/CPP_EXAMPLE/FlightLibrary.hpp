@@ -11,8 +11,9 @@
 
 // System Includes
 #include <cmath>
-#include  <signal.h>
-#include  <stdlib.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <csignal>
 
 // DJI OSDK includes
 #include "dji_status.hpp"
@@ -37,7 +38,7 @@ namespace FlightLibrary
         void GetQuaternionData(DJI::OSDK::Vehicle* vehiclePtr);                             // This method gets broadcasted quaternion data and prints it out
         void GetBatteryData(DJI::OSDK::Vehicle* vehiclePtr);                                // This method gets battery data and prints it out
         void GetGlobalPositionData(DJI::OSDK::Vehicle* vehiclePtr, int responseTimeout);    // This method gets position data (longtidude, latidude, altidude, height, health)
-        void GetLocalPositionData(DJI::OSDK::Vehicle* vehiclePtr);                          // This method gets local position data (X,Y,Z)
+        void GetUwbPositionData();                                                          // This method gets local position data (X,Y,Z)
     };
 
     class FlightCommander
@@ -48,11 +49,11 @@ namespace FlightLibrary
         FlightCommander();
         ~FlightCommander();
         void ForceLanding(DJI::OSDK::Vehicle* vehiclePtr);                          // This method will command vehicle to perform forced landing
-
-        
     };
     
+    
 }
+void SafetyFunction(int signum);
 
 
 
