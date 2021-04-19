@@ -396,6 +396,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   double xOffsetRemaining = xOffsetDesired - localOffset.x;
   double yOffsetRemaining = yOffsetDesired - localOffset.y;
   double zOffsetRemaining = zOffsetDesired - localOffset.z;
+  std::cout << "localOffset.x " << localOffset.x << "localOffset.z " << localOffset.y << "localOffset.z " << localOffset.z << std::endl;
 
   // Conversions
   double yawDesiredRad     = DEG2RAD * yawDesired;

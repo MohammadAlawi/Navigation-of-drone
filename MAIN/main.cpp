@@ -239,6 +239,7 @@ int main(int argc, char** argv)
       case 'd' :
         // Data code here
         flighttelemetry->GetQuaternionData(vehicle);
+        flighttelemetry->GetGlobalPositionData(vehicle, 1);
         break;
 
     }
