@@ -62,18 +62,39 @@ void FlightTelemetry::GetGlobalPositionData(DJI::OSDK::Vehicle* vehicle, int res
         globalposition = vehicle->broadcast->getGlobalPosition();                       // Run method and return struct type data to globalpostion struct
         std::cout 
         << "Altidude "      <<globalposition.altitude<< " "                             // Print out returned data (Barometer)
-        << "Heigh "         <<globalposition.height<< " "                               // Print out returned data  (Ultrasonic)
+        << "Heigh "         <<globalposition.height<< " "                               // Print out returned data (Ultrasonic)
         << "Latidude "      <<globalposition.latitude<< " "                             // Print out returned data
         << "Longtidude "    <<globalposition.longitude<< " "                            // Print out returned data
-        << "Health "        <<globalposition.health<< " "                               // Print out returned data  (GPS Health)
+        << "Health "        <<globalposition.health<< " "                               // Print out returned data (GPS Health)
         << std::endl;
         sleep(1); 
     }
 }
 
-void FlightTelemetry::GetUwbPositionData()
+FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[MAX_BUF])
 {
-    // Get Uwb data code here
+    FlightTelemetry::UwbStruct data;
+    read(fd, buf, MAX_BUF);
+    std::string StringToGetSplitted = buf;
+    std::size_t start = StringToGetSplitted.find("X");
+    std::size_t end = StringToGetSplitted.find("+");
+    std::string SplittedString = StringToGetSplitted.substr(start+1, end-1);
+    float ConvertedFloat = std::stof(SplittedString);
+    data.x = ConvertedFloat;                                                                                // Assign values to struct members
+
+    start = StringToGetSplitted.find("Y");
+    end = StringToGetSplitted.find("+");
+    SplittedString = StringToGetSplitted.substr(start+1, end-1);
+    ConvertedFloat = std::stof(SplittedString);
+    data.y = ConvertedFloat;                                                                                // Assign values to struct members
+
+    start = StringToGetSplitted.find("Y");
+    end = StringToGetSplitted.find("+");
+    SplittedString = StringToGetSplitted.substr(start+1, end-1);
+    ConvertedFloat = std::stof(SplittedString);
+    data.z = ConvertedFloat;                                                                                // Assign values to struct members
+    //std::cout <<"X float " << data.x <<" Y float " << data.y <<" Z float " << data.z << std::endl;        // Print data (Optional)
+    return data;                                                                                            // Return struct
 }
 
 //*************************************************************************************************************************************************************************

@@ -253,3 +253,21 @@ void* FunctionOutsideOfAnyMember(void*)                     // Define method(fun
 {
     std::cout << "FunctionOutsideOfAnyMember called" << std::endl;
 }
+
+//****************************************************************************************************************************************************
+// Python Embedding
+/*
+    const char *scriptDirectoryName = "/home/uwb6/DJIOSDK/Onboard-SDK/build/bin";
+    Py_Initialize();
+    PyObject *sysPath = PySys_GetObject("path");
+    PyObject *path = PyUnicode_FromString(scriptDirectoryName);
+    int result = PyList_Insert(sysPath, 0, path);
+    PyObject *pModule = PyImport_ImportModule("multitag");
+
+    PyObject* myFunction = PyObject_GetAttrString(pModule,(char*)"MainFunction");
+    PyObject* args = PyTuple_Pack(1);
+
+    PyObject* myResult = PyObject_CallObject(myFunction, args);
+    double getResult = PyFloat_AsDouble(myResult);
+    std::cout << "Print my results " << getResult << std::endl;
+*/

@@ -1,6 +1,6 @@
-/*! @file MAIN/main.cpp
+/*! @file main.cpp
  *  @version 1.0.0
- *  @date 10.04.2021
+ *  @date 17.04.2021
  *
  *  @brief
  *  Our brief
@@ -11,6 +11,8 @@
 #include "MyLibrary.hpp"                                                                      // Library for test purpose
 #include <Camera.hpp>                                                                         // ZED library inclusion (INSTALLED LIBRARY)
 #include "FlightLibrary.hpp"                                                                  // Library for Flight control and Reading Data
+
+#define MAX_BUF 1024
 
 using namespace sl;                                                                           // Namespace definition for ZED library 
 using namespace DJI::OSDK;
@@ -33,27 +35,9 @@ int main(int argc, char** argv)
   //*********************************************************************************************************************************************
   // Measuring execution time
   auto t1 = high_resolution_clock::now();                                                     // Run function to measure execution time
-  //*********************************************************************************************************************************************
-  // ZED integration
-  /*
-  
-  sl::Camera zed;                                                                             // Create instance(object) of class from the ZED library
-  
-  ERROR_CODE returned_state = zed.open();                                                     // Open the camera
-  if (returned_state != ERROR_CODE::SUCCESS) {
-      //std::cout << "Error " << returned_state << ", exit program.\n";
-      //return EXIT_FAILURE;
-      std::cout << "Error " << returned_state << ", No camera found.\n";                      // Added test comment
-  }
-  auto camera_infos = zed.getCameraInformation();                                             // Get camera information (ZED serial number)
-  printf("Hello! This is my serial number: %d\n", camera_infos.serial_number);
-  zed.close();                                                                                // Close the camera
-  */
-  //*********************************************************************************************************************************************
-  // POZYX integration
 
-  //*********************************************************************************************************************************************
-  // MyLibrary integration
+    //*********************************************************************************************************************************************
+  // MyLibrary & FlightLibrary integration
   /*
 
   MyClassOne MyInstanceClassOne;                                                              // Create instance(object) of class from the library
@@ -98,19 +82,51 @@ int main(int argc, char** argv)
   std::cout << "Quaternion data " <<quaternion.x<<" "<<quaternion.y<<" "<<quaternion.z<< std::endl;     // Print returned struct data
 
   classutilizingpointers->FunctionThatCreatesFourThreads();                                   // Call function that is accessed using class pointers
-  classutilizingpointers->StringHandlingAndConvertingFunction();                       // Call function that is accessed using class pointers
+  classutilizingpointers->StringHandlingAndConvertingFunction();                              // Call function that is accessed using class pointers
 
   auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time
   duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
   std::cout << "Execution time in " << ms_double.count() << " ms" << std::endl;               // Print
 
   */
-  //*********************************************************************************************************************************************
-  // OSDK integration
+
   FlightTelemetry* flighttelemetry;                                             // Instantiate FlightTelemetry class object pointer
   FlightCommander* flightcommander;                                             // Instantiate FlightCommander class object pointer
-  signal(SIGINT, SafetyFunction);
+  
+  //signal(SIGINT, SafetyFunction);
+  //*********************************************************************************************************************************************
+  // ZED integration
+  /*
+  
+  sl::Camera zed;                                                                             // Create instance(object) of class from the ZED library
+  
+  ERROR_CODE returned_state = zed.open();                                                     // Open the camera
+  if (returned_state != ERROR_CODE::SUCCESS) {
+      //std::cout << "Error " << returned_state << ", exit program.\n";
+      //return EXIT_FAILURE;
+      std::cout << "Error " << returned_state << ", No camera found.\n";                      // Added test comment
+  }
+  auto camera_infos = zed.getCameraInformation();                                             // Get camera information (ZED serial number)
+  printf("Hello! This is my serial number: %d\n", camera_infos.serial_number);
+  zed.close();                                                                                // Close the camera
+  */
+  //*********************************************************************************************************************************************
+  // POZYX integration
+    FlightTelemetry::UwbStruct uwbstruct;
+    int fd;
+    char *FifoPipe = "Pipe.fifo";
+    char buf[MAX_BUF];
+    fd = open(FifoPipe, O_RDONLY);                                                            // Open FIFO pipe for reading incoming
+    for (int i = 0; i < 1000000; i++)
+    {
+      uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);
+      std::cout << "X" <<uwbstruct.x<< " Y" <<uwbstruct.y<< " Z" <<uwbstruct.z<< std::endl;
+    }
+    close(fd);
 
+  //*********************************************************************************************************************************************
+  // OSDK integration
+  
   // Initialize variables
   int functionTimeout = 1;
   // Setup OSDK.
@@ -123,6 +139,10 @@ int main(int argc, char** argv)
 
   // Obtain Control Authority
   vehicle->obtainCtrlAuthority(functionTimeout);
+
+  //*********************************************************************************************************************************************
+  // Loop
+
   while(true)
   {
     // Display interactive prompt
@@ -166,22 +186,59 @@ int main(int argc, char** argv)
 
       case 't' :
         // Takeoff code here
-        vehicle->control->takeoff(1);
+        for(int i = 0; i < 4000; i++)
+        {
+          vehicle->control->attitudeAndVertPosCtrl(0,0,-63,2);
+          usleep(1000);
+        }
+        for(int i = 0; i < 5000; i++)
+        {
+          vehicle->control->attitudeAndVertPosCtrl(0,-7,-63,0.5);               // Y is inversed
+          usleep(100);
+        }
+
         flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
         break;
 
       case 'm' :
         // Move code here
+        flighttelemetry->GetGlobalPositionData(vehicle, 1);
+        for(int i = 0; i < 2000; i++)
+        {
+          vehicle->control->attitudeAndVertPosCtrl(0,-5,-63,0);                  // Y is inversed
+          usleep(1000);
+        }
+                for(int i = 0; i < 2000; i++)
+
         flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
         break;
 
       case 'n' :
         // Move code here
+        flighttelemetry->GetGlobalPositionData(vehicle, 1);
+        for(int i = 0; i < 4000; i++)
+        {
+          //vehicle->control->attitudeAndVertPosCtrl(0,-3,-63,0);
+          vehicle->control->positionAndYawCtrl(0,-20,0,-63);
+          usleep(1000);
+        }
+        flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
+      break;
+      case 'b' :
+        // Move code here
+        flighttelemetry->GetGlobalPositionData(vehicle, 1);
+        for(int i = 0; i < 2000; i++)
+        {
+          //vehicle->control->attitudeAndVertPosCtrl(-3,0,-63,0);
+          vehicle->control->positionAndYawCtrl(-20,0,0,-63);
+          usleep(1000);
+        }
         flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
         break;
 
       case 'd' :
         // Data code here
+        flighttelemetry->GetQuaternionData(vehicle);
         break;
 
     }
@@ -190,6 +247,7 @@ int main(int argc, char** argv)
       break;
     }
   }
+  
 
   auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time
   duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
@@ -197,3 +255,6 @@ int main(int argc, char** argv)
 
   return 0;
 }
+
+
+
