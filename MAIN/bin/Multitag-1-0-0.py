@@ -82,7 +82,7 @@ class MultitagPositioning(object):
             print("STEP 2")
             print("Piping Initialization Done")
             os.remove("Pipe.fifo")                                                              # Remove previous FIFO pipe
-            path= "/home/uwb6/DJIOSDK/Onboard-SDK/build/bin/Pipe.fifo"                          # Add path to pipe file
+            path= "/home/uwb5/uwb/Onboard-SDK/build/binPipe.fifo"                               # Add path to pipe file
             os.mkfifo(path)                                                                     # Create FIFO pipe
             fifo=open(path,'w')                                                                 # Open FIFO pipe
             start = timer()                                                                     # Start high resolution timer (Optional)
@@ -304,7 +304,7 @@ if __name__ == "__main__":
                 if initialization is False:                                                             # Start initialization if not done
                     print("Piping Initialization Started")
                     os.remove("Pipe.fifo")                                                              # Remove previous FIFO pipe
-                    path= "/home/uwb6/DJIOSDK/Onboard-SDK/build/bin/Pipe.fifo"                          # Add path to pipe file
+                    path= "/home/uwb5/uwb/Onboard-SDK/build/bin/Pipe.fifo"                              # Add path to pipe file
                     os.mkfifo(path)                                                                     # Create FIFO pipe
                     print("Piping Initialization Finished")
                     print("Ready to Run") 

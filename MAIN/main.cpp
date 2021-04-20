@@ -23,7 +23,7 @@ using std::chrono::high_resolution_clock;                                       
 using std::chrono::duration_cast;                                                             // Namespaces for measuring execution speed
 using std::chrono::duration;                                                                  // Namespaces for measuring execution speed
 using std::chrono::milliseconds;                                                              // Namespaces for measuring execution speed
-using namespace FlightLibrary;
+using namespace FlightLibrary;                                        
 
 MyClassOne::MyStructOne InstanceStructOne;                                                    // Create instance of struct (utilizing namespace)
 MyClassOne::MyEnumOne myenumone;                                                              // Create instance of enum (utilizing namespace)
@@ -112,18 +112,20 @@ int main(int argc, char** argv)
   */
   //*********************************************************************************************************************************************
   // POZYX integration
+  
     FlightTelemetry::UwbStruct uwbstruct;
     int fd;
     char *FifoPipe = "Pipe.fifo";
     char buf[MAX_BUF];
     fd = open(FifoPipe, O_RDONLY);                                                            // Open FIFO pipe for reading incoming
-    for (int i = 0; i < 1000000; i++)
+    for (int i = 0; i < 5; i++)
     {
       uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);
       std::cout << "X" <<uwbstruct.x<< " Y" <<uwbstruct.y<< " Z" <<uwbstruct.z<< std::endl;
+      sleep(1);
     }
-    close(fd);
-
+    std::cout << "Pozyx works - Ready to Fly" << std::endl;
+    
   //*********************************************************************************************************************************************
   // OSDK integration
   
@@ -202,6 +204,9 @@ int main(int argc, char** argv)
 
       case 'm' :
         // Move code here
+        moveByPositionOffset(vehicle, 5, 5, 1, 0);
+        std::cout << "Finished" << std::endl; 
+        /*
         flighttelemetry->GetGlobalPositionData(vehicle, 1);
         for(int i = 0; i < 2000; i++)
         {
@@ -211,6 +216,7 @@ int main(int argc, char** argv)
                 for(int i = 0; i < 2000; i++)
 
         flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
+        */
         break;
 
       case 'n' :
@@ -238,7 +244,7 @@ int main(int argc, char** argv)
 
       case 'd' :
         // Data code here
-        flighttelemetry->GetQuaternionData(vehicle);
+        //flighttelemetry->GetQuaternionData(vehicle);
         flighttelemetry->GetGlobalPositionData(vehicle, 1);
         break;
 
@@ -253,6 +259,7 @@ int main(int argc, char** argv)
   auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time
   duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
   std::cout << "Execution time in " << ms_double.count() << " ms" << std::endl;               // Print
+  close(fd);                                                                                  // Pozyx Integration (FIFO pipe closed)
 
   return 0;
 }

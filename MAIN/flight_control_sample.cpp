@@ -34,6 +34,7 @@
 
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
+using namespace FlightLibrary;
 
 /*! Monitored Takeoff (Blocking API call). Return status as well as ack.
     This version of takeoff makes sure your aircraft actually took off
@@ -290,6 +291,7 @@ monitoredTakeoff(Vehicle* vehicle, int timeout)
     setpoints and use attitude control or convert to velocity setpoints
     and use velocity control.
 !*/
+
 bool
 moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
                      float yOffsetDesired, float zOffsetDesired,
@@ -368,6 +370,13 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   Telemetry::GlobalPosition currentBroadcastGP;
   Telemetry::GlobalPosition originBroadcastGP;
 
+  FlightTelemetry* flighttelemetry;                                                         // Create an object pointer of FlightTelemetry
+  FlightTelemetry::UwbStruct uwbstruct;                                                     // Instiate struct
+  int fd;                                                                                   // Create integer for piping
+  char *FifoPipe = "Pipe.fifo";                                                             // Create a pipe
+  char buf[MAX_BUF];                                                                        // Define maximum buffer size
+  fd = open(FifoPipe, O_RDONLY);                                                            // Open FIFO pipe for reading incoming
+
   // Convert position offset from first position to local coordinates
   Telemetry::Vector3f localOffset;
 
@@ -392,11 +401,27 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
                              static_cast<void*>(&originBroadcastGP));
   }
   
+  uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);                     // Get Uwb postion data and store to uwbstruct
+                                     
+  for (int i = 0; i < 2; i++)                                                   // Testing purpose (Optional)
+  {
+    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);
+    std::cout << "X" <<uwbstruct.x<< " Y" <<uwbstruct.y<< " Z" <<uwbstruct.z<< std::endl;
+    sleep(1);
+  }
+  
+  /* 
+  // Original implementation
   // Get initial offset. We will update this in a loop later.
   double xOffsetRemaining = xOffsetDesired - localOffset.x;
   double yOffsetRemaining = yOffsetDesired - localOffset.y;
   double zOffsetRemaining = zOffsetDesired - localOffset.z;
-  std::cout << "localOffset.x " << localOffset.x << "localOffset.z " << localOffset.y << "localOffset.z " << localOffset.z << std::endl;
+  */
+
+  // Get initial offset. We will update this in a loop later.
+  double xOffsetRemaining = xOffsetDesired - uwbstruct.x;                       // Set offset remaining using localoffset = uwbstruct
+  double yOffsetRemaining = yOffsetDesired - uwbstruct.y;                       // Set offset remaining using localoffset = uwbstruct
+  double zOffsetRemaining = zOffsetDesired - uwbstruct.z;                       // Set offset remaining using localoffset = uwbstruct
 
   // Conversions
   double yawDesiredRad     = DEG2RAD * yawDesired;
@@ -495,11 +520,27 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
                                static_cast<void*>(&currentBroadcastGP),
                                static_cast<void*>(&originBroadcastGP));
     }
-
+    /*
+    // This is original offset declaration (Remember to change initial offset also)
     //! See how much farther we have to go
     xOffsetRemaining = xOffsetDesired - localOffset.x;
     yOffsetRemaining = yOffsetDesired - localOffset.y;
     zOffsetRemaining = zOffsetDesired - localOffset.z;
+    */
+
+    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);              // Get Uwb postion data and store to uwbstruct
+    xOffsetRemaining = xOffsetDesired - uwbstruct.x;                       // Set offset remaining using localoffset = uwbstruct
+    yOffsetRemaining = yOffsetDesired - uwbstruct.y;                       // Set offset remaining using localoffset = uwbstruct
+    zOffsetRemaining = zOffsetDesired - uwbstruct.z;                       // Set offset remaining using localoffset = uwbstruct
+
+    /*
+    std::cout 
+    << "lO.x " << localOffset.x << "    lO.y " << localOffset.y << "    lO.z " << localOffset.z 
+    << "         xOR " << xOffsetRemaining << "    yOR " << yOffsetRemaining << "    zOR " << zOffsetRemaining
+    << "         Alt " << currentBroadcastGP.altitude << "    Lat " << currentBroadcastGP.latitude << "    Lon " << currentBroadcastGP.longitude
+    << "         GPS Health " << currentBroadcastGP.health
+    << std::endl;
+    */
 
     //! See if we need to modify the setpoint
     if (std::abs(xOffsetRemaining) < speedFactor)

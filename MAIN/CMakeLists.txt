@@ -25,12 +25,12 @@ project(MAIN)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -g -O0 -DNDEBUG")                           # -DNDEBUG added for ZED;
 
-        SET(ZED_DIR "/usr/local/zed/")                                                                  # Added for ZED integration
-        FIND_PACKAGE(zed REQUIRED )                                                                     # Added for ZED integration
-        INCLUDE_DIRECTORIES(${ZED_INCLUDE_DIRS})                                                        # Added for ZED integration
-        link_directories(${ZED_LIBRARY_DIR})                                                            # Added for ZED integration
+    SET(ZED_DIR "/usr/local/zed/")                                                                      # Added for ZED integration
+    FIND_PACKAGE(zed REQUIRED )                                                                         # Added for ZED integration
+    INCLUDE_DIRECTORIES(${ZED_INCLUDE_DIRS})                                                            # Added for ZED integration
+    link_directories(${ZED_LIBRARY_DIR})                                                                # Added for ZED integration
 
-        find_package(PythonLibs REQUIRED)                                                               # Added for Python integration                
+     	find_package(PythonLibs REQUIRED)                                                               # Added for Python integration                
         include_directories(${PYTHON_INCLUDE_DIRS})                                                     # Added for Python integration
 
 # User include directories here
@@ -48,8 +48,6 @@ include_directories(${CUDA_INCLUDE_DIR})                                        
 include_directories(${MAIN_INCLUDE_DIR})                                                                # Added for includes in main directory
 include_directories(${PYTHON_H_INCLUDE_DIR})                                                            # Added for includes in Python directory
 
-
-
 # User-code related project files - Add here all .hpp and .cpp file directories
 FILE(GLOB SOURCE_FILES *.hpp *.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/../common/dji_linux_environment.cpp
@@ -62,9 +60,8 @@ FILE(GLOB SOURCE_FILES *.hpp *.cpp
         ${CUDA_INCLUDE_DIR}cuda_runtime.h                                                               # Added path to file
         ${CUDA_INCLUDE_DIR}cuda_runtime_api.h                                                           # Added path to file
         ${CUDA_INCLUDE_DIR}device_launch_parameters.h                                                   # Added path to file
-	${CMAKE_CURRENT_SOURCE_DIR}FlightLibrary.hpp                                                    # Added path to file
-	${CMAKE_CURRENT_SOURCE_DIR}FlightLibrary.cpp                                                    # Added path to file
-        ${PYTHON_H_INCLUDE_DIR}Python.h                                                                 # Added path to file
+	${CMAKE_CURRENT_SOURCE_DIR}FlightLibrary.hpp							# Added path to file
+	${CMAKE_CURRENT_SOURCE_DIR}FlightLibrary.cpp							# Added path to file
         )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
