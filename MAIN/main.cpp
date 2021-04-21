@@ -118,7 +118,8 @@ int main(int argc, char** argv)
     char *FifoPipe = "Pipe.fifo";
     char buf[MAX_BUF];
     fd = open(FifoPipe, O_RDONLY);                                                            // Open FIFO pipe for reading incoming
-    for (int i = 0; i < 5; i++)
+    std::cout << "Testing Pozyx" << std::endl;
+    for (int i = 0; i < 1; i++)
     {
       uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);
       std::cout << "X" <<uwbstruct.x<< " Y" <<uwbstruct.y<< " Z" <<uwbstruct.z<< std::endl;
@@ -204,8 +205,9 @@ int main(int argc, char** argv)
 
       case 'm' :
         // Move code here
-        moveByPositionOffset(vehicle, 5, 5, 1, 0);
-        std::cout << "Finished" << std::endl; 
+        moveByPositionOffset(vehicle, 3.5, 2.6, 1, -12.5);
+        std::cout << "Finished" << std::endl;
+        flightcommander->ForceLanding(vehicle); 
         /*
         flighttelemetry->GetGlobalPositionData(vehicle, 1);
         for(int i = 0; i < 2000; i++)
@@ -244,8 +246,8 @@ int main(int argc, char** argv)
 
       case 'd' :
         // Data code here
-        //flighttelemetry->GetQuaternionData(vehicle);
-        flighttelemetry->GetGlobalPositionData(vehicle, 1);
+        flighttelemetry->GetQuaternionData(vehicle);
+        //flighttelemetry->GetGlobalPositionData(vehicle, 1);
         break;
 
     }

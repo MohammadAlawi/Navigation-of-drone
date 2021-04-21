@@ -322,7 +322,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
       ACK::getErrorCodeMessage(subscribeStatus, func);
       return false;
     }
-  /*
+  
     // Telemetry: Subscribe to quaternion, fused lat/lon and altitude at freq 50
     // Hz
     pkgIndex                  = 0;
@@ -346,7 +346,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
       vehicle->subscribe->removePackage(pkgIndex, responseTimeout);
       return false;
     }
-  */
+  
     // Also, since we don't have a source for relative height through subscription,
     // start using broadcast height
     if (!startGlobalPositionBroadcast(vehicle))
@@ -361,11 +361,11 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   sleep(1);
 
   // Get data
-  /*
+  
   // Global position retrieved via subscription
   Telemetry::TypeMap<TOPIC_GPS_FUSED>::type currentSubscriptionGPS;
   Telemetry::TypeMap<TOPIC_GPS_FUSED>::type originSubscriptionGPS;
-  */
+  
   // Global position retrieved via broadcast
   Telemetry::GlobalPosition currentBroadcastGP;
   Telemetry::GlobalPosition originBroadcastGP;
@@ -382,13 +382,13 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
 
   if (!vehicle->isM100() && !vehicle->isLegacyM600())
   {
-  /*
+  
     currentSubscriptionGPS = vehicle->subscribe->getValue<TOPIC_GPS_FUSED>();
     originSubscriptionGPS  = currentSubscriptionGPS;
     localOffsetFromGpsOffset(vehicle, localOffset,
                              static_cast<void*>(&currentSubscriptionGPS),
                              static_cast<void*>(&originSubscriptionGPS));
-  */
+  
     // Get the broadcast GP since we need the height for zCmd
     currentBroadcastGP = vehicle->broadcast->getGlobalPosition();
   }
@@ -428,20 +428,20 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   double yawThresholdInRad = DEG2RAD * yawThresholdInDeg;
   
   //! Get Euler angle
-  /*
+  
   // Quaternion retrieved via subscription
   Telemetry::TypeMap<TOPIC_QUATERNION>::type subscriptionQ;
-  */
+  
   // Quaternion retrieved via broadcast
   Telemetry::Quaternion broadcastQ;
 
   double yawInRad;
   if (!vehicle->isM100() && !vehicle->isLegacyM600())
   {
-    /*
+    
     subscriptionQ = vehicle->subscribe->getValue<TOPIC_QUATERNION>();
     yawInRad = toEulerAngle((static_cast<void*>(&subscriptionQ))).z / DEG2RAD;
-    */
+    
   }
   else
   {
@@ -499,7 +499,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     //! Get current position in required coordinates and units
     if (!vehicle->isM100() && !vehicle->isLegacyM600())
     {
-      /*
+      
       subscriptionQ = vehicle->subscribe->getValue<TOPIC_QUATERNION>();
       yawInRad      = toEulerAngle((static_cast<void*>(&subscriptionQ))).z;
       currentSubscriptionGPS = vehicle->subscribe->getValue<TOPIC_GPS_FUSED>();
@@ -508,7 +508,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
                                static_cast<void*>(&originSubscriptionGPS));
 
       // Get the broadcast GP since we need the height for zCmd
-      */
+      
       currentBroadcastGP = vehicle->broadcast->getGlobalPosition();
     }
     else
@@ -533,14 +533,17 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     yOffsetRemaining = yOffsetDesired - uwbstruct.y;                       // Set offset remaining using localoffset = uwbstruct
     zOffsetRemaining = zOffsetDesired - uwbstruct.z;                       // Set offset remaining using localoffset = uwbstruct
 
-    /*
+    
     std::cout 
-    << "lO.x " << localOffset.x << "    lO.y " << localOffset.y << "    lO.z " << localOffset.z 
+    // << "lO.x " << localOffset.x << "    lO.y " << localOffset.y << "    lO.z " << localOffset.z            // localOffset is used only with GPS data
+    << "lO.x " << uwbstruct.x << "    lO.y " << uwbstruct.y << "    lO.z " << uwbstruct.z                     // uwbstruct is used only with UWB data
     << "         xOR " << xOffsetRemaining << "    yOR " << yOffsetRemaining << "    zOR " << zOffsetRemaining
-    << "         Alt " << currentBroadcastGP.altitude << "    Lat " << currentBroadcastGP.latitude << "    Lon " << currentBroadcastGP.longitude
-    << "         GPS Health " << currentBroadcastGP.health
+    << "         xCmd " << xCmd << "    yCmd " << yCmd << "    zCmd " << zCmd
+    << "         YawD " << yawDesiredRad / DEG2RAD
+    // << "         Alt " << currentBroadcastGP.altitude << "    Lat " << currentBroadcastGP.latitude << "    Lon " << currentBroadcastGP.longitude
+    // << "         GPS Health " << currentBroadcastGP.health
     << std::endl;
-    */
+    
 
     //! See if we need to modify the setpoint
     if (std::abs(xOffsetRemaining) < speedFactor)

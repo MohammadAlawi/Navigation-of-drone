@@ -33,8 +33,13 @@
 #ifndef DJIOSDK_FLIGHTCONTROL_HPP
 #define DJIOSDK_FLIGHTCONTROL_HPP
 
+#define MAX_BUF 1024                                                            // Definition for Piping    
+
 // System Includes
 #include <cmath>
+
+// UWB Includes
+#include "FlightLibrary.hpp"                                                    // FlightLibrary
 
 // DJI OSDK includes
 #include "dji_status.hpp"

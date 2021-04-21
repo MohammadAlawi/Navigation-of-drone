@@ -57,7 +57,7 @@ void FlightTelemetry::GetBatteryData(DJI::OSDK::Vehicle* vehicle)
 void FlightTelemetry::GetGlobalPositionData(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
 {
     Telemetry::GlobalPosition globalposition;                                           // Instantiate typedef struct
-    for(int i = 0; i <= 100; i++)
+    for(int i = 0; i <= 10000; i++)
     {
         globalposition = vehicle->broadcast->getGlobalPosition();                       // Run method and return struct type data to globalpostion struct
         std::cout 
@@ -80,19 +80,19 @@ FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[
     std::size_t end = StringToGetSplitted.find("+");
     std::string SplittedString = StringToGetSplitted.substr(start+1, end-1);
     float ConvertedFloat = std::stof(SplittedString);
-    data.x = ConvertedFloat;                                                                                // Assign values to struct members
+    data.x = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
 
     start = StringToGetSplitted.find("Y");
     end = StringToGetSplitted.find("+");
     SplittedString = StringToGetSplitted.substr(start+1, end-1);
     ConvertedFloat = std::stof(SplittedString);
-    data.y = ConvertedFloat;                                                                                // Assign values to struct members
+    data.y = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
 
-    start = StringToGetSplitted.find("Y");
+    start = StringToGetSplitted.find("Z");
     end = StringToGetSplitted.find("+");
     SplittedString = StringToGetSplitted.substr(start+1, end-1);
     ConvertedFloat = std::stof(SplittedString);
-    data.z = ConvertedFloat;                                                                                // Assign values to struct members
+    data.z = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
     //std::cout <<"X float " << data.x <<" Y float " << data.y <<" Z float " << data.z << std::endl;        // Print data (Optional)
     return data;                                                                                            // Return struct
 }
