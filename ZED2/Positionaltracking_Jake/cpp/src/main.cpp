@@ -32,7 +32,7 @@ Uses part of a ZED provided code for positional tracking
 #include <chrono>
 
 // local includes
-#include "includetest.hpp"
+#include "placeholder.hpp"
 
 // Using std namespace
 using namespace std;
@@ -41,64 +41,18 @@ using namespace sl;
 #define IMU_ONLY 0
 const int MAX_CHAR = 128;
 
-inline void setTxt(sl::float3 value, char* ptr_txt) {
-    snprintf(ptr_txt, MAX_CHAR, "%3.2f; %3.2f; %3.2f", value.x, value.y, value.z);
-}
-
-void parseArgs(int argc, char **argv, sl::InitParameters& param);
-
-void userExit();
-
-
-int main(int argc, char **argv) {
+int main() {
 
     Camera zed;
-    // Set configuration parameters for the ZED
-    InitParameters init_parameters;
-    init_parameters.coordinate_units = UNIT::METER;
-    init_parameters.coordinate_system = COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP;
-    init_parameters.sdk_verbose = true;
-
-    string unit = "M";
-
-    init_parameters.depth_mode = DEPTH_MODE::PERFORMANCE; // Depth mode, available is ULTRA, QUALITY, PERFORMANCE (quality somehow has the highest execution time)
-    init_parameters.coordinate_units = UNIT::METER; // Unit to use (for depth measurements)
-    init_parameters.depth_minimum_distance = 0.3 ; // Minimum depth perception, minimum setting for ZED 2 is 0.3m. Increase to increase performance
-    // zed.setDepthMaxRangeValue(40); // set maximum depth perception distance to 40m
-
-    parseArgs(argc, argv, init_parameters);
-
-    // Open the camera
-    auto returned_state = zed.open(init_parameters);
-    if (returned_state != ERROR_CODE::SUCCESS) {
-        cout << "Camera Open" << returned_state << "Exit program." << endl;
-        return EXIT_FAILURE;
-    }
-
-    auto camera_model = zed.getCameraInformation().camera_model;
+    Pose camera_path;
 
     // Create text for GUI
     char text_rotation[MAX_CHAR];
     char text_translation[MAX_CHAR];
 
-    // define filepath for area file
-    sl::String areafile = "/home/uwb5/git/ZED2/Positionaltracking_Jake/cpp/areafiles/input.area";
-
-    // Set parameters for Positional Tracking
-    PositionalTrackingParameters positional_tracking_param;
-    positional_tracking_param.enable_area_memory = true;
-    //positional_tracking_param.area_file_path = areafile;
-
-    // enable Positional Tracking
-    returned_state = zed.enablePositionalTracking(positional_tracking_param);
-    if (returned_state != ERROR_CODE::SUCCESS) {
-        cout<<"Enabling positionnal tracking failed: "<< returned_state << endl;
-        zed.close();
-        return EXIT_FAILURE;
-    }
-
-    Pose camera_path;
     POSITIONAL_TRACKING_STATE tracking_state;
+
+    openCamera(zed);
 
     sl::Timestamp lasttimestamp;
 
@@ -151,7 +105,15 @@ int main(int argc, char **argv) {
 
     while(future.wait_for(0ms) != std::future_status::ready) {
 
-        if (zed.grab() == ERROR_CODE::SUCCESS) {
+        //if (zed.grab() == ERROR_CODE::SUCCESS) {
+
+            // Function that getsposition returns struct
+            getPosition(zed, camera_path);
+
+            sl::float3 translation = camera_path.getEulerAngles();
+            cout << translation[1] << endl;
+            
+        if (0 == 1) {
             // Get the position of the camera in a fixed reference frame (the World Frame)
             // Get timestamp of last grab
             lasttimestamp = camera_path.timestamp;
@@ -282,56 +244,5 @@ int main(int argc, char **argv) {
     //zed.disableRecording();
     zed.close();
     return EXIT_SUCCESS;
-}
-
-void parseArgs(int argc, char **argv, sl::InitParameters& param) {
-    if (argc > 1 && string(argv[1]).find(".svo") != string::npos) {
-        // SVO input mode
-        param.input.setFromSVOFile(argv[1]);
-        cout << "[Sample] Using SVO File input: " << argv[1] << endl;
-    } else if (argc > 1 && string(argv[1]).find(".svo") == string::npos) {
-        string arg = string(argv[1]);
-        unsigned int a, b, c, d, port;
-        if (sscanf(arg.c_str(), "%u.%u.%u.%u:%d", &a, &b, &c, &d, &port) == 5) {
-            // Stream input mode - IP + port
-            string ip_adress = to_string(a) + "." + to_string(b) + "." + to_string(c) + "." + to_string(d);
-            param.input.setFromStream(sl::String(ip_adress.c_str()), port);
-            cout << "[Sample] Using Stream input, IP : " << ip_adress << ", port : " << port << endl;
-        } else if (sscanf(arg.c_str(), "%u.%u.%u.%u", &a, &b, &c, &d) == 4) {
-            // Stream input mode - IP only
-            param.input.setFromStream(sl::String(argv[1]));
-            cout << "[Sample] Using Stream input, IP : " << argv[1] << endl;
-        } else if (arg.find("HD2K") != string::npos) {
-            param.camera_resolution = sl::RESOLUTION::HD2K;
-            cout << "[Sample] Using Camera in resolution HD2K" << endl;
-        } else if (arg.find("HD1080") != string::npos) {
-            param.camera_resolution = sl::RESOLUTION::HD1080;
-            cout << "[Sample] Using Camera in resolution HD1080" << endl;
-        } else if (arg.find("HD720") != string::npos) {
-            param.camera_resolution = sl::RESOLUTION::HD720;
-            cout << "[Sample] Using Camera in resolution HD720" << endl;
-        } else if (arg.find("VGA") != string::npos) {
-            param.camera_resolution = sl::RESOLUTION::VGA;
-            cout << "[Sample] Using Camera in resolution VGA" << endl;
-        }
-    } else {
-        // Default
-    }
-}
-
-
-#include <iostream>
-
-using namespace std;
-
-void userExit()  {
-    int inputchar = 0;
-    // ESC = ASCII 27, q = ASCII 113
-    while (inputchar != 27 && inputchar != 113) {
-        inputchar = getchar();
-    }
-    cout << "User terminated program" << endl;
-    // return
-
 }
 
