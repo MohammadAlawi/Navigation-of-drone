@@ -1,8 +1,16 @@
 // Functions to enable quick positionaltracking with ZED camera
 
+// ZED includes
+#include <sl/Camera.hpp>
+
+// other includes
+#include <iostream>
+#include <thread>
+#include <future>
+#include <chrono>
+
 using namespace std;
 using namespace sl;
-#include <iostream>
 
 // SL function
 void setTxt(sl::float3 value, char* ptr_txt) {
@@ -50,8 +58,8 @@ void openCamera(Camera &zed) {
     }
 }
 
-void getPosition(Camera &zed, Pose &camera_path) {
-    // Pass by reference Camera, Pose
+void getPosition(Camera &zed, Pose &camera_path, sl::float3 &translation, sl::float3 &rotation) {
+    // Pass by reference Camera, Pose, Translation, rotation
 
     const int MAX_CHAR = 128;
 
@@ -69,9 +77,13 @@ void getPosition(Camera &zed, Pose &camera_path) {
             tracking_state = zed.getPosition(camera_path, REFERENCE_FRAME::WORLD);
 
             if (tracking_state == POSITIONAL_TRACKING_STATE::OK) {
-                // Get rotation and translation and displays it
-                setTxt(camera_path.getEulerAngles(), text_rotation);
-                setTxt(camera_path.getTranslation(), text_translation);
+                // Get rotation and translation
+                rotation = camera_path.getEulerAngles();
+                translation = camera_path.getTranslation();
+
+                // Get rotation and translation in text format
+                setTxt(rotation, text_rotation);
+                setTxt(translation, text_translation);
 
                 // Print to terminal
                 // Timestamp is only since last image, not since last successful position
