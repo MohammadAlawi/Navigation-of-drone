@@ -108,7 +108,6 @@ int main(int argc, char** argv)
   }
   auto camera_infos = zed.getCameraInformation();                                             // Get camera information (ZED serial number)
   printf("Hello! This is my serial number: %d\n", camera_infos.serial_number);
-  zed.close();                                                                                // Close the camera
   */
   //*********************************************************************************************************************************************
   // POZYX integration
@@ -189,23 +188,35 @@ int main(int argc, char** argv)
 
       case 't' :
         // Takeoff code here
+        /*
+        Yaw is lock to defined degree (12.5 degrees is value to maintain UWB y-axis direction) (26.5 when using inside source file movebyposition)
+        Y is inversed so that -y = pitch forward
+        X is not inversed so that -x = roll left
+        Z is locked to defined altidude from the takeoff point -> if z now is 2 and z next is 0.5 then vehicle will come down to 0.5m from the takeoff point
+        */
+        //vehicle->control->takeoff(1);
+
         for(int i = 0; i < 4000; i++)
         {
-          vehicle->control->attitudeAndVertPosCtrl(0,0,-63,2);
+          vehicle->control->attitudeAndVertPosCtrl(3.5, 2.6, 12.5, 1.5);                    // -63 is facing away from window
           usleep(1000);
         }
-        for(int i = 0; i < 5000; i++)
+        std::cout << "Takeoff finished" << std::endl;
+                     
+        /*     
+        for(int i = 0; i < 2000; i++)
         {
-          vehicle->control->attitudeAndVertPosCtrl(0,-7,-63,0.5);               // Y is inversed
-          usleep(100);
-        }
+          vehicle->control->attitudeAndVertPosCtrl(0,-2,12.5,2);                    // -63 is facing away from window
+          usleep(1000);
+        }      
+        */
 
         flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
         break;
 
       case 'm' :
         // Move code here
-        moveByPositionOffset(vehicle, 3.5, 2.6, 1, -12.5);
+        moveByPositionOffset(vehicle, 3.5, 2.6, 0, 12.5);                         // This position is taped to the floor
         std::cout << "Finished" << std::endl;
         flightcommander->ForceLanding(vehicle); 
         /*
@@ -223,12 +234,12 @@ int main(int argc, char** argv)
 
       case 'n' :
         // Move code here
-        flighttelemetry->GetGlobalPositionData(vehicle, 1);
+        //flighttelemetry->GetGlobalPositionData(vehicle, 1);
         for(int i = 0; i < 4000; i++)
         {
           //vehicle->control->attitudeAndVertPosCtrl(0,-3,-63,0);
-          vehicle->control->positionAndYawCtrl(0,-20,0,-63);
-          usleep(1000);
+          vehicle->control->positionAndYawCtrl(-5, -5, 1,-63);
+          usleep(200000);
         }
         flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
       break;
@@ -239,7 +250,7 @@ int main(int argc, char** argv)
         {
           //vehicle->control->attitudeAndVertPosCtrl(-3,0,-63,0);
           vehicle->control->positionAndYawCtrl(-20,0,0,-63);
-          usleep(1000);
+          usleep(100);
         }
         flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
         break;
@@ -261,7 +272,9 @@ int main(int argc, char** argv)
   auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time
   duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
   std::cout << "Execution time in " << ms_double.count() << " ms" << std::endl;               // Print
+
   close(fd);                                                                                  // Pozyx Integration (FIFO pipe closed)
+  //zed.close();                                                                                // Close the camera
 
   return 0;
 }

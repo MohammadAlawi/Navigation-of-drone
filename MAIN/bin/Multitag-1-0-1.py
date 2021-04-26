@@ -273,6 +273,7 @@ if __name__ == "__main__":
 
     while True:
         #r.loop(initialization)
+            start = timer()                                                                     # Start high resolution timer (Optional)
         #for tag_id in tag_ids:
             # Algorithm START ******************************************************************************
             sleep(0.0000001)
@@ -316,12 +317,9 @@ if __name__ == "__main__":
                 #s = "POS ID {}, x(mm): {}, y(mm): {}, z(mm): {}".format("0x%0.4x" % network_id, position.x, position.y, position.z)
                 #s = "ID{} X{} Y{} Z{}".format("%0.f" % position_x, position_y, position_z)
                 #print("STEP 2.5")
-                start = timer()                                                                     # Start high resolution timer (Optional)
                 fifo=open(path,'w')                                                                 # Open FIFO pipe
                 fifo.write(s)                                                                       # Write to FIFO pipe
-                fifo.close()                                                                        # Close FIFO pipe
-                end = timer()                                                                       # Take time using timer (Optional)
-                print(end - start)                                                                  # Print execution time  (Optional)                       
+                fifo.close()                                                                        # Close FIFO pipe                       
                 if osc_udp_client is not None:
                     osc_udp_client.send_message("/position", [network_id, position_x, position_y, position_z])
                 #print(initialization)
@@ -343,3 +341,5 @@ if __name__ == "__main__":
                 if osc_udp_client is not None:
                     osc_udp_client.send_message("/position", [network_id, position_x, position_y, position_z])
             # Piping END ******************************************************************************
+            end = timer()                                                                       # Take time using timer (Optional)
+            print(end - start)                                                                  # Print execution time  (Optional)

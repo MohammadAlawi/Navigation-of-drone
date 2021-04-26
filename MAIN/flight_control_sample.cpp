@@ -27,7 +27,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
+ * Edited With VIM
  */
 
 #include "flight_control_sample.hpp"
@@ -303,7 +303,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   // mission
   int responseTimeout              = 1;
   int timeoutInMilSec              = 40000;
-  int controlFreqInHz              = 50; // Hz
+  int controlFreqInHz              = 50; // Hz                                     // Originally 50Hz, changed to other frequency
   int cycleTimeInMs                = 1000 / controlFreqInHz;
   int outOfControlBoundsTimeLimit  = 10 * cycleTimeInMs; // 10 cycles
   int withinControlBoundsTimeReqmt = 50 * cycleTimeInMs; // 50 cycles
@@ -419,8 +419,8 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   */
 
   // Get initial offset. We will update this in a loop later.
-  double xOffsetRemaining = xOffsetDesired - uwbstruct.x;                       // Set offset remaining using localoffset = uwbstruct
-  double yOffsetRemaining = yOffsetDesired - uwbstruct.y;                       // Set offset remaining using localoffset = uwbstruct
+  double xOffsetRemaining = (xOffsetDesired - uwbstruct.x)*3;                       // Set offset remaining using localoffset = uwbstruct
+  double yOffsetRemaining = (yOffsetDesired - uwbstruct.y) * -1.000;              // Set offset remaining using localoffset = uwbstruct
   double zOffsetRemaining = zOffsetDesired - uwbstruct.z;                       // Set offset remaining using localoffset = uwbstruct
 
   // Conversions
@@ -490,8 +490,13 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   //! Main closed-loop receding setpoint position control
   while (elapsedTimeInMs < timeoutInMilSec)
   {
+    /*
     vehicle->control->positionAndYawCtrl(xCmd, yCmd, zCmd,
                                          yawDesiredRad / DEG2RAD);
+    */
+    vehicle->control->attitudeAndVertPosCtrl(xCmd, yCmd, 26.5, 1);
+                                
+            
 
     usleep(cycleTimeInMs * 1000);
     elapsedTimeInMs += cycleTimeInMs;
@@ -528,10 +533,10 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     zOffsetRemaining = zOffsetDesired - localOffset.z;
     */
 
-    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);              // Get Uwb postion data and store to uwbstruct
-    xOffsetRemaining = xOffsetDesired - uwbstruct.x;                       // Set offset remaining using localoffset = uwbstruct
-    yOffsetRemaining = yOffsetDesired - uwbstruct.y;                       // Set offset remaining using localoffset = uwbstruct
-    zOffsetRemaining = zOffsetDesired - uwbstruct.z;                       // Set offset remaining using localoffset = uwbstruct
+    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);               // Get Uwb postion data and store to uwbstruct
+    xOffsetRemaining = (xOffsetDesired - uwbstruct.x)*3;                        // Set offset remaining using localoffset = uwbstruct
+    yOffsetRemaining = ((yOffsetDesired - uwbstruct.y) * -1.000) * 3.000;             // Set offset remaining using localoffset = uwbstruct
+    zOffsetRemaining = zOffsetDesired - uwbstruct.z;                        // Set offset remaining using localoffset = uwbstruct
 
     
     std::cout 
