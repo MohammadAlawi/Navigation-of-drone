@@ -11,17 +11,8 @@
 using namespace FlightLibrary;                      // Namespace for FlightLibrary
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
-
-/*
-   template <TopicName TOPIC_ALTITUDE_BAROMETER>
-struct TypeMap
-{
-  typedef void type;
-};
-
-TypeMap<TOPIC_ALTITUDE_BAROMETER>::type altitude_barometer;
-*/
-
+using namespace std;
+using namespace sl;
 
 //*************************************************************************************************************************************************************************
 // FlightTelemetry definitions
@@ -95,6 +86,110 @@ FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[
     data.z = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
     //std::cout <<"X float " << data.x <<" Y float " << data.y <<" Z float " << data.z << std::endl;        // Print data (Optional)
     return data;                                                                                            // Return struct
+}
+
+void FlightTelemetry::setTxt(sl::float3 value, char* ptr_txt) {
+    const int MAX_CHAR = 128;
+    snprintf(ptr_txt, MAX_CHAR, "%3.2f; %3.2f; %3.2f", value.x, value.y, value.z);
+}
+
+void FlightTelemetry::openCameraZed(sl::Camera &zed)                                                        // ++++ Changed scope to st::Camera
+{
+    
+    // Set configuration parameters for the ZED
+    InitParameters init_parameters;
+    init_parameters.coordinate_units = UNIT::METER;
+    init_parameters.coordinate_system = COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP;
+    init_parameters.sdk_verbose = true;
+
+    string unit = "M";
+
+    init_parameters.depth_mode = DEPTH_MODE::PERFORMANCE; // Depth mode, available is ULTRA, QUALITY, PERFORMANCE (quality somehow has the highest execution time)
+    init_parameters.coordinate_units = UNIT::METER; // Unit to use (for depth measurements)
+    init_parameters.depth_minimum_distance = 0.3 ; // Minimum depth perception, minimum setting for ZED 2 is 0.3m. Increase to increase performance
+    // zed.setDepthMaxRangeValue(40); // set maximum depth perception distance to 40m
+
+    // Open the camera
+    auto returned_state = zed.open(init_parameters);
+    if (returned_state != ERROR_CODE::SUCCESS) {
+        cout << "Camera Open " << returned_state << " Exit program." << endl;
+        //return EXIT_FAILURE;
+    }
+    else 
+    {
+        std::cout << "Zed camera opened initialization status " << returned_state << std::endl;             // ++++ Added print to check the status
+    }
+
+    auto camera_model = zed.getCameraInformation().camera_model;
+
+    // define filepath for area file
+    sl::String areafile = "/home/uwb5/git/ZED2/Positionaltracking_Jake/cpp/areafiles/input.area";           // ++++ Check this path
+
+    // Set parameters for Positional Tracking
+    PositionalTrackingParameters positional_tracking_param;
+    positional_tracking_param.enable_area_memory = true;
+    //positional_tracking_param.area_file_path = areafile;
+
+    // enable Positional Tracking
+    returned_state = zed.enablePositionalTracking(positional_tracking_param);
+    if (returned_state != ERROR_CODE::SUCCESS) {
+        cout<<"Enabling positionnal tracking failed: "<< returned_state << endl;
+        zed.close();
+        //return EXIT_FAILURE;
+    }
+    
+}
+std::pair<sl::float3 , sl::float3> FlightTelemetry::getPositionZed(sl::Camera &zed, sl::Pose &camera_path, sl::float3 &translation, sl::float3 &rotation, std::pair<sl::float3 , sl::float3> &ReturnPairPosRot) {   // ++++ Added scopes sl
+    // Pass by reference Camera, Pose, Translation, rotation
+
+    const int MAX_CHAR = 128;
+
+    POSITIONAL_TRACKING_STATE tracking_state;
+    Timestamp lasttimestamp;
+
+    // Create text for GUI
+    char text_rotation[MAX_CHAR];
+    char text_translation[MAX_CHAR];
+
+    if (zed.grab() == ERROR_CODE::SUCCESS) {
+            // Get the position of the camera in a fixed reference frame (the World Frame)
+            // Get timestamp of last grab
+            lasttimestamp = camera_path.timestamp;
+            tracking_state = zed.getPosition(camera_path, REFERENCE_FRAME::WORLD);
+
+            if (tracking_state == POSITIONAL_TRACKING_STATE::OK) {
+                // Get rotation and translation
+                rotation = camera_path.getEulerAngles();
+                translation = camera_path.getTranslation();
+                
+                ReturnPairPosRot.first = translation;
+                ReturnPairPosRot.second = rotation;
+                
+                //std::cout << "Element 0 from rotation " << ReturnPairPosRot.first[0] << "Element 3 from rotation " << ReturnPairPosRot.second[0] << std::endl;
+
+                // Get rotation and translation in text format
+                setTxt(rotation, text_rotation);
+                setTxt(translation, text_translation);
+
+                // Print to terminal
+                // Timestamp is only since last image, not since last successful position
+                cout << "Position updated [";
+                cout << camera_path.timestamp.getMilliseconds() - lasttimestamp.getMilliseconds();
+                cout << " ms] "<< "Confidence: ["<<camera_path.pose_confidence<<"]"<<endl;
+                cout << "translation: "<< text_translation << endl;
+                cout << "rotation "<< text_rotation << endl;
+            }
+            else {
+                // if tracking state is not ok, print status
+                cout << "No position found"<<endl;
+                cout << "Tracking state: "<<tracking_state<<endl;
+            }
+    }
+    else {
+        sleep_ms(1);
+    }
+
+    return ReturnPairPosRot;
 }
 
 //*************************************************************************************************************************************************************************

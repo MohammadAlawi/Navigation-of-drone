@@ -9,7 +9,7 @@
 #ifndef FLIGHTLIBRARY_H                                 // Guards
 #define FLIGHTLIBRARY_H                                 // Guards
 
-// System Includes
+// System includes
 #include <cmath>                                                                                // Header in standard library
 #include <signal.h>                                                                             // Header in standard library
 #include <stdlib.h>                                                                             // Header in standard library
@@ -35,6 +35,9 @@
 // Helpers
 #include <dji_linux_helpers.hpp>
 
+// Zed includes
+#include <Camera.hpp>                                                                         // ZED library inclusion (INSTALLED LIBRARY)
+
 namespace FlightLibrary
 {
     class FlightTelemetry
@@ -54,6 +57,9 @@ namespace FlightLibrary
             float z;                                                                        // This member stores z value
         }UwbStruct;
         UwbStruct GetUwbPositionData(int fd, char buf[MAX_BUF]);                            // This method gets local position data (X,Y,Z)
+        void setTxt(sl::float3 value, char* ptr_txt);                                       // This method gets rotation and translation in text format 
+        void openCameraZed(sl::Camera &zed);                                                // ++++ This method initializes Zed camera + Changed function name (DJI have similar name in lib)
+        std::pair<sl::float3 , sl::float3> getPositionZed(sl::Camera &zed, sl::Pose &camera_path, sl::float3 &translation, sl::float3 &rotation,  std::pair<sl::float3 , sl::float3> &ReturnPairPosRot);    // ++++ Name changed + Added scopes sl + changed to return type
     };
 
     class FlightCommander
