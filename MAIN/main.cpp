@@ -6,7 +6,7 @@
  *  Our brief
 */
 
-#include "flight_control_sample.hpp"
+#include "flight_control_sample.hpp"                                  
 #include "flight_sample.hpp"
 #include "MyLibrary.hpp"                                                                      // Library for test purpose
 #include <Camera.hpp>                                                                         // ZED library inclusion (INSTALLED LIBRARY)
@@ -96,8 +96,8 @@ int main(int argc, char** argv)
   //signal(SIGINT, SafetyFunction);
   //*********************************************************************************************************************************************
   // ZED integration
-
-  sl::Camera zed;                                                               // Create instance(object) of class from the ZED library
+  
+  //sl::Camera zed;                                                               // Create instance(object) of class from the ZED library
   //flighttelemetry->openCameraZed(zed);                                          // Open Zed camera
   
   //*********************************************************************************************************************************************
@@ -180,7 +180,7 @@ int main(int argc, char** argv)
       case 't' :
         // Takeoff code here
         /*
-        Yaw is lock to defined degree (12.5 degrees is value to maintain UWB y-axis direction) (26.5 when using inside source file movebyposition)
+        Yaw is fixed to defined degree (12.5 degrees is value to rotate to UWB y-axis direction) (TEST THIS 26.5 when using inside source file movebyposition)
         Y is inversed so that -y = pitch forward
         X is not inversed so that -x = roll left
         Z is locked to defined altidude from the takeoff point -> if z now is 2 and z next is 0.5 then vehicle will come down to 0.5m from the takeoff point

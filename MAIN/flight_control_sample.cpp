@@ -409,13 +409,14 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
                              static_cast<void*>(&currentBroadcastGP),
                              static_cast<void*>(&originBroadcastGP));
   }
+  /*
   for(int i = 0; i < 10000; i++)
   {
   ReturnPairPosRot = flighttelemetry->getPositionZed(zed, camera_path, translation, rotation, ReturnPairPosRot);     // ++++ Get Zed position and rotation data
   std::cout << "Zed x translation " << ReturnPairPosRot.first[0] << " Zed x rotation " << ReturnPairPosRot.second[0] << std::endl;  // ++++ Print Zed 
   uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);                     // Get Uwb position data and store to uwbstruct
   }
-                                     
+ */                                    
   for (int i = 0; i < 2; i++)                                                   // Testing purpose (Optional)
   {
     uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);
@@ -432,7 +433,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   */
 
   // Get initial offset. We will update this in a loop later.
-  double xOffsetRemaining = (xOffsetDesired - uwbstruct.x)*3;                   // Set offset remaining using localoffset = uwbstruct
+  double xOffsetRemaining = (xOffsetDesired - uwbstruct.x);                     // Set offset remaining using localoffset = uwbstruct
   double yOffsetRemaining = (yOffsetDesired - uwbstruct.y) * -1.000;            // Set offset remaining using localoffset = uwbstruct (y control function is inversed)
   double zOffsetRemaining = zOffsetDesired - uwbstruct.z;                       // Set offset remaining using localoffset = uwbstruct
 
