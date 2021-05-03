@@ -88,6 +88,38 @@ int main(int argc, char** argv)
   duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
   std::cout << "Execution time in " << ms_double.count() << " ms" << std::endl;               // Print
 
+  std::cout << "Working" << std::endl;
+  usingConstAndExplict usingconstandexplicit;
+  usingConstAndExplict::A a1 = 1;      // OK: copy-initialization selects A::A(int)
+  usingConstAndExplict::A a2(2);       // OK: direct-initialization selects A::A(int)
+  usingConstAndExplict::A a3 {4, 5};   // OK: direct-list-initialization selects A::A(int, int)
+  usingConstAndExplict::A a4 = {4, 5}; // OK: copy-list-initialization selects A::A(int, int)
+    
+  usingConstAndExplict::A a5 = (usingConstAndExplict::A)1;   // OK: explicit cast performs static_cast
+  if (a1) cout << "true" << endl; // OK: A::operator bool()
+  bool na1 = a1; // OK: copy-initialization selects A::operator bool()
+  bool na2 = static_cast<bool>(a1); // OK: static_cast performs direct-initialization
+    
+//  usingConstAndExplict::B b1 = 1;      // error: copy-initialization does not consider B::B(int)
+  usingConstAndExplict::B b2(2);       // OK: direct-initialization selects B::B(int)
+  usingConstAndExplict::B b3 {4, 5};   // OK: direct-list-initialization selects B::B(int, int)
+//  usingConstAndExplict::B b4 = {6, 7}; // error: copy-list-initialization does not consider B::B(int,int)
+    
+  usingConstAndExplict::B b5 = (usingConstAndExplict::B)1;   // OK: explicit cast performs static_cast
+  if (b5) cout << "true " << endl; // OK: B::operator bool()
+//  bool nb1 = b2; // error: copy-initialization does not consider B::operator bool()
+  bool nb2 = static_cast<bool>(b2); // OK: static_cast performs direct-initialization
+
+  std::string str = "Hello, ";
+  str.operator+=("world");                        // same as str += "world";
+  operator<<(operator<<(std::cout, str) , '\n');  // same as std::cout << str << '\n';
+                                                  // (since C++17) except for sequencin
+  std::cout << usingconstandexplicit.publicFloat << std::endl;
+
+  usingConstAndExplict x(3,3);
+  usingConstAndExplict y(2,2);
+  usingConstAndExplict z = x + y; // calls complx::operator+()  
+
   */
 
   FlightTelemetry* flighttelemetry;                                             // Instantiate FlightTelemetry class object pointer
@@ -102,7 +134,9 @@ int main(int argc, char** argv)
   
   //*********************************************************************************************************************************************
   // POZYX integration
-  
+  /*
+  Data BitRate from 110 kbps to 6.81 Mbps
+  */
     FlightTelemetry::UwbStruct uwbstruct;
     int fd;
     char *FifoPipe = "Pipe.fifo";

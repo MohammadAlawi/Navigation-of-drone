@@ -175,8 +175,8 @@ namespace driver
         ~usingConstAndExplict();
         struct A
         {
-            A(int) { }      // converting constructor
-            A(int, int) { } // converting constructor (C++11)
+            A(int) { }                                                          // converting constructor
+            A(int, int) { }                                                     // converting constructor (C++11)
             operator bool() const { return true; }
         };
 
