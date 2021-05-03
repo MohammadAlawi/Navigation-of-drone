@@ -160,6 +160,36 @@ namespace MyNameSpaceFirst                          // Namespace declaration
         };
     }
 }
-void* FunctionOutsideOfAnyMember(void*);                                // Methdo(function) declaration
+
+namespace driver
+{
+    class usingConstAndExplict
+    {
+    private:
+        /* data */
+        float real; 
+        float imag;
+    public:
+        usingConstAndExplict(float real = 0, float imag = 0);                   // constructor
+        usingConstAndExplict operator+(const usingConstAndExplict&) const;      // operator+()
+        ~usingConstAndExplict();
+        struct A
+        {
+            A(int) { }      // converting constructor
+            A(int, int) { } // converting constructor (C++11)
+            operator bool() const { return true; }
+        };
+
+        struct B
+        {
+            explicit B(int) { }
+            explicit B(int, int) { }
+            explicit operator bool() const { return true; }
+        };
+        float publicFloat = 5.55;
+    };
+}
+
+void* FunctionOutsideOfAnyMember(void*);                                // Method(function) declaration
 
 #endif                                               // Guards

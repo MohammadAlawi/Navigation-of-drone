@@ -16,6 +16,7 @@
 using namespace MyNameSpaceFirst;                                   // Namespace definition (This is optional, classes can be accessed with full name)
 using namespace MyNameSpaceFirst::MyNameSpaceSecond;                // Namespace definition (This is optional, classes can be accessed with full name)
 //using namespace Telemetry;                                        // Namespace definition (This is optional, classes can be accessed with full name)
+using namespace driver;                                             // Driver namespace
                                      
 
 MyClassOne::MyStructOne InstanceStructOneInLibrary;                 // Create instance of typedef struct
@@ -271,3 +272,31 @@ void* FunctionOutsideOfAnyMember(void*)                     // Define method(fun
     double getResult = PyFloat_AsDouble(myResult);
     std::cout << "Print my results " << getResult << std::endl;
 */
+
+//****************************************************************************************************************************************************
+// Driver code related 
+
+// usingConstAndExplict::usingConstAndExplict() : real(0.0), imag(0.0)    // Constructor initializing private variables
+usingConstAndExplict::usingConstAndExplict(float r, float i)
+{
+    real = r;
+    imag = i;
+    // Something here
+    std::cout << "usingConstAndExplict normal constructor called" << std::endl;
+    std::cout << real << " " << imag << std::endl;
+}
+
+usingConstAndExplict usingConstAndExplict::operator+ (const usingConstAndExplict& c) const
+{
+    std::cout << "usingConstAndExplict operator constructor called" << std::endl;
+    usingConstAndExplict result;
+    result.real = (this->real + c.real);
+    result.imag = (this->imag + c.imag);
+    return result;
+}
+
+usingConstAndExplict::~usingConstAndExplict()    // Destructor
+{
+    // Something here
+    std::cout << "usingConstAndExplict destructor called" << std::endl;
+}
