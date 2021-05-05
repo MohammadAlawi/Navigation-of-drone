@@ -50,6 +50,7 @@
 
 #define C_EARTH (double)6378137.0
 #define DEG2RAD 0.01745329252
+#define PI 3.14159265358979323846
 
 //!@note: All the default timeout parameters are for acknowledgement packets
 //! from the aircraft.
