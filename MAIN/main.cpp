@@ -1,18 +1,16 @@
-/*! @file main.cpp
+/*! @file MAIN/main.cpp
  *  @version 1.0.0
- *  @date 17.04.2021
+ *  @date 10.04.2021
  *
  *  @brief
  *  Our brief
 */
 
-#include "flight_control_sample.hpp"                                  
+#include "flight_control_sample.hpp"
 #include "flight_sample.hpp"
-#include "MyLibrary.hpp"                                                                      // Library for test purpose
+#include "MyLibrary.hpp"                                                                      // Local include
 #include <Camera.hpp>                                                                         // ZED library inclusion (INSTALLED LIBRARY)
-#include "FlightLibrary.hpp"                                                                  // Library for Flight control and Reading Data
-
-#define MAX_BUF 1024
+#include "FlightLibrary.hpp"
 
 using namespace sl;                                                                           // Namespace definition for ZED library 
 using namespace DJI::OSDK;
@@ -23,7 +21,7 @@ using std::chrono::high_resolution_clock;                                       
 using std::chrono::duration_cast;                                                             // Namespaces for measuring execution speed
 using std::chrono::duration;                                                                  // Namespaces for measuring execution speed
 using std::chrono::milliseconds;                                                              // Namespaces for measuring execution speed
-using namespace FlightLibrary;                                        
+using namespace FlightLibrary;
 
 MyClassOne::MyStructOne InstanceStructOne;                                                    // Create instance of struct (utilizing namespace)
 MyClassOne::MyEnumOne myenumone;                                                              // Create instance of enum (utilizing namespace)
@@ -33,11 +31,29 @@ MyControlClass::ControlEnum controlenummain;                                    
 int main(int argc, char** argv) 
 {
   //*********************************************************************************************************************************************
-  // Measuring execution time
+  // Measuring exectuion time
   auto t1 = high_resolution_clock::now();                                                     // Run function to measure execution time
+  //*********************************************************************************************************************************************
+  // ZED integration
+  /*
+  
+  sl::Camera zed;                                                                             // Create instance(object) of class from the ZED library
+  
+  ERROR_CODE returned_state = zed.open();                                                     // Open the camera
+  if (returned_state != ERROR_CODE::SUCCESS) {
+      //std::cout << "Error " << returned_state << ", exit program.\n";
+      //return EXIT_FAILURE;
+      std::cout << "Error " << returned_state << ", No camera found.\n";                      // Added test comment
+  }
+  auto camera_infos = zed.getCameraInformation();                                             // Get camera information (ZED serial number)
+  printf("Hello! This is my serial number: %d\n", camera_infos.serial_number);
+  zed.close();                                                                                // Close the camera
+  */
+  //*********************************************************************************************************************************************
+  // POZYX integration
 
-    //*********************************************************************************************************************************************
-  // MyLibrary & FlightLibrary integration
+  //*********************************************************************************************************************************************
+  // MyLibrary integration
   /*
 
   MyClassOne MyInstanceClassOne;                                                              // Create instance(object) of class from the library
@@ -82,78 +98,18 @@ int main(int argc, char** argv)
   std::cout << "Quaternion data " <<quaternion.x<<" "<<quaternion.y<<" "<<quaternion.z<< std::endl;     // Print returned struct data
 
   classutilizingpointers->FunctionThatCreatesFourThreads();                                   // Call function that is accessed using class pointers
-  classutilizingpointers->StringHandlingAndConvertingFunction();                              // Call function that is accessed using class pointers
+  classutilizingpointers->StringHandlingAndConvertingFunction();                       // Call function that is accessed using class pointers
 
   auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time
   duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
   std::cout << "Execution time in " << ms_double.count() << " ms" << std::endl;               // Print
 
-  std::cout << "Working" << std::endl;
-  usingConstAndExplict usingconstandexplicit;
-  usingConstAndExplict::A a1 = 1;      // OK: copy-initialization selects A::A(int)
-  usingConstAndExplict::A a2(2);       // OK: direct-initialization selects A::A(int)
-  usingConstAndExplict::A a3 {4, 5};   // OK: direct-list-initialization selects A::A(int, int)
-  usingConstAndExplict::A a4 = {4, 5}; // OK: copy-list-initialization selects A::A(int, int)
-    
-  usingConstAndExplict::A a5 = (usingConstAndExplict::A)1;   // OK: explicit cast performs static_cast
-  if (a1) cout << "true" << endl; // OK: A::operator bool()
-  bool na1 = a1; // OK: copy-initialization selects A::operator bool()
-  bool na2 = static_cast<bool>(a1); // OK: static_cast performs direct-initialization
-    
-//  usingConstAndExplict::B b1 = 1;      // error: copy-initialization does not consider B::B(int)
-  usingConstAndExplict::B b2(2);       // OK: direct-initialization selects B::B(int)
-  usingConstAndExplict::B b3 {4, 5};   // OK: direct-list-initialization selects B::B(int, int)
-//  usingConstAndExplict::B b4 = {6, 7}; // error: copy-list-initialization does not consider B::B(int,int)
-    
-  usingConstAndExplict::B b5 = (usingConstAndExplict::B)1;   // OK: explicit cast performs static_cast
-  if (b5) cout << "true " << endl; // OK: B::operator bool()
-//  bool nb1 = b2; // error: copy-initialization does not consider B::operator bool()
-  bool nb2 = static_cast<bool>(b2); // OK: static_cast performs direct-initialization
-
-  std::string str = "Hello, ";
-  str.operator+=("world");                        // same as str += "world";
-  operator<<(operator<<(std::cout, str) , '\n');  // same as std::cout << str << '\n';
-                                                  // (since C++17) except for sequencin
-  std::cout << usingconstandexplicit.publicFloat << std::endl;
-
-  usingConstAndExplict x(3,3);
-  usingConstAndExplict y(2,2);
-  usingConstAndExplict z = x + y; // calls complx::operator+()  
-
   */
-
-  FlightTelemetry* flighttelemetry;                                             // Instantiate FlightTelemetry class object pointer
-  FlightCommander* flightcommander;                                             // Instantiate FlightCommander class object pointer
-  
-  //signal(SIGINT, SafetyFunction);
-  //*********************************************************************************************************************************************
-  // ZED integration
-  
-  //sl::Camera zed;                                                               // Create instance(object) of class from the ZED library
-  //flighttelemetry->openCameraZed(zed);                                          // Open Zed camera
-  
-  //*********************************************************************************************************************************************
-  // POZYX integration
-  /*
-  Data BitRate from 110 kbps to 6.81 Mbps
-  */
-    FlightTelemetry::UwbStruct uwbstruct;
-    int fd;
-    char *FifoPipe = "Pipe.fifo";
-    char buf[MAX_BUF];
-    fd = open(FifoPipe, O_RDONLY);                                                            // Open FIFO pipe for reading incoming
-    std::cout << "Testing Pozyx" << std::endl;
-    for (int i = 0; i < 1; i++)
-    {
-      uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);
-      std::cout << "X" <<uwbstruct.x<< " Y" <<uwbstruct.y<< " Z" <<uwbstruct.z<< std::endl;
-      sleep(1);
-    }
-    std::cout << "Pozyx works - Ready to Fly" << std::endl;
-    
   //*********************************************************************************************************************************************
   // OSDK integration
-  
+  FlightTelemetry* flighttelemetry;                                             // Instantiate FlightTelemetry class object pointer
+  FlightCommander* flightcommander;                                             // Instantiate FlightCommander class object pointer
+
   // Initialize variables
   int functionTimeout = 1;
   // Setup OSDK.
@@ -167,117 +123,46 @@ int main(int argc, char** argv)
   // Obtain Control Authority
   vehicle->obtainCtrlAuthority(functionTimeout);
 
-  //*********************************************************************************************************************************************
-  // Loop
+  // Display interactive prompt
+  std::cout
+      << "| Available commands:                                            |"
+      << std::endl;
+  std::cout
+      << "| [t] Test                                                       |"
+      << std::endl;
+  std::cout
+      << "| [l] Test                                                       |"
+      << std::endl;
+  char inputChar;
+  std::cin >> inputChar;
 
-  while(true)
-  {
-    // Display interactive prompt
-    std::cout << std::endl
-        << "| Available   commands:                                           |"
-        << std::endl;
-    std::cout
-        << "| [a] Arming  Command                                             |"
-        << std::endl;
-    std::cout
-        << "| [l] Land    Command                                             |"
-        << std::endl;
-    std::cout
-        << "| [t] Takeoff Command                                             |"
-        << std::endl;
-    std::cout
-        << "| [m] Move    Command                                             |"
-        << std::endl;
-    std::cout
-        << "| [n] Move    Command 2                                           |"
-        << std::endl;
-    std::cout
-        << "| [d] Data    Read                                                |"
-        << std::endl;
-    std::cout
-        << "| [e] End     Session                                             |"
-        << std::endl;
-
-    char inputChar;
-    std::cin >> inputChar;
-
-    switch (inputChar) {
-
-      case 'a':
-        vehicle->control->armMotors(1);                                         // Call method from FlightCommander class that commands vehicle to force landing
-        break;
-
-      case 'l':
-        flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
-        break;
-
-      case 't' :
-        // Takeoff code here
-        /*
-        Yaw is fixed to defined degree (12.5 degrees is value to rotate to UWB y-axis direction) (TEST THIS 26.5 when using inside source file movebyposition)
-        Y is inversed so that -y = pitch forward
-        X is not inversed so that -x = roll left
-        Z is locked to defined altidude from the takeoff point -> if z now is 2 and z next is 0.5 then vehicle will come down to 0.5m from the takeoff point
-        */
-        //vehicle->control->takeoff(1);
-
-        for(int i = 0; i < 4000; i++)
-        {
-          vehicle->control->attitudeAndVertPosCtrl(0, 0, 12.5, 1.5);                    // -63 is facing away from window
-          usleep(1000);
-        }
-        std::cout << "Takeoff finished" << std::endl;
-
-        flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
-        break;
-
-      case 'm' :
-        // Move code #1 here
-        moveByPositionOffset(vehicle, 3.5, 2.6, 0, 12.5);                         // This position is taped to the floor
-        std::cout << "Finished" << std::endl;
-        flightcommander->ForceLanding(vehicle); 
-
-        break;
-
-      case 'n' :
-        // Move code #2 here
-        flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
+  switch (inputChar) {
+    case 'a':
+      monitoredTakeoff(vehicle);
+      monitoredLanding(vehicle);
       break;
-      case 'b' :
-        // Move code #3 here
-        flighttelemetry->GetGlobalPositionData(vehicle, 1);
-        for(int i = 0; i < 2000; i++)
-        {
-          //vehicle->control->attitudeAndVertPosCtrl(-3,0,-63,0);
-          vehicle->control->positionAndYawCtrl(-20,0,0,-63);
-          usleep(100);
-        }
-        flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
-        break;
 
-      case 'd' :
-        // Data code here
-        flighttelemetry->GetQuaternionData(vehicle);
-        //flighttelemetry->GetGlobalPositionData(vehicle, 1);
-        break;
-
-    }
-    if(inputChar == 'e')                                                        // End session here
-    {
+    case 't':
+      std::cout << "Test Case running" << std::endl;                          // Starting the Test case
+      //flighttelemetry->GetQuaternionData(vehicle);                          // Call method from FlightTelemetry class that returns and prints Quaternion data
+      //flighttelemetry->GetBatteryData(vehicle);                             // Call method from FlightTelemetry class that returns and prints Battery Data
+      //flighttelemetry->GetGlobalPositionData(vehicle);                      // Call method from FlightTelemetry class that returns and prints GPS Data
+      //moveByPositionOffset(vehicle, 1, 0, 0, 0);                            // Call modifed method from flight_control_sample that commands to move by position
+      flightcommander->ForceLanding(vehicle);                               // Call method from FlightCommander class that commands vehicle to force landing
       break;
-    }
+
+    case 'l':
+      std::cout << "Test Case running" << std::endl;                          // Starting the Test case
+      //flighttelemetry->GetQuaternionData(vehicle);                          // Call method from FlightTelemetry class that returns and prints Quaternion data
+      //flighttelemetry->GetBatteryData(vehicle);                             // Call method from FlightTelemetry class that returns and prints Battery Data
+      //flighttelemetry->GetGlobalPositionData(vehicle);                      // Call method from FlightTelemetry class that returns and prints GPS Data
+      //moveByPositionOffset(vehicle, 1, 0, 0, 0);                            // Call modifed method from flight_control_sample that commands to move by position
+      flightcommander->ForceLanding(vehicle);                               // Call method from FlightCommander class that commands vehicle to force landing
   }
-  
 
   auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time
   duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
   std::cout << "Execution time in " << ms_double.count() << " ms" << std::endl;               // Print
 
-  close(fd);                                                                                  // Pozyx Integration (FIFO pipe closed)
-  //zed.close();                                                                                // Close the camera
-
   return 0;
 }
-
-
-

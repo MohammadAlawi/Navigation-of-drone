@@ -238,8 +238,8 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     */
 
     uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);                     // Get Uwb postion data and store to uwbstruct
-    xOffsetRemaining = (xOffsetDesired - uwbstruct.x)*3;                          // Set offset remaining using localoffset = uwbstruct
-    yOffsetRemaining = ((yOffsetDesired - uwbstruct.y) * -1.000) * 3.000;         // Set offset remaining using localoffset = uwbstruct
+    xOffsetRemaining = (xOffsetDesired - uwbstruct.x);                            // Set offset remaining using localoffset = uwbstruct
+    yOffsetRemaining = ((yOffsetDesired - uwbstruct.y) * -1.000);                 // Set offset remaining using localoffset = uwbstruct
     zOffsetRemaining = zOffsetDesired - uwbstruct.z;                              // Set offset remaining using localoffset = uwbstruct
     
     absOffsetRemaining = sqrt(xOffsetRemaining^2 + yOffsetRemaining^2);

@@ -33,13 +33,8 @@
 #ifndef DJIOSDK_FLIGHTCONTROL_HPP
 #define DJIOSDK_FLIGHTCONTROL_HPP
 
-#define MAX_BUF 1024                                                            // Definition for Piping    
-
 // System Includes
 #include <cmath>
-
-// UWB Includes
-#include "FlightLibrary.hpp"                                                    // FlightLibrary
 
 // DJI OSDK includes
 #include "dji_status.hpp"
@@ -50,10 +45,17 @@
 
 #define C_EARTH (double)6378137.0
 #define DEG2RAD 0.01745329252
-#define PI 3.14159265358979323846
 
 //!@note: All the default timeout parameters are for acknowledgement packets
 //! from the aircraft.
+
+/*! Monitored Takeoff
+    This implementation of takeoff  with monitoring makes sure your aircraft
+    actually took off and only returns when takeoff is complete.
+    Use unless you want to do other stuff during takeoff - this will block
+    the main thread.
+!*/
+bool monitoredTakeoff(DJI::OSDK::Vehicle* vehiclePtr, int timeout = 1);
 
 // Examples of commonly used Flight Mode APIs
 
@@ -70,6 +72,12 @@ bool moveByPositionOffset(DJI::OSDK::Vehicle *vehicle, float xOffsetDesired,
                           float yawDesired, float posThresholdInM = 0.5,
                           float yawThresholdInDeg = 1.0);
 
+/*! Monitored Landing (Blocking API call). Return status as well as ack.
+    This version of takeoff makes sure your aircraft actually took off
+    and only returns when takeoff is complete.
+
+!*/
+bool monitoredLanding(DJI::OSDK::Vehicle* vehiclePtr, int timeout = 1);
 
 // Helper Functions
 
