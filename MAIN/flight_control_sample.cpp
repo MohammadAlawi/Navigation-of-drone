@@ -261,7 +261,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     zOffsetRemaining = zOffsetDesired - uwbstruct.z;                              // Set offset remaining using localoffset = uwbstruct
 
     absOffsetRemaining = sqrt(pow(xOffsetRemaining, 2) + pow(yOffsetRemaining, 2)); // PID start
-    OffsetRemainingAng = atan2(yOffsetRemaining, xOffsetRemaining);                // PID end
+    OffsetRemainingAng = atan2(yOffsetRemaining, xOffsetRemaining);                 // PID end
 
     yawInRad   = PI/2 - yawInRad + ((12.6/180)*PI); // PID
     yawInDeg   = (yawInRad / (2*PI)) * 360;

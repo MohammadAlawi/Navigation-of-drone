@@ -70,25 +70,50 @@ void FlightTelemetry::GetGlobalPositionData(DJI::OSDK::Vehicle* vehicle, int res
 FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[MAX_BUF])
 {
     FlightTelemetry::UwbStruct data;
+    float ConvertedFloat;
     read(fd, buf, MAX_BUF);
     std::string StringToGetSplitted = buf;
     std::size_t start = StringToGetSplitted.find("X");
     std::size_t end = StringToGetSplitted.find("+");
     std::string SplittedString = StringToGetSplitted.substr(start+1, end-1);
-    float ConvertedFloat = std::stof(SplittedString);
-    data.x = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
+    if(SplittedString.size() == 0)
+    {
+        std::cout <<"EMPTY STRING"<< std::endl;
+        data.x = data.x;                                                    // Use previous string if string is empty
+    }
+    else
+    {
+        ConvertedFloat = std::stof(SplittedString);
+        data.x = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
+    }
 
     start = StringToGetSplitted.find("Y");
     end = StringToGetSplitted.find("+");
     SplittedString = StringToGetSplitted.substr(start+1, end-1);
-    ConvertedFloat = std::stof(SplittedString);
-    data.y = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
+    if(SplittedString.size() == 0)
+    {
+        std::cout <<"EMPTY STRING"<< std::endl;
+        data.y = data.y;                                                    // Use previous string if string is empty
+    }    
+    else
+    {
+        ConvertedFloat = std::stof(SplittedString);
+        data.y = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
+    }
 
     start = StringToGetSplitted.find("Z");
     end = StringToGetSplitted.find("+");
     SplittedString = StringToGetSplitted.substr(start+1, end-1);
-    ConvertedFloat = std::stof(SplittedString);
-    data.z = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
+    if(SplittedString.size() == 0)
+    {
+        std::cout <<"EMPTY STRING"<< std::endl;
+        data.z = data.z;                                                    // Use previous string if string is empty
+    }    
+    else
+    {
+        ConvertedFloat = std::stof(SplittedString);
+        data.z = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
+    }
     //std::cout <<"X float " << data.x <<" Y float " << data.y <<" Z float " << data.z << std::endl;        // Print data (Optional)
     return data;                                                                                            // Return struct
 }
@@ -138,7 +163,7 @@ void FlightTelemetry::openCameraZed(sl::Camera &zed)                            
     // enable Positional Tracking
     returned_state = zed.enablePositionalTracking(positional_tracking_param);
     if (returned_state != ERROR_CODE::SUCCESS) {
-        cout<<"Enabling positionnal tracking failed: "<< returned_state << endl;
+        cout<<"Enabling positional tracking failed: "<< returned_state << endl;
         zed.close();
         //return EXIT_FAILURE;
     }

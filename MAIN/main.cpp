@@ -141,6 +141,10 @@ int main(int argc, char** argv)
   Data BitRate from 110 kbps to 6.81 Mbps
   Preamble from 1024 kbps to 128kbps
   */
+    //system("lxterminal -e 'python3 /home/uwb5/uwb/Onboard-SDK/build/bin/Multitag-1-0-1.py'");       // TODO:  Launch from program    
+    //system("python3 /home/uwb5/uwb/Onboard-SDK/build/bin/Multitag-1-0-1.py & exit");
+    //usleep(1800000);
+    //system("gnome-terminal -e 'sh -c \"g++ y.cpp && ./a.out\"'");
     FlightTelemetry::UwbStruct uwbstruct;
     int fd;
     char *FifoPipe = "Pipe.fifo";
@@ -151,7 +155,7 @@ int main(int argc, char** argv)
     {
       uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);
       std::cout << "X" <<uwbstruct.x<< " Y" <<uwbstruct.y<< " Z" <<uwbstruct.z<< std::endl;
-      sleep(1);
+      //sleep(1);
     }
     std::cout << "Pozyx works - Ready to Fly" << std::endl;
     
@@ -159,7 +163,7 @@ int main(int argc, char** argv)
   // OSDK integration
   
   // Initialize variables
-  int functionTimeout = 1;
+  int functionTimeout = 10;
   // Setup OSDK.
   LinuxSetup linuxEnvironment(argc, argv);
   Vehicle* vehicle = linuxEnvironment.getVehicle();
@@ -170,7 +174,7 @@ int main(int argc, char** argv)
 
   // Obtain Control Authority
   vehicle->obtainCtrlAuthority(functionTimeout);
-
+  
   //*********************************************************************************************************************************************
   // Loop
 
@@ -190,10 +194,13 @@ int main(int argc, char** argv)
         << "| [t] Takeoff Command                                             |"
         << std::endl;
     std::cout
-        << "| [m] Move    Command                                             |"
+        << "| [m] Move    Command (Yaw test)                                  |"
         << std::endl;
     std::cout
-        << "| [n] Move    Command 2                                           |"
+        << "| [n] Move    Command (Define gains, timeout and max roll/pitch)  |"
+        << std::endl;
+    std::cout
+        << "| [b] Move    Command (Same as 'n' + X/Y target)                  |"
         << std::endl;
     std::cout
         << "| [d] Data    Read                                                |"
@@ -334,7 +341,9 @@ int main(int argc, char** argv)
         std::cout << " " << std::endl;
         std::cout << "Input dgain: ";
         std::cin >> dgain;
-        std::cout << " " << std::endl;                                
+        std::cout << " " << std::endl;
+        std::cout << "Input timeoutInMilSec: ";
+        std::cin >> timeoutInMilSec;                                
         moveByPositionOffset(vehicle, Xtarget, Ytarget, Ztarget, YawTarget, pgain, igain, dgain, timeoutInMilSec, maxRollDeg, maxPitchDeg, 0.5, 1.0);    // This position (vehicle, 3.5, 2.6, 0, 12.5) is taped to the floor
         std::cout << "Finished" << std::endl;
         flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
