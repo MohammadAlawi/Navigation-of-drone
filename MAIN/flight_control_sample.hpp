@@ -48,9 +48,21 @@
 // Helpers
 #include <dji_linux_helpers.hpp>
 
+// Standard includes
+#include <cmath>
+#include <signal.h>                                                                             // Header in standard library
+#include <stdlib.h>                                                                             // Header in standard library
+#include <csignal>                                                                              // Header in standard library                                                                             
+#include <fcntl.h>                                                                              // Header in standard library
+#include <iostream>                                                                             // Header in standard library
+#include <sys/stat.h>                                                                           // Header in standard library
+#include <unistd.h>                                                                             // Header in standard library
+#include <string>                                                                               // Header in standard library
+#include <string.h>                                                                             // Header in standard library
+
 #define C_EARTH (double)6378137.0
 #define DEG2RAD 0.01745329252
-#define PI 3.14159265358979323846
+#define PI 3.14159265358979323846   // PID
 
 //!@note: All the default timeout parameters are for acknowledgement packets
 //! from the aircraft.
@@ -67,8 +79,8 @@
 !*/
 bool moveByPositionOffset(DJI::OSDK::Vehicle *vehicle, float xOffsetDesired,
                           float yOffsetDesired, float zOffsetDesired,
-                          float yawDesired, float posThresholdInM = 0.5,
-                          float yawThresholdInDeg = 1.0);
+                          float yawDesired,  float pgain, float igain, float dgain, int timeoutInMilSec, float maxRoll, float maxPitch, float posThresholdInM = 0.5,
+                          float yawThresholdInDeg = 1.0);            // Gain variables added
 
 
 // Helper Functions

@@ -30,6 +30,8 @@ MyClassOne::MyEnumOne myenumone;                                                
 MyControlClass::ControlStruct controlstructmain;                                              // Create instance of struct (utilizing namespace)
 MyControlClass::ControlEnum controlenummain;                                                  // Create instance of enum (utilizing namespace)
 
+//VehicleStatus::DisplayMode displaystatus;
+
 int main(int argc, char** argv) 
 {
   //*********************************************************************************************************************************************
@@ -135,8 +137,14 @@ int main(int argc, char** argv)
   //*********************************************************************************************************************************************
   // POZYX integration
   /*
+  Settings:
   Data BitRate from 110 kbps to 6.81 Mbps
+  Preamble from 1024 kbps to 128kbps
   */
+    //system("lxterminal -e 'python3 /home/uwb5/uwb/Onboard-SDK/build/bin/Multitag-1-0-1.py'");       // TODO:  Launch from program    
+    //system("python3 /home/uwb5/uwb/Onboard-SDK/build/bin/Multitag-1-0-1.py & exit");
+    //usleep(1800000);
+    //system("gnome-terminal -e 'sh -c \"g++ y.cpp && ./a.out\"'");
     FlightTelemetry::UwbStruct uwbstruct;
     int fd;
     char *FifoPipe = "Pipe.fifo";
@@ -147,7 +155,7 @@ int main(int argc, char** argv)
     {
       uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);
       std::cout << "X" <<uwbstruct.x<< " Y" <<uwbstruct.y<< " Z" <<uwbstruct.z<< std::endl;
-      sleep(1);
+      //sleep(1);
     }
     std::cout << "Pozyx works - Ready to Fly" << std::endl;
     
@@ -155,7 +163,7 @@ int main(int argc, char** argv)
   // OSDK integration
   
   // Initialize variables
-  int functionTimeout = 1;
+  int functionTimeout = 10;
   // Setup OSDK.
   LinuxSetup linuxEnvironment(argc, argv);
   Vehicle* vehicle = linuxEnvironment.getVehicle();
@@ -166,7 +174,7 @@ int main(int argc, char** argv)
 
   // Obtain Control Authority
   vehicle->obtainCtrlAuthority(functionTimeout);
-
+  
   //*********************************************************************************************************************************************
   // Loop
 
@@ -186,10 +194,13 @@ int main(int argc, char** argv)
         << "| [t] Takeoff Command                                             |"
         << std::endl;
     std::cout
-        << "| [m] Move    Command                                             |"
+        << "| [m] Move    Command (Yaw test)                                  |"
         << std::endl;
     std::cout
-        << "| [n] Move    Command 2                                           |"
+        << "| [n] Move    Command (Define gains, timeout and max roll/pitch)  |"
+        << std::endl;
+    std::cout
+        << "| [b] Move    Command (Same as 'n' + X/Y target)                  |"
         << std::endl;
     std::cout
         << "| [d] Data    Read                                                |"
@@ -199,6 +210,18 @@ int main(int argc, char** argv)
         << std::endl;
 
     char inputChar;
+    int defineParameters  = 0;      // This used to define paramters    
+    float Xtarget         = 3.5;    // Initial value if not defined manually (X target offset from localization system origin)
+    float Ytarget         = 2.6;    // Initial value if not defined manually (Y target offset from localization system origin)
+    float Ztarget         = 0.5;    // Initial value if not defined manually (Z target offset from localization system origin)
+    float YawTarget       = 102.6;  // Initial value if not defined manually (Yaw target offset from localization system origin)
+    float pgain           = 0.05;    // Initial value if not defined manually
+    float igain           = 0.7;    // Initial value if not defined manually
+    float dgain           = 0.7;    // Initial value if not defined manually
+    int timeoutInMilSec   = 10000;  // Initial value if not defined manually
+    float maxPitchDeg     = 5;      // Initial value if not defined manually (Max pitch in degrees)
+    float maxRollDeg      = 5;      // Initial value if not defined manually (Max roll in degrees)
+
     std::cin >> inputChar;
 
     switch (inputChar) {
@@ -212,6 +235,7 @@ int main(int argc, char** argv)
         break;
 
       case 't' :
+        vehicle->control->takeoff(1);
         // Takeoff code here
         /*
         Yaw is fixed to defined degree (12.5 degrees is value to rotate to UWB y-axis direction) (TEST THIS 26.5 when using inside source file movebyposition)
@@ -220,45 +244,115 @@ int main(int argc, char** argv)
         Z is locked to defined altidude from the takeoff point -> if z now is 2 and z next is 0.5 then vehicle will come down to 0.5m from the takeoff point
         */
         //vehicle->control->takeoff(1);
-
+        /*
         for(int i = 0; i < 4000; i++)
         {
           vehicle->control->attitudeAndVertPosCtrl(0, 0, 12.5, 1.5);                    // -63 is facing away from window
           usleep(1000);
         }
         std::cout << "Takeoff finished" << std::endl;
-
+        */
         flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
         break;
 
       case 'm' :
         // Move code #1 here
-        moveByPositionOffset(vehicle, 3.5, 2.6, 0, 12.5);                         // This position is taped to the floor
+        std::cout << " " << std::endl;
+        std::cout << "Input YawTarget: ";
+        std::cin >> YawTarget;
+        for(int i = 0; i < 3000; i++)
+        {
+          //vehicle->control->attitudeAndVertPosCtrl(0, 0, YawTarget, 1.5);                    // -63 is facing away from window
+          //vehicle->control->velocityAndYawRateCtrl(0, 0, 0, 0);
+          vehicle->control->positionAndYawCtrl(0, 3, 1.5, 0);
+          usleep(1000);
+        }        
         std::cout << "Finished" << std::endl;
-        flightcommander->ForceLanding(vehicle); 
-
+        flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
         break;
 
       case 'n' :
         // Move code #2 here
+        /*
+        std::cout << " " << std::endl;
+        std::cout << "Input Xtarget: ";
+        std::cin >> Xtarget;
+        std::cout << " " << std::endl;
+        std::cout << "Input Ytarget: ";
+        std::cin >> Ytarget;
+        std::cout << " " << std::endl;
+        std::cout << "Input Ztarget: ";
+        std::cin >> Ztarget;    
+        std::cout << " " << std::endl;
+        std::cout << "Input YawTarget: ";
+        std::cin >> YawTarget;            
+        */
+        std::cout << " " << std::endl;
+        std::cout << "Define paramters? (1 = YES, else NO) ";
+        std::cin >> defineParameters;
+        
+        if(defineParameters == 1)
+        {
+        std::cout << " " << std::endl;
+        std::cout << "Input pgain: ";
+        std::cin >> pgain;
+        std::cout << " " << std::endl;
+        std::cout << "Input igain: ";
+        std::cin >> igain;
+        std::cout << " " << std::endl;
+        std::cout << "Input dgain: ";
+        std::cin >> dgain;
+        std::cout << " " << std::endl;
+        std::cout << "Input timeoutInMilSec: ";
+        std::cin >> timeoutInMilSec;
+        std::cout << " " << std::endl;
+        std::cout << "Input maxRollDeg: ";
+        std::cin >> maxRollDeg;
+        std::cout << " " << std::endl;
+        std::cout << "Input maxPitchDeg: ";
+        std::cin >> maxPitchDeg;
+        std::cout << " " << std::endl;                                    
+        }           
+                    
+        moveByPositionOffset(vehicle, Xtarget, Ytarget, Ztarget, YawTarget, pgain, igain, dgain, timeoutInMilSec, maxRollDeg, maxPitchDeg, 0.5, 1.0);    // This position (vehicle, 3.5, 2.6, 0, 12.5) is taped to the floor
+        std::cout << "Finished" << std::endl;
         flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
       break;
       case 'b' :
-        // Move code #3 here
-        flighttelemetry->GetGlobalPositionData(vehicle, 1);
-        for(int i = 0; i < 2000; i++)
-        {
-          //vehicle->control->attitudeAndVertPosCtrl(-3,0,-63,0);
-          vehicle->control->positionAndYawCtrl(-20,0,0,-63);
-          usleep(100);
-        }
+        // Move code #3 here 
+        std::cout << " " << std::endl;
+        std::cout << "Input Xtarget: ";
+        std::cin >> Xtarget;
+        std::cout << " " << std::endl;
+        std::cout << "Input Ytarget: ";
+        std::cin >> Ytarget;
+        std::cout << " " << std::endl;
+        std::cout << "Input Ztarget: ";
+        std::cin >> Ztarget;    
+        std::cout << " " << std::endl;
+        std::cout << "Input YawTarget: ";
+        std::cin >> YawTarget;           
+        std::cout << " " << std::endl;
+        std::cout << "Input pgain: ";
+        std::cin >> pgain;
+        std::cout << " " << std::endl;
+        std::cout << "Input igain: ";
+        std::cin >> igain;
+        std::cout << " " << std::endl;
+        std::cout << "Input dgain: ";
+        std::cin >> dgain;
+        std::cout << " " << std::endl;
+        std::cout << "Input timeoutInMilSec: ";
+        std::cin >> timeoutInMilSec;                                
+        moveByPositionOffset(vehicle, Xtarget, Ytarget, Ztarget, YawTarget, pgain, igain, dgain, timeoutInMilSec, maxRollDeg, maxPitchDeg, 0.5, 1.0);    // This position (vehicle, 3.5, 2.6, 0, 12.5) is taped to the floor
+        std::cout << "Finished" << std::endl;
         flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
         break;
 
       case 'd' :
         // Data code here
-        flighttelemetry->GetQuaternionData(vehicle);
-        //flighttelemetry->GetGlobalPositionData(vehicle, 1);
+        //flighttelemetry->GetQuaternionData(vehicle);
+        flighttelemetry->GetGlobalPositionData(vehicle, 1);
         break;
 
     }

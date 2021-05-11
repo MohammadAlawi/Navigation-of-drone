@@ -1,0 +1,5 @@
+# Ignore file called ignoreThis.txt
+ignoreThis.txt
+
+# Ignore build directories
+**/build/

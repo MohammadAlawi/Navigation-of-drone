@@ -36,6 +36,11 @@ using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 using namespace FlightLibrary;
 
+using std::chrono::high_resolution_clock;                                                     // Namespaces for measuring execution speed
+using std::chrono::duration_cast;                                                             // Namespaces for measuring execution speed
+using std::chrono::duration;                                                                  // Namespaces for measuring execution speed
+using std::chrono::milliseconds;                                                              // Namespaces for measuring execution speed
+
 
 /*! Position Control. Allows you to set an offset from your current
     location. The aircraft will move to that position and stay there.
@@ -49,20 +54,38 @@ using namespace FlightLibrary;
 bool
 moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
                      float yOffsetDesired, float zOffsetDesired,
-                     float yawDesired, float posThresholdInM,
-                     float yawThresholdInDeg)
+                     float yawDesired, float pgain, float igain, float dgain, int timeoutInMilSec, float maxRoll, float maxPitch, float posThresholdInM,
+                     float yawThresholdInDeg)  // Gain variables added
 {
   // Set timeout: this timeout is the time you allow the drone to take to finish
   // the
   // mission
   int responseTimeout              = 1;
-  int timeoutInMilSec              = 40000;
   int controlFreqInHz              = 50; // Hz                                      // Originally 50Hz, changed to other frequency
   int cycleTimeInMs                = 1000 / controlFreqInHz;
   int outOfControlBoundsTimeLimit  = 10 * cycleTimeInMs; // 10 cycles
   int withinControlBoundsTimeReqmt = 50 * cycleTimeInMs; // 50 cycles
   int pkgIndex;
   std::cout << std::setprecision(2) << std::fixed;                                  // Set the printed float decimals
+  
+
+  
+  double pTerm                    = 0;  // PID start
+  double iTerm                    = 0;
+  double dTerm                    = 0;
+  double iState                   = 0;
+  double windupLimit              = 10;
+  /*
+  int maxPitch                    = 2;
+  int maxRoll                     = 2;  
+  */
+  double currentPosition = 0;
+  double lastPosition = 0;
+  double positionCmd = 0;
+  double positionCmdX = 0;
+  double positionCmdY = 0;
+  double pitchCmd = 0;
+  double rollCmd = 0; // PID end
 
   //@todo: remove this once the getErrorCode function signature changes
   char func[50];
@@ -73,7 +96,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
 
   FlightTelemetry* flighttelemetry;                                                         // Create an object pointer of FlightTelemetry
   FlightTelemetry::UwbStruct uwbstruct;                                                     // Instiate struct
-
+  /*
   sl::Camera zed;                                                                           // ++++ Zed class object instance
   sl::Pose camera_path;                                                                     // ++++ Zed instance
   sl::float3 translation;                                                                   // ++++ Zed instance
@@ -82,6 +105,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   std::vector<float> storedFloat;
   std::pair<sl::float3 , sl::float3> ReturnPairPosRot;
   flighttelemetry->openCameraZed(zed);                                                      // ++++ Open Zed camera
+  */
   int fd;                                                                                   // Create integer for piping
   char *FifoPipe = "Pipe.fifo";                                                             // Create a pipe
   char buf[MAX_BUF];                                                                        // Define maximum buffer size
@@ -103,20 +127,23 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
                              static_cast<void*>(&currentBroadcastGP),
                              static_cast<void*>(&originBroadcastGP));
   }
-  
+  /*
   for(int i = 0; i < 10000; i++)
   {
   ReturnPairPosRot = flighttelemetry->getPositionZed(zed, camera_path, translation, rotation, ReturnPairPosRot);     // ++++ Get Zed position and rotation data
   std::cout << "Zed x translation " << ReturnPairPosRot.first[0] << " Zed x rotation " << ReturnPairPosRot.second[0] << std::endl;  // ++++ Print Zed 
   uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);                     // Get Uwb position data and store to uwbstruct
   }
-                                     
+  */                                  
   for (int i = 0; i < 2; i++)                                                   // Testing purpose (Optional)
   {
     uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);
     std::cout << "X" <<uwbstruct.x<< " Y" <<uwbstruct.y<< " Z" <<uwbstruct.z<< std::endl;
-    sleep(1);
+    //sleep(1);
   }
+
+  double lastPosX = uwbstruct.x;  // PID start
+  double lastPosY = uwbstruct.y;  // PID end
   
   /* 
   // Original implementation
@@ -128,8 +155,11 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
 
   // Get initial offset. We will update this in a loop later.
   double xOffsetRemaining = (xOffsetDesired - uwbstruct.x);                     // Set offset remaining using localoffset = uwbstruct
-  double yOffsetRemaining = (yOffsetDesired - uwbstruct.y) * -1.000;            // Set offset remaining using localoffset = uwbstruct (y control function is inversed)
+  double yOffsetRemaining = (yOffsetDesired - uwbstruct.y);                     // Set offset remaining using localoffset = uwbstruct (y control function is inversed)
   double zOffsetRemaining = zOffsetDesired - uwbstruct.z;                       // Set offset remaining using localoffset = uwbstruct
+
+  double absOffsetRemaining = sqrt(pow(xOffsetRemaining, 2) +pow(yOffsetRemaining, 2)); // PID start
+  double OffsetRemainingAng = atan2(yOffsetRemaining, xOffsetRemaining);                // PID end
 
   // Conversions
   double yawDesiredRad     = DEG2RAD * yawDesired;
@@ -139,9 +169,13 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   Telemetry::Quaternion broadcastQ;
 
   double yawInRad;
+  double yawInDeg;
 
   broadcastQ = vehicle->broadcast->getQuaternion();
   yawInRad   = toEulerAngle((static_cast<void*>(&broadcastQ))).z / DEG2RAD;
+
+  yawInRad   = PI/2 - yawInRad + ((12.6/180)*PI); // PID
+  yawInDeg   = (yawInRad / (2*PI)) * 360;
   
   int   elapsedTimeInMs     = 0;
   int   withinBoundsCounter = 0;
@@ -184,11 +218,13 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   //! Main closed-loop receding setpoint position control
   while (elapsedTimeInMs < timeoutInMilSec)
   {
+    auto t1 = high_resolution_clock::now();                                                     // Run function to measure execution time
+
     /*
     vehicle->control->positionAndYawCtrl(xCmd, yCmd, zCmd,
                                          yawDesiredRad / DEG2RAD);
     */
-    vehicle->control->attitudeAndVertPosCtrl(xCmd, yCmd, 26.5, 1);
+    vehicle->control->attitudeAndVertPosCtrl(rollCmd, pitchCmd * (-1.0), yawDesired, zCmd);
                                 
             
 
@@ -220,22 +256,59 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     */
 
     uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);                     // Get Uwb postion data and store to uwbstruct
-    xOffsetRemaining = (xOffsetDesired - uwbstruct.x)*3;                          // Set offset remaining using localoffset = uwbstruct
-    yOffsetRemaining = ((yOffsetDesired - uwbstruct.y) * -1.000) * 3.000;         // Set offset remaining using localoffset = uwbstruct
+    xOffsetRemaining = (xOffsetDesired - uwbstruct.x);                            // Set offset remaining using localoffset = uwbstruct
+    yOffsetRemaining = ((yOffsetDesired - uwbstruct.y));                          // Set offset remaining using localoffset = uwbstruct
     zOffsetRemaining = zOffsetDesired - uwbstruct.z;                              // Set offset remaining using localoffset = uwbstruct
 
-    
-    std::cout 
-    // << "lO.x " << localOffset.x << "    lO.y " << localOffset.y << "    lO.z " << localOffset.z            // localOffset is used only with GPS data
-    << "lO.x " << uwbstruct.x << "    lO.y " << uwbstruct.y << "    lO.z " << uwbstruct.z                     // uwbstruct is used only with UWB data
-    << "         xOR " << xOffsetRemaining << "    yOR " << yOffsetRemaining << "    zOR " << zOffsetRemaining
-    << "         xCmd " << xCmd << "    yCmd " << yCmd << "    zCmd " << zCmd
-    << "         YawD " << yawDesiredRad / DEG2RAD
-    // << "         Alt " << currentBroadcastGP.altitude << "    Lat " << currentBroadcastGP.latitude << "    Lon " << currentBroadcastGP.longitude
-    // << "         GPS Health " << currentBroadcastGP.health
-    << std::endl;
-    
+    absOffsetRemaining = sqrt(pow(xOffsetRemaining, 2) + pow(yOffsetRemaining, 2)); // PID start
+    OffsetRemainingAng = atan2(yOffsetRemaining, xOffsetRemaining);                 // PID end
 
+    yawInRad   = PI/2 - yawInRad + ((12.6/180)*PI); // PID
+    yawInDeg   = (yawInRad / (2*PI)) * 360;
+
+    // ============= PID-controller =============
+
+    pTerm = pgain * absOffsetRemaining;
+
+    iState += absOffsetRemaining * cycleTimeInMs/1000;
+
+    // Windup guard
+    if (iState > windupLimit) {
+        iState = windupLimit;
+    } else if (iState < -windupLimit) {
+        iState = -windupLimit;
+    } 
+
+    iTerm = igain * iState;
+
+    currentPosition = sqrt(pow(uwbstruct.x, 2) + pow(uwbstruct.y, 2));
+    lastPosition = sqrt(pow(lastPosX, 2) + pow(lastPosY, 2));
+
+    dTerm = (dgain * (currentPosition - lastPosition)) / cycleTimeInMs;
+
+    positionCmd = pTerm + iTerm + dTerm;
+    positionCmdX = positionCmd * cos(OffsetRemainingAng);
+    positionCmdY = positionCmd * sin(OffsetRemainingAng);
+    
+    pitchCmd = cos(yawInRad)*positionCmdX + sin(yawInRad)*positionCmdY;      // needed pitch of the drone
+    rollCmd = sin(yawInRad)*positionCmdX - cos(yawInRad)*positionCmdY;       // needed roll of the drone
+
+
+    // limiting Pitch
+    if (pitchCmd > maxPitch){
+        pitchCmd = maxPitch;
+    } else if (pitchCmd < -maxPitch){
+        pitchCmd = -maxPitch;
+    }
+
+    // limiting Roll    
+    if (rollCmd > maxRoll){
+        rollCmd = maxRoll;
+    } else if (rollCmd < -maxRoll){
+        rollCmd = -maxRoll;
+    }    
+
+    /*
     //! See if we need to modify the setpoint
     if (std::abs(xOffsetRemaining) < speedFactor)
     {
@@ -280,10 +353,28 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     {
       break;
     }
+    */
+
+
+    lastPosX = uwbstruct.x; // PID start
+    lastPosY = uwbstruct.y; // PID end
+    auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time
+    duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
+    std::cout 
+    // << "lO.x " << localOffset.x << "    lO.y " << localOffset.y << "    lO.z " << localOffset.z                        // localOffset is used only with GPS data
+    << "lO.x " << uwbstruct.x << "    lO.y " << uwbstruct.y << "    lO.z " << uwbstruct.z << "    lO.YawDeg " << yawInDeg   // uwbstruct is used only with UWB data
+    << "         xOR " << xOffsetRemaining << "    yOR " << yOffsetRemaining << "    zOR " << zOffsetRemaining
+    << "         rollCmd " << rollCmd << "    pitchCmd " << pitchCmd << "    zCmd " << zCmd
+    << "         YawD " << yawDesired << " ExeT " << 1/(ms_double.count()/1000)
+    // << "         Alt " << currentBroadcastGP.altitude << "    Lat " << currentBroadcastGP.latitude << "    Lon " << currentBroadcastGP.longitude
+    // << "         GPS Health " << currentBroadcastGP.health
+    << std::endl;
+
   }
 
   //! Set velocity to zero, to prevent any residual velocity from position
   //! command
+  /*
   if (!vehicle->isM100() && !vehicle->isLegacyM600())
   {
     while (brakeCounter < withinControlBoundsTimeReqmt)
@@ -293,10 +384,11 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
       brakeCounter += cycleTimeInMs;
     }
   }
-
+  */
   if (elapsedTimeInMs >= timeoutInMilSec)
   {
     std::cout << "Task timeout!\n";
+    /*
     if (!vehicle->isM100() && !vehicle->isLegacyM600())
     {
       ACK::ErrorCode ack =
@@ -307,9 +399,10 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
                      "back to a clean state.\n";
       }
     }
-    return ACK::FAIL;
+    */
+    // return ACK::FAIL;
   }
-
+  /*
   if (!vehicle->isM100() && !vehicle->isLegacyM600())
   {
     ACK::ErrorCode ack =
@@ -321,8 +414,9 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
            "to a clean state.\n";
     }
   }
+  */
 
-  return ACK::SUCCESS;
+  //return ACK::SUCCESS;
 }
 
 // Helper Functions
