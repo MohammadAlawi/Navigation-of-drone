@@ -73,6 +73,10 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   int maxPitch                    = 2;
   int maxRoll                     = 2;
 
+  double trueVelocityX            = 0;
+  double trueVelocityY            = 0;
+  double desiredVelocityX         = 0;
+  double desiredVelocityY         = 0;
 
   //@todo: remove this once the getErrorCode function signature changes
   char func[50];
@@ -131,6 +135,9 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   double lastPosX = uwbstruct.x;
   double lastPosY = uwbstruct.y;
 
+  trueVelocityX = (uwbstruct.x - lastPosX)/cycleTimeInMs;
+  trueVelocityY = (uwbstruct.y - lastPosY)/cycleTimeInMs;
+
   /* 
   // Original implementation
   // Get initial offset. We will update this in a loop later.
@@ -144,8 +151,15 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   double yOffsetRemaining = (yOffsetDesired - uwbstruct.y) * -1.000;            // Set offset remaining using localoffset = uwbstruct (y control function is inversed)
   double zOffsetRemaining = zOffsetDesired - uwbstruct.z;                       // Set offset remaining using localoffset = uwbstruct
 
-  double absOffsetRemaining = sqrt(xOffsetRemaining^2 + yOffsetRemaining^2);
-  double OffsetRemainingAng = atan2(yOffsetRemaining, xOffsetRemaining);
+
+  desiredVelocityX = 10 * xOffsetRemaining;
+  desiredVelocityY = 10 * yOffsetRemaining;
+
+  velocityErrorX = trueVelocityX - desiredVelocityX;
+  velocityErrorY = trueVelocityY - desiredVelocityY;
+
+  //double absOffsetRemaining = sqrt(xOffsetRemaining^2 + yOffsetRemaining^2);
+  //double OffsetRemainingAng = atan2(yOffsetRemaining, xOffsetRemaining);
 
   // Conversions
   double yawDesiredRad     = DEG2RAD * yawDesired;
