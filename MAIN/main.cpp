@@ -141,7 +141,7 @@ int main(int argc, char** argv)
   Data BitRate from 110 kbps to 6.81 Mbps
   Preamble from 1024 kbps to 128kbps
   */
-    //system("lxterminal -e 'python3 /home/uwb5/uwb/Onboard-SDK/build/bin/Multitag-1-0-1.py'");       // TODO:  Launch from program    
+    //system("lxterminal -e 'python3 /home/uwb5/uwb/Onboard-SDK/build/bin/Multitag-1-0-1.py'");       // TODO:  Launch Multitag from MAIN program    
     //system("python3 /home/uwb5/uwb/Onboard-SDK/build/bin/Multitag-1-0-1.py & exit");
     //usleep(1800000);
     //system("gnome-terminal -e 'sh -c \"g++ y.cpp && ./a.out\"'");
@@ -150,11 +150,14 @@ int main(int argc, char** argv)
     char *FifoPipe = "Pipe.fifo";
     char buf[MAX_BUF];
     fd = open(FifoPipe, O_RDONLY);                                                            // Open FIFO pipe for reading incoming
-    std::cout << "Testing Pozyx" << std::endl;
+    std::cout << "Testing Pozyx. Values from Pozyx: ";
     for (int i = 0; i < 1; i++)
     {
       uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);
-      std::cout << "X" <<uwbstruct.x<< " Y" <<uwbstruct.y<< " Z" <<uwbstruct.z<< std::endl;
+      std::cout << "pX" <<uwbstruct.pX<< " pY" <<uwbstruct.pY<< " pZ" <<uwbstruct.pZ
+                << " aX"<<uwbstruct.aX<< " aY" <<uwbstruct.aY<< " aZ" <<uwbstruct.aZ
+                << " eH"<<uwbstruct.eH<<
+      std::endl;
       //sleep(1);
     }
     std::cout << "Pozyx works - Ready to Fly" << std::endl;
@@ -200,7 +203,7 @@ int main(int argc, char** argv)
         << "| [n] Move    Command (Define gains, timeout and max roll/pitch)  |"
         << std::endl;
     std::cout
-        << "| [b] Move    Command (Same as 'n' + X/Y target)                  |"
+        << "| [b] Move    Command (Same as 'n' + X&Y target)                  |"
         << std::endl;
     std::cout
         << "| [d] Data    Read                                                |"
@@ -288,7 +291,7 @@ int main(int argc, char** argv)
         std::cin >> YawTarget;            
         */
         std::cout << " " << std::endl;
-        std::cout << "Define paramters? (1 = YES, else NO) ";
+        std::cout << "Define paramters? (1 = YES, else NO)  ";
         std::cin >> defineParameters;
         
         if(defineParameters == 1)

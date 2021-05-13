@@ -138,12 +138,12 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   for (int i = 0; i < 2; i++)                                                   // Testing purpose (Optional)
   {
     uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);
-    std::cout << "X" <<uwbstruct.x<< " Y" <<uwbstruct.y<< " Z" <<uwbstruct.z<< std::endl;
+    std::cout << "X" <<uwbstruct.pX<< " Y" <<uwbstruct.pY<< " Z" <<uwbstruct.pZ<< std::endl;
     //sleep(1);
   }
 
-  double lastPosX = uwbstruct.x;  // PID start
-  double lastPosY = uwbstruct.y;  // PID end
+  double lastPosX = uwbstruct.pX;  // PID start
+  double lastPosY = uwbstruct.pY;  // PID end
   
   /* 
   // Original implementation
@@ -154,9 +154,9 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   */
 
   // Get initial offset. We will update this in a loop later.
-  double xOffsetRemaining = (xOffsetDesired - uwbstruct.x);                     // Set offset remaining using localoffset = uwbstruct
-  double yOffsetRemaining = (yOffsetDesired - uwbstruct.y);                     // Set offset remaining using localoffset = uwbstruct (y control function is inversed)
-  double zOffsetRemaining = zOffsetDesired - uwbstruct.z;                       // Set offset remaining using localoffset = uwbstruct
+  double xOffsetRemaining = (xOffsetDesired - uwbstruct.pX);                     // Set offset remaining using localoffset = uwbstruct
+  double yOffsetRemaining = (yOffsetDesired - uwbstruct.pY);                     // Set offset remaining using localoffset = uwbstruct (y control function is inversed)
+  double zOffsetRemaining = zOffsetDesired - uwbstruct.pZ;                       // Set offset remaining using localoffset = uwbstruct
 
   double absOffsetRemaining = sqrt(pow(xOffsetRemaining, 2) +pow(yOffsetRemaining, 2)); // PID start
   double OffsetRemainingAng = atan2(yOffsetRemaining, xOffsetRemaining);                // PID end
@@ -255,10 +255,10 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     zOffsetRemaining = zOffsetDesired - localOffset.z;
     */
 
-    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);                     // Get Uwb postion data and store to uwbstruct
-    xOffsetRemaining = (xOffsetDesired - uwbstruct.x);                            // Set offset remaining using localoffset = uwbstruct
-    yOffsetRemaining = ((yOffsetDesired - uwbstruct.y));                          // Set offset remaining using localoffset = uwbstruct
-    zOffsetRemaining = zOffsetDesired - uwbstruct.z;                              // Set offset remaining using localoffset = uwbstruct
+    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);                       // Get Uwb postion data and store to uwbstruct
+    xOffsetRemaining = (xOffsetDesired - uwbstruct.pX);                            // Set offset remaining using localoffset = uwbstruct
+    yOffsetRemaining = ((yOffsetDesired - uwbstruct.pY));                          // Set offset remaining using localoffset = uwbstruct
+    zOffsetRemaining = zOffsetDesired - uwbstruct.pZ;                              // Set offset remaining using localoffset = uwbstruct
 
     absOffsetRemaining = sqrt(pow(xOffsetRemaining, 2) + pow(yOffsetRemaining, 2)); // PID start
     OffsetRemainingAng = atan2(yOffsetRemaining, xOffsetRemaining);                 // PID end
@@ -268,7 +268,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
 
     // ============= PID-controller =============
 
-    pTerm = pgain * absOffsetRemaining;
+    pTerm = pgain * absOffsetRemaining; // TODO Must be negative
 
     iState += absOffsetRemaining * cycleTimeInMs/1000;
 
@@ -281,10 +281,10 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
 
     iTerm = igain * iState;
 
-    currentPosition = sqrt(pow(uwbstruct.x, 2) + pow(uwbstruct.y, 2));
+    currentPosition = sqrt(pow(uwbstruct.pX, 2) + pow(uwbstruct.pY, 2));
     lastPosition = sqrt(pow(lastPosX, 2) + pow(lastPosY, 2));
 
-    dTerm = (dgain * (currentPosition - lastPosition)) / cycleTimeInMs;
+    dTerm = (dgain * (currentPosition - lastPosition)) / cycleTimeInMs; // TODO Calculated differently
 
     positionCmd = pTerm + iTerm + dTerm;
     positionCmdX = positionCmd * cos(OffsetRemainingAng);
@@ -356,13 +356,13 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     */
 
 
-    lastPosX = uwbstruct.x; // PID start
-    lastPosY = uwbstruct.y; // PID end
+    lastPosX = uwbstruct.pX; // PID start
+    lastPosY = uwbstruct.pY; // PID end
     auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time
     duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
     std::cout 
     // << "lO.x " << localOffset.x << "    lO.y " << localOffset.y << "    lO.z " << localOffset.z                        // localOffset is used only with GPS data
-    << "lO.x " << uwbstruct.x << "    lO.y " << uwbstruct.y << "    lO.z " << uwbstruct.z << "    lO.YawDeg " << yawInDeg   // uwbstruct is used only with UWB data
+    << "lO.x " << uwbstruct.pX << "    lO.y " << uwbstruct.pY << "    lO.z " << uwbstruct.pZ << "    lO.YawDeg " << yawInDeg   // uwbstruct is used only with UWB data
     << "         xOR " << xOffsetRemaining << "    yOR " << yOffsetRemaining << "    zOR " << zOffsetRemaining
     << "         rollCmd " << rollCmd << "    pitchCmd " << pitchCmd << "    zCmd " << zCmd
     << "         YawD " << yawDesired << " ExeT " << 1/(ms_double.count()/1000)

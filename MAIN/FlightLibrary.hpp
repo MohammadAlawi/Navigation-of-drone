@@ -52,9 +52,13 @@ namespace FlightLibrary
         void GetGlobalPositionData(DJI::OSDK::Vehicle* vehiclePtr, int responseTimeout);    // This method gets position data (longtidude, latidude, altidude, height, health)
         typedef struct UwbStruct                                                            // This attribute is used to store and return UWB data
         {
-            float x;                                                                        // This member stores x value
-            float y;                                                                        // This member stores y value
-            float z;                                                                        // This member stores z value
+            float pX;                                                                        // This member stores x value (Position)
+            float pY;                                                                        // This member stores y value (Position)
+            float pZ;                                                                        // This member stores z value (Position)
+            float aX;                                                                       // This member stores aX value (Acceleration)
+            float aY;                                                                       // This member stores aY value (Acceleration)
+            float aZ;                                                                       // This member stores aZ value (Acceleration)
+            float eH;                                                                       // This member stores eH value (Heading)
         }UwbStruct;
         UwbStruct GetUwbPositionData(int fd, char buf[MAX_BUF]);                            // This method gets local position data (X,Y,Z)
         void setTxt(sl::float3 value, char* ptr_txt);                                       // This method gets rotation and translation in text format 

@@ -69,52 +69,120 @@ void FlightTelemetry::GetGlobalPositionData(DJI::OSDK::Vehicle* vehicle, int res
 
 FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[MAX_BUF])
 {
-    FlightTelemetry::UwbStruct data;
+    FlightTelemetry::UwbStruct data {0};
     float ConvertedFloat;
     read(fd, buf, MAX_BUF);
     std::string StringToGetSplitted = buf;
-    std::size_t start = StringToGetSplitted.find("X");
+    std::size_t start = StringToGetSplitted.find("pX");
     std::size_t end = StringToGetSplitted.find("+");
-    std::string SplittedString = StringToGetSplitted.substr(start+1, end-1);
-    if(SplittedString.size() == 0)
+    std::string SplittedString = StringToGetSplitted.substr(start+2, end-2);
+    //std::cout << "String: " << SplittedString << std::endl;
+    if(SplittedString.size() == 0 || SplittedString == "-")
     {
-        std::cout <<"EMPTY STRING"<< std::endl;
-        data.x = data.x;                                                    // Use previous string if string is empty
+        std::cout <<"EMPTY or FAULTY string"<< std::endl;
+        data.pX = data.pX;                                                    // Use previous string if string is empty
     }
     else
     {
         ConvertedFloat = std::stof(SplittedString);
-        data.x = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
+        data.pX = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
     }
 
-    start = StringToGetSplitted.find("Y");
+    start = StringToGetSplitted.find("pY");
     end = StringToGetSplitted.find("+");
-    SplittedString = StringToGetSplitted.substr(start+1, end-1);
-    if(SplittedString.size() == 0)
+    SplittedString = StringToGetSplitted.substr(start+2, end-2);
+    //std::cout << "String: " << SplittedString << std::endl;
+    if(SplittedString.size() == 0 || SplittedString == "-")
     {
-        std::cout <<"EMPTY STRING"<< std::endl;
-        data.y = data.y;                                                    // Use previous string if string is empty
+        std::cout <<"EMPTY or FAULTY string"<< std::endl;
+        data.pY = data.pY;                                                    // Use previous string if string is empty
     }    
     else
     {
         ConvertedFloat = std::stof(SplittedString);
-        data.y = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
+        data.pY = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
     }
 
-    start = StringToGetSplitted.find("Z");
+    start = StringToGetSplitted.find("pZ");
     end = StringToGetSplitted.find("+");
-    SplittedString = StringToGetSplitted.substr(start+1, end-1);
-    if(SplittedString.size() == 0)
+    SplittedString = StringToGetSplitted.substr(start+2, end-2);
+    //std::cout << "String: " << SplittedString << std::endl;
+    if(SplittedString.size() == 0 || SplittedString == "-")
     {
-        std::cout <<"EMPTY STRING"<< std::endl;
-        data.z = data.z;                                                    // Use previous string if string is empty
+        std::cout <<"EMPTY or FAULTY string"<< std::endl;
+        data.pZ = data.pZ;                                                    // Use previous string if string is empty
     }    
     else
     {
         ConvertedFloat = std::stof(SplittedString);
-        data.z = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
+        data.pZ = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
     }
-    //std::cout <<"X float " << data.x <<" Y float " << data.y <<" Z float " << data.z << std::endl;        // Print data (Optional)
+
+    start = StringToGetSplitted.find("aX");
+    end = StringToGetSplitted.find("+");
+    SplittedString = StringToGetSplitted.substr(start+2, end-4);
+    //std::cout << "String: " << SplittedString << std::endl;
+    if(SplittedString.size() == 0 || SplittedString == "-")
+    {
+        std::cout <<"EMPTY or FAULTY string"<< std::endl;
+        data.aX = data.aX;                                                    // Use previous string if string is empty
+    }    
+    else
+    {
+        ConvertedFloat = std::stof(SplittedString);
+        data.aX = ConvertedFloat;                                                                         // Assign values to struct members
+    }
+
+    start = StringToGetSplitted.find("aY");
+    end = StringToGetSplitted.find("+");
+    SplittedString = StringToGetSplitted.substr(start+2, end-4);
+    //std::cout << "String: " << SplittedString << std::endl;
+    if(SplittedString.size() == 0 || SplittedString == "-")
+    {
+        std::cout <<"EMPTY or FAULTY string"<< std::endl;
+        data.aY = data.aY;                                                    // Use previous string if string is empty
+    }    
+    else
+    {
+        ConvertedFloat = std::stof(SplittedString);
+        data.aY = ConvertedFloat;                                                                         // Assign values to struct members
+    }
+
+    start = StringToGetSplitted.find("aZ");
+    end = StringToGetSplitted.find("+");
+    SplittedString = StringToGetSplitted.substr(start+2, end-4);
+    //std::cout << "String: " << SplittedString << std::endl;
+    if(SplittedString.size() == 0 || SplittedString == "-")
+    {
+        std::cout <<"EMPTY or FAULTY string"<< std::endl;
+        data.aZ = data.aZ;                                                    // Use previous string if string is empty
+    }    
+    else
+    {
+        ConvertedFloat = std::stof(SplittedString);
+        data.aZ = ConvertedFloat;                                                                         // Assign values to struct members
+    }
+
+    start = StringToGetSplitted.find("eH");
+    end = StringToGetSplitted.find("+");
+    SplittedString = StringToGetSplitted.substr(start+2, end-2);
+    //std::cout << "String: " << SplittedString << std::endl;
+    if(SplittedString.size() == 0 || SplittedString == "-")
+    {
+        std::cout <<"EMPTY or FAULTY string"<< std::endl;
+        data.eH = data.eH;                                                    // Use previous string if string is empty
+    }    
+    else
+    {
+        ConvertedFloat = std::stof(SplittedString);
+        data.eH = ConvertedFloat;                                                                         // Assign values to struct members
+    }                            
+
+
+    std::cout   <<"pX float "  << data.pX <<" pY float " << data.pY <<" pZ float " << data.pZ 
+                <<" aX float " << data.aX <<" aY float "  << data.aY <<" aZ float " << data.aZ
+                <<" eH float " << data.eH
+    << std::endl;                                                                                           // Print data (Optional)
     return data;                                                                                            // Return struct
 }
 
