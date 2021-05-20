@@ -70,22 +70,39 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   
 
   
-  double pTerm                    = 0;  // PID start
-  double iTerm                    = 0;
-  double dTerm                    = 0;
-  double iState                   = 0;
+  double pTermX                   = 0;  // PID start
+  double iTermX                   = 0;
+  double dTermX                   = 0;
+  double iStateX                  = 0;
+  
+  double pTermY                   = 0;  
+  double iTermY                   = 0;
+  double dTermY                   = 0;
+  double iStateY                  = 0;
+
   double windupLimit              = 10;
+  double veloFctr                 = 1;    // variable to adjust target speed
+  double speedLimitFctr           = 0.6;  // another variable to adjust target speed
+
   /*
   int maxPitch                    = 2;
   int maxRoll                     = 2;  
   */
-  double currentPosition = 0;
-  double lastPosition = 0;
-  double positionCmd = 0;
-  double positionCmdX = 0;
-  double positionCmdY = 0;
+  double curPosX = 0;
+  double curPosY = 0;
+  double lastPosX = 0;
+  double lastPosY = 0;
+  double curVeloX  = 0;
+  double curVeloY  = 0;
+  double lastVeloX  = 0;
+  double lastVeloY  = 0;
+
+  //double positionCmd = 0;
+  double posCmdX = 0;
+  double posCmdY = 0;
   double pitchCmd = 0;
-  double rollCmd = 0; // PID end
+  double rollCmd = 0;               // PID end
+  
 
   //@todo: remove this once the getErrorCode function signature changes
   char func[50];
@@ -158,8 +175,34 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   double yOffsetRemaining = (yOffsetDesired - uwbstruct.pY);                     // Set offset remaining using localoffset = uwbstruct (y control function is inversed)
   double zOffsetRemaining = zOffsetDesired - uwbstruct.pZ;                       // Set offset remaining using localoffset = uwbstruct
 
-  double absOffsetRemaining = sqrt(pow(xOffsetRemaining, 2) +pow(yOffsetRemaining, 2)); // PID start
-  double OffsetRemainingAng = atan2(yOffsetRemaining, xOffsetRemaining);                // PID end
+
+  // To check if error is positive or negative, needed later on when taking square root
+  if (xOffsetRemaining < 0){
+      int posNegX = -1;
+  } else {
+      int posNegX = 1;
+  }
+
+  curVeloX += uwbstruct.aX * cycleTimeInMs * 1000;  // @TODO: Check acceleration directions
+  curVeloY += uwbstruct.aY * cycleTimeInMs * 1000;
+
+  double targetVeloX = xOffsetRemaining * veloFctr;
+  double targetVeloY = yOffsetRemaining * veloFctr;
+
+  double xyRelationship = abs(targetVeloY/targetVeloX); // relationship between X and Y target velocities, needed later on
+
+  double totalVelo = sqrt(pow(targetVeloX,2) + pow(targetVeloY,2));
+  double speedLimit = pow(sqrt(pow(xOffsetRemaining,2) + pow(yOffsetRemaining,2)),0.6) * speedLimitFctr;
+
+  // Limiting speed when close to target = brake
+  if (totalVelo > speedLimit) {
+    targetVeloX = sqrt(pow(speedLimit,2) / (1 + xyRelationship)) * posNegX;
+    targetVeloY = targetVeloX * xyRelationship;
+  }
+  
+  double veloErrorX = targetVeloX - curVeloX;
+  double veloErrorY = targetVeloY - curVeloY;
+
 
   // Conversions
   double yawDesiredRad     = DEG2RAD * yawDesired;
@@ -260,35 +303,64 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     yOffsetRemaining = ((yOffsetDesired - uwbstruct.pY));                          // Set offset remaining using localoffset = uwbstruct
     zOffsetRemaining = zOffsetDesired - uwbstruct.pZ;                              // Set offset remaining using localoffset = uwbstruct
 
-    absOffsetRemaining = sqrt(pow(xOffsetRemaining, 2) + pow(yOffsetRemaining, 2)); // PID start
-    OffsetRemainingAng = atan2(yOffsetRemaining, xOffsetRemaining);                 // PID end
+    if (xOffsetRemaining < 0){
+        posNegX = -1;
+    } else {
+        posNegX = 1;
+    }
+
+    curVeloX += uwbstruct.aX * cycleTimeInMs * 1000;  // @TODO: Check acceleration directions
+    curVeloY += uwbstruct.aY * cycleTimeInMs * 1000;
+
+    targetVeloX = xOffsetRemaining * veloFctr;
+    targetVeloY = yOffsetRemaining * veloFctr;
+
+    xyRelationship = abs(targetVeloY/targetVeloX);
+
+    totalVelo = sqrt(pow(targetVeloX,2) + pow(targetVeloY,2));
+    speedLimit = pow(sqrt(pow(xOffsetRemaining,2) + pow(yOffsetRemaining,2)),0.6) * speedLimitFctr;
+
+    if (totalVelo > speedLimit) {
+      targetVeloX = sqrt(pow(speedLimit,2) / (1 + xyRelationship)) * posNegX;
+      targetVeloY = targetVeloX * xyRelationship;
+    }
+    
+    veloErrorX = targetVeloX - curVeloX;
+    veloErrorY = targetVeloY - curVeloY;
+
 
     yawInRad   = PI/2 - yawInRad + ((12.6/180)*PI); // PID
     yawInDeg   = (yawInRad / (2*PI)) * 360;
 
     // ============= PID-controller =============
 
-    pTerm = pgain * absOffsetRemaining; // TODO Must be negative
+    pTermX = pgain * veloErrorX;
+    pTermY = pgain * veloErrorY;
 
-    iState += absOffsetRemaining * cycleTimeInMs/1000;
+    iStateX += veloErrorX * cycleTimeInMs/1000;
+    iStateY += veloErrorY * cycleTimeInMs/1000;
 
     // Windup guard
-    if (iState > windupLimit) {
-        iState = windupLimit;
-    } else if (iState < -windupLimit) {
-        iState = -windupLimit;
+    if (iStateX > windupLimit) {
+        iStateX = windupLimit;
+    } else if (iStateX < -windupLimit) {
+        iStateX = -windupLimit;
+    } 
+    if (iStateY > windupLimit) {
+        iStateY = windupLimit;
+    } else if (iStateY < -windupLimit) {
+        iStateY = -windupLimit;
     } 
 
-    iTerm = igain * iState;
+    iTermX = igain * iStateX;
+    iTermY = igain * iStateY;
 
-    currentPosition = sqrt(pow(uwbstruct.pX, 2) + pow(uwbstruct.pY, 2));
-    lastPosition = sqrt(pow(lastPosX, 2) + pow(lastPosY, 2));
 
-    dTerm = (dgain * (currentPosition - lastPosition)) / cycleTimeInMs; // TODO Calculated differently
+    dTermX = (dgain * (curVeloX - lastVeloX)) / cycleTimeInMs; 
+    dTermY = (dgain * (curVeloY - lastVeloY)) / cycleTimeInMs;
 
-    positionCmd = pTerm + iTerm + dTerm;
-    positionCmdX = positionCmd * cos(OffsetRemainingAng);
-    positionCmdY = positionCmd * sin(OffsetRemainingAng);
+    positionCmdX = pTermX + iTermX + dTermX;
+    positionCmdY = pTermY + iTermY + dTermY;
     
     pitchCmd = cos(yawInRad)*positionCmdX + sin(yawInRad)*positionCmdY;      // needed pitch of the drone
     rollCmd = sin(yawInRad)*positionCmdX - cos(yawInRad)*positionCmdY;       // needed roll of the drone
@@ -356,8 +428,8 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     */
 
 
-    lastPosX = uwbstruct.pX; // PID start
-    lastPosY = uwbstruct.pY; // PID end
+    lastVeloX = curVeloX; // PID start
+    lastVeloY = curVeloY; // PID end
     auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time
     duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
     std::cout 
