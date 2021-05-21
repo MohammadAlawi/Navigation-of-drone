@@ -323,7 +323,7 @@ if __name__ == "__main__":
             # Piping START ******************************************************************************
             if status1 == POZYX_SUCCESS and status2 == POZYX_SUCCESS:
                 s = "pX{}+pY{}+pZ{}+aX{}+aY{}+aZ{}+eH{}+".format("%0.1f" % position_x, position_y, position_z,
-                sensor_data.linear_acceleration.x, sensor_data.linear_acceleration.y, sensor_data.linear_acceleration.x, sensor_data.euler_angles.heading)
+                sensor_data.acceleration.x, sensor_data.acceleration.y, sensor_data.acceleration.z, sensor_data.euler_angles.heading)
                 #print("X ",position_x," Y ",position_y," Z ", position_z)
                 #print("STEP 1")
                 if initialization is False:                                                             # Start initialization if not done

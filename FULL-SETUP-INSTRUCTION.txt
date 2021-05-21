@@ -258,6 +258,15 @@ git push -f origin master
 git rm -rf --cached myuntrackedfolder
 git add myuntrackedfolder
 
+# To revert only one file (For example file that has been accidently modified)
+git checkout <FILENAME>
+
+# Get changes made in commit
+git log -p
+
+# Get changes made in current commit compared to previous
+git diff
+
 ######################################################################################################
 
 # CGI Server setup
