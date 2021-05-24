@@ -330,7 +330,7 @@ if __name__ == "__main__":
                 u_k = np.array([4.5, 0])                    #control vector
                 X_k = np.array([0, 0])                      #state estimate
                 P_k = np.array([[0.01,0], [0, 0.01]])         
-                print("Initialization Done")
+                #print("Initialization Done")
                 initialize = True
              #state estimate
             X_k = A_k @ (X_k) + (u_k) + (V_k)
@@ -358,19 +358,20 @@ if __name__ == "__main__":
             P_X = P_k - (K_k @ H_k @ P_k)
 
             # position X, Y filtered
-            position_x = X_k[0]
-            position_Y = X_k[1]
-            print("position X:" position_x, "position y: ", position_Y)
+            position_x = X_k[0]*2
+            position_y = X_k[1]*2
+            #print("position offset X:" ,position_x, "position offset Y:" ,position_y)
             #just for plotting
             X = [1,2,3,4,5,6,7,8,9,10]
             Y1 =[5678.0,5797.5,5623.0,5578.0,5525.5,5615.0,5598.5,5564.5,5580.5,5700.5]
             Y2 =[5645.3,5721.4,5672.2,5625.1,5575.3,5595.1,5596.8,5580.6,5580.5,5640.]
             Y3 =[5665.0,5667.0,5678.5,5682.5,5601.5,5667.5,5768.0,5676.5,5673.5,5672.5]
             Y4 =[5702.8,5695.6,5692.2,5690.3,5672.5,5671.5,5690.8,5687.9,5685.0,5682.5]
-            
+            '''
             plt.plot(X, Y3, color="red")
             plt.plot(X, Y4, color="blue")
             plt.show()
+            '''
             #print(s)
             # Algorithm END ******************************************************************************
                         
@@ -381,7 +382,7 @@ if __name__ == "__main__":
             # Piping START ******************************************************************************
             if status1 == POZYX_SUCCESS and status2 == POZYX_SUCCESS:
                 s = "pX{}+pY{}+pZ{}+aX{}+aY{}+aZ{}+eH{}+".format("%0.1f" % position_x, position_y, position_z,
-                sensor_data.acceleration.x, sensor_data.acceleration.y, sensor_data.acceleration.z, sensor_data.euler_angles.heading)
+                sensor_data.linear_acceleration.x, sensor_data.linear_acceleration.y, sensor_data.linear_acceleration.z, sensor_data.euler_angles.heading)
                 #print("X ",position_x," Y ",position_y," Z ", position_z)
                 #print("STEP 1")
                 if initialization is False:                                                             # Start initialization if not done

@@ -130,10 +130,26 @@ int main(int argc, char** argv)
   //signal(SIGINT, SafetyFunction);
   //*********************************************************************************************************************************************
   // ZED integration
-  
-  //sl::Camera zed;                                                               // Create instance(object) of class from the ZED library
-  //flighttelemetry->openCameraZed(zed);                                          // Open Zed camera
-  
+  /*
+  sl::Camera zed;                                                                           // ++++ Zed class object instance
+  sl::Pose camera_path;                                                                     // ++++ Zed instance
+  sl::float3 translation;                                                                   // ++++ Zed instance
+  sl::float3 rotation;                                                                      // ++++ Zed instance
+  std::vector<float> returnedFloat;
+  std::vector<float> storedFloat;
+  std::pair<sl::float3 , sl::float3> ReturnPairPosRot;
+  flighttelemetry->openCameraZed(zed);
+  std::cout << std::setprecision(2) << std::fixed;
+
+  for(unsigned long i = 0; i < 100000000; i++)
+  {
+  ReturnPairPosRot = flighttelemetry->getPositionZed(zed, camera_path, translation, rotation, ReturnPairPosRot);     // ++++ Get Zed position and rotation data
+  std::cout <<
+  "xT " << ReturnPairPosRot.first[0] << " yT " << ReturnPairPosRot.first[1] << " zT " << ReturnPairPosRot.first[2] <<
+  " xR " << ReturnPairPosRot.second[0] << " yR " << ReturnPairPosRot.second[1] << " zR " << ReturnPairPosRot.second[2] <<
+  std::endl;  // ++++ Print Zed 
+  }  
+  */
   //*********************************************************************************************************************************************
   // POZYX integration
   /*
@@ -145,22 +161,25 @@ int main(int argc, char** argv)
     //system("python3 /home/uwb5/uwb/Onboard-SDK/build/bin/Multitag-1-0-1.py & exit");
     //usleep(1800000);
     //system("gnome-terminal -e 'sh -c \"g++ y.cpp && ./a.out\"'");
+    
     FlightTelemetry::UwbStruct uwbstruct;
     int fd;
     char *FifoPipe = "Pipe.fifo";
     char buf[MAX_BUF];
     fd = open(FifoPipe, O_RDONLY);                                                            // Open FIFO pipe for reading incoming
     std::cout << "Testing Pozyx. Values from Pozyx: ";
-    for (int i = 0; i < 1; i++)
+    
+    for (int i = 0; i < 100; i++)
     {
-      uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);
+      uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf, 0, 0);                         //TODO: Set lastPosX, lastPosY parameters to GetUwbPositionData
       std::cout << "pX" <<uwbstruct.pX<< " pY" <<uwbstruct.pY<< " pZ" <<uwbstruct.pZ
                 << " aX"<<uwbstruct.aX<< " aY" <<uwbstruct.aY<< " aZ" <<uwbstruct.aZ
                 << " eH"<<uwbstruct.eH<<
       std::endl;
-      //sleep(1);
+      //sleep(200000);
     }
     std::cout << "Pozyx works - Ready to Fly" << std::endl;
+    
     
   //*********************************************************************************************************************************************
   // OSDK integration
@@ -216,12 +235,12 @@ int main(int argc, char** argv)
     int defineParameters  = 0;      // This used to define paramters    
     float Xtarget         = 3.5;    // Initial value if not defined manually (X target offset from localization system origin)
     float Ytarget         = 2.6;    // Initial value if not defined manually (Y target offset from localization system origin)
-    float Ztarget         = 0.5;    // Initial value if not defined manually (Z target offset from localization system origin)
+    float Ztarget         = 0.3;    // Initial value if not defined manually (Z target offset from localization system origin)
     float YawTarget       = 102.6;  // Initial value if not defined manually (Yaw target offset from localization system origin)
-    float pgain           = 0.05;    // Initial value if not defined manually
-    float igain           = 0.7;    // Initial value if not defined manually
-    float dgain           = 0.7;    // Initial value if not defined manually
-    int timeoutInMilSec   = 10000;  // Initial value if not defined manually
+    float pgain           = 0.9;    // Initial value if not defined manually
+    float igain           = 0.01;    // Initial value if not defined manually
+    float dgain           = 0.3;    // Initial value if not defined manually
+    int timeoutInMilSec   = 15000;  // Initial value if not defined manually
     float maxPitchDeg     = 5;      // Initial value if not defined manually (Max pitch in degrees)
     float maxRollDeg      = 5;      // Initial value if not defined manually (Max roll in degrees)
 
@@ -238,7 +257,7 @@ int main(int argc, char** argv)
         break;
 
       case 't' :
-        vehicle->control->takeoff(1);
+        //vehicle->control->takeoff(1);
         // Takeoff code here
         /*
         Yaw is fixed to defined degree (12.5 degrees is value to rotate to UWB y-axis direction) (TEST THIS 26.5 when using inside source file movebyposition)
@@ -247,14 +266,15 @@ int main(int argc, char** argv)
         Z is locked to defined altidude from the takeoff point -> if z now is 2 and z next is 0.5 then vehicle will come down to 0.5m from the takeoff point
         */
         //vehicle->control->takeoff(1);
-        /*
-        for(int i = 0; i < 4000; i++)
+        
+        for(int i = 0; i < 200; i++)
         {
-          vehicle->control->attitudeAndVertPosCtrl(0, 0, 12.5, 1.5);                    // -63 is facing away from window
-          usleep(1000);
+          vehicle->control->attitudeAndVertPosCtrl(0, 0, YawTarget, 1.5);                    // -63 is facing away from window
+          usleep(20000);
         }
         std::cout << "Takeoff finished" << std::endl;
-        */
+        moveByPositionOffset(vehicle, Xtarget, Ytarget, Ztarget, YawTarget, pgain, igain, dgain, timeoutInMilSec, maxRollDeg, maxPitchDeg, 0.5, 1.0);
+        
         flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
         break;
 
@@ -355,7 +375,16 @@ int main(int argc, char** argv)
       case 'd' :
         // Data code here
         //flighttelemetry->GetQuaternionData(vehicle);
-        flighttelemetry->GetGlobalPositionData(vehicle, 1);
+        //flighttelemetry->GetGlobalPositionData(vehicle, 1);
+        for (unsigned long i = 0; i < 1000000; i++)
+        {
+          uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf, 0, 0);                         //TODO: Set lastPosX, lastPosY parameters to GetUwbPositionData
+          std::cout << "pX" <<uwbstruct.pX<< " pY" <<uwbstruct.pY<< " pZ" <<uwbstruct.pZ
+                    << " aX"<<uwbstruct.aX<< " aY" <<uwbstruct.aY<< " aZ" <<uwbstruct.aZ
+                    << " eH"<<uwbstruct.eH<<
+          std::endl;
+          sleep(1);
+        }
         break;
 
     }
@@ -375,6 +404,3 @@ int main(int argc, char** argv)
 
   return 0;
 }
-
-
-

@@ -48,7 +48,6 @@ void FlightTelemetry::GetBatteryData(DJI::OSDK::Vehicle* vehicle)
 void FlightTelemetry::GetGlobalPositionData(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
 {
     Telemetry::GlobalPosition globalposition;                                           // Instantiate typedef struct
-
     Telemetry::VelocityInfo legacyvelocity;
 
     for(int i = 0; i <= 10000; i++)
@@ -67,9 +66,10 @@ void FlightTelemetry::GetGlobalPositionData(DJI::OSDK::Vehicle* vehicle, int res
     }
 }
 
-FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[MAX_BUF])
+FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[MAX_BUF], double lastPosX, double lastPosY)
 {
     FlightTelemetry::UwbStruct data {0};
+    
     float ConvertedFloat;
     read(fd, buf, MAX_BUF);
     std::string StringToGetSplitted = buf;
@@ -178,11 +178,122 @@ FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[
         data.eH = ConvertedFloat;                                                                         // Assign values to struct members
     }                            
 
-
+    /*
     std::cout   <<"pX float "  << data.pX <<" pY float " << data.pY <<" pZ float " << data.pZ 
                 <<" aX float " << data.aX <<" aY float "  << data.aY <<" aZ float " << data.aZ
                 <<" eH float " << data.eH
     << std::endl;                                                                                           // Print data (Optional)
+    */
+    //************* EXTENDED KALMAN FILTER IMPLEMENTATION START *************
+    /*
+    // Comment this part out if EKF is not used
+    double A_k [2][2] = {{1.0, 0.0}, {0.0, 1.0}};    // A matrix, express how the states x and y changes
+    double V_k [2] = {0.01, 0.01};                   // Noise applied to the forward kinematics
+    double Q_k [2][2] = {{1.0, 0}, {0, 1.0}};        // State model noise covariance
+    double H_k [2][2] = {{1.0, 0}, {0, 1.0}};        // Convert the predicted sensor measurements at time k
+    double R_k [2][2] = {{1.0, 0}, {0, 1.0}};        // Sensor measurement noise covariance
+    double w_k [2] = {0.07, 0.07};                   // Sensor measurement
+    double u_k [2] = {4.5, 0};                       // Control vector
+    double X_k [2] = {0, 0};                         // State estimate
+    double P_k [2][2] = {{0.01, 0}, {0, 0.01}};      // Initial error covariance
+    double Y_k;                                      // Measurement residual
+    double S_k;                                      // Measurement residual covariance
+    double K_k;                                      // Initial Kalman gain
+    double Z_k [2]= {lastPosX, lastPosY};            // Initial Kalman gain 
+
+    double testMatrice [3][2] = {{1, 2}, {3, 4} , {5, 6}};
+    double test3DMatrice [4][3][2] = {{{1, 2}, {3, 4} , {5, 6}}, {{7, 8}, {9, 10} , {11, 12}}, {{7, 8}, {9, 10} , {11, 12}}, {{7, 8}, {9, 10} , {11, 12}}};
+/*
+    int product[10][10], r1=3, c1=3, r2=3, c2=3, i, j, k;
+    int a[3][3] = { {2, 4, 1} , {2, 3, 9} , {3, 1, 8} };
+    int b[3][3] = { {1, 2, 3} , {3, 6, 1} , {2, 4, 7} };
+    if (c1 != r2) {
+        cout<<"Column of first matrix should be equal to row of second matrix";
+    } else {
+        cout<<"The first matrix is:"<<endl;
+        for(i=0; i<r1; ++i) {
+            for(j=0; j<c1; ++j)
+            cout<<a[i][j]<<" ";
+            cout<<endl;
+        }
+        cout<<endl;
+        cout<<"The second matrix is:"<<endl;
+        for(i=0; i<r2; ++i) {
+            for(j=0; j<c2; ++j)
+            cout<<b[i][j]<<" ";
+            cout<<endl;
+        }
+        cout<<endl;
+        for(i=0; i<r1; ++i)
+        for(j=0; j<c2; ++j) {
+            product[i][j] = 0;
+        }
+        for(i=0; i<r1; ++i)
+        for(j=0; j<c2; ++j)
+        for(k=0; k<c1; ++k) {
+            product[i][j]+=a[i][k]*b[k][j];
+        }
+        cout<<"Product of the two matrices is:"<<endl;
+        for(i=0; i<r1; ++i) {
+            for(j=0; j<c2; ++j)
+            cout<<product[i][j]<<" ";
+            cout<<endl;
+        }
+    }
+    */
+   /*
+
+
+    int i = 0;
+    int j = 0;
+    int arrRow = *(&test3DMatrice + 1) - test3DMatrice;
+    int arrSize = sizeof(test3DMatrice[0][0]) / sizeof(test3DMatrice[0][0][0]);
+    int arrColumn = sizeof(test3DMatrice);
+    std::cout << "Size of Matrix " << arrSize << std::endl;
+    std::cout << "Size of Matrix " << arrColumn/3 << std::endl;
+    std::cout << "Size of Matrix " << (arrColumn/3)/8 << std::endl;
+    for(i = 0; i < 3; i++)
+    {
+        for(j = 0; j < 2; j++)
+        {
+            std::cout << testMatrice[i][j] << " ";
+        }
+        std::cout << "" << std::endl
+    }
+    */
+    /*
+    
+    // State estimate
+    X_k = (A_k * X_k) + u_k + V_k;
+
+
+    // Covariance of the state
+    P_k = (A_k * P_k * A_k) + Q_k;
+
+    //#######  measurement (update) ########
+
+    // Y_k residual measurement
+    Y_k =  Z_k - ((H_k * X_k) + w_k);
+
+    // Residual covariance
+    S_k = (H_k * P_k * H_k) + R_k;
+
+    // Kalman gain
+    K_x = (P_k * H_k) / S_k;
+
+    // Updated state estimate
+    X_k = X_k + (K_k * Y_k);
+
+    // Updated covariance od the state
+    P_x = P_k - (K_k * H_k * P_k);
+
+    // Returns updated value for Pos_x and Pos_y
+    data.pX = X_k[0];
+    data.aY = X_k[1];
+    //reurtn [X_k[0], X_k[1]];    
+
+    //************* EXTENDED KALMAN FILTER IMPLEMENTATION END *************
+*/
     return data;                                                                                            // Return struct
 }
 
@@ -271,11 +382,13 @@ std::pair<sl::float3 , sl::float3> FlightTelemetry::getPositionZed(sl::Camera &z
 
                 // Print to terminal
                 // Timestamp is only since last image, not since last successful position
+                /*
                 cout << "Position updated [";
                 cout << camera_path.timestamp.getMilliseconds() - lasttimestamp.getMilliseconds();
                 cout << " ms] "<< "Confidence: ["<<camera_path.pose_confidence<<"]"<<endl;
                 cout << "translation: "<< text_translation << endl;
                 cout << "rotation "<< text_rotation << endl;
+                */
             }
             else {
                 // if tracking state is not ok, print status

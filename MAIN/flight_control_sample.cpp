@@ -30,6 +30,8 @@
  * Edited With VIM
  */
 
+//TODO Take pictures and videos of the drone
+
 #include "flight_control_sample.hpp"
 
 using namespace DJI::OSDK;
@@ -61,15 +63,22 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   // the
   // mission
   int responseTimeout              = 1;
-  int controlFreqInHz              = 50; // Hz                                      // Originally 50Hz, changed to other frequency
+  int controlFreqInHz              = 50; // Hz                                      // TODO: Check with Anton Originally 50Hz, changed to other frequency
   int cycleTimeInMs                = 1000 / controlFreqInHz;
   int outOfControlBoundsTimeLimit  = 10 * cycleTimeInMs; // 10 cycles
   int withinControlBoundsTimeReqmt = 50 * cycleTimeInMs; // 50 cycles
   int pkgIndex;
   std::cout << std::setprecision(2) << std::fixed;                                  // Set the printed float decimals
-  
 
-  
+  //******** TESTING
+  /*
+  Telemetry::Vector3f accelerationFromVehicle;
+  accelerationFromVehicle = vehicle->broadcast->getAcceleration();
+  std::cout << "Acceleration X =" << accelerationFromVehicle.x << std::endl;
+  std::cout << "Acceleration Y =" << accelerationFromVehicle.y << std::endl;
+  std::cout << "Acceleration Z =" << accelerationFromVehicle.z << std::endl;
+  */
+  //******** TESTING
   double pTermX                   = 0;  // PID start
   double iTermX                   = 0;
   double dTermX                   = 0;
@@ -81,8 +90,12 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   double iStateY                  = 0;
 
   double windupLimit              = 10;
-  double veloFctr                 = 1;    // variable to adjust target speed
-  double speedLimitFctr           = 0.6;  // another variable to adjust target speed
+  double veloFctr                 = 10;    // variable to adjust target speed
+  double speedLimitFctr           = 3;  // another variable to adjust target speed
+  double accFctr                  = 1000000;
+
+  float avgFctr1                  = 0.1;
+  float avgFctr2                  = 1.0-avgFctr1;
 
   /*
   int maxPitch                    = 2;
@@ -96,6 +109,13 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   double curVeloY  = 0;
   double lastVeloX  = 0;
   double lastVeloY  = 0;
+
+  double accX = 0;
+  double accY = 0;
+
+  double posNegX = 0;       // TODO: Check with Anton
+  double positionCmdX = 0;  // TODO: Check with Anton
+  double positionCmdY = 0;  // TODO: Check with Anton
 
   //double positionCmd = 0;
   double posCmdX = 0;
@@ -145,22 +165,25 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
                              static_cast<void*>(&originBroadcastGP));
   }
   /*
-  for(int i = 0; i < 10000; i++)
+  for(unsigned long i = 0; i < 100000000; i++)
   {
   ReturnPairPosRot = flighttelemetry->getPositionZed(zed, camera_path, translation, rotation, ReturnPairPosRot);     // ++++ Get Zed position and rotation data
-  std::cout << "Zed x translation " << ReturnPairPosRot.first[0] << " Zed x rotation " << ReturnPairPosRot.second[0] << std::endl;  // ++++ Print Zed 
-  uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);                     // Get Uwb position data and store to uwbstruct
+  std::cout <<
+  "xT " << ReturnPairPosRot.first[0] << " yT " << ReturnPairPosRot.first[1] << " zT " << ReturnPairPosRot.first[2] <<
+  "xR " << ReturnPairPosRot.second[0] << " yR " << ReturnPairPosRot.second[1] << " zR " << ReturnPairPosRot.second[2] <<
+  std::endl;  // ++++ Print Zed 
   }
-  */                                  
+  */
+                       
   for (int i = 0; i < 2; i++)                                                   // Testing purpose (Optional)
   {
-    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);
+    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf, 0, 0);
     std::cout << "X" <<uwbstruct.pX<< " Y" <<uwbstruct.pY<< " Z" <<uwbstruct.pZ<< std::endl;
     //sleep(1);
   }
 
-  double lastPosX = uwbstruct.pX;  // PID start
-  double lastPosY = uwbstruct.pY;  // PID end
+  lastPosX = uwbstruct.pX;  // PID start 
+  lastPosY = uwbstruct.pY;  // PID end
   
   /* 
   // Original implementation
@@ -174,35 +197,6 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   double xOffsetRemaining = (xOffsetDesired - uwbstruct.pX);                     // Set offset remaining using localoffset = uwbstruct
   double yOffsetRemaining = (yOffsetDesired - uwbstruct.pY);                     // Set offset remaining using localoffset = uwbstruct (y control function is inversed)
   double zOffsetRemaining = zOffsetDesired - uwbstruct.pZ;                       // Set offset remaining using localoffset = uwbstruct
-
-
-  // To check if error is positive or negative, needed later on when taking square root
-  if (xOffsetRemaining < 0){
-      int posNegX = -1;
-  } else {
-      int posNegX = 1;
-  }
-
-  curVeloX += uwbstruct.aX * cycleTimeInMs * 1000;  // @TODO: Check acceleration directions
-  curVeloY += uwbstruct.aY * cycleTimeInMs * 1000;
-
-  double targetVeloX = xOffsetRemaining * veloFctr;
-  double targetVeloY = yOffsetRemaining * veloFctr;
-
-  double xyRelationship = abs(targetVeloY/targetVeloX); // relationship between X and Y target velocities, needed later on
-
-  double totalVelo = sqrt(pow(targetVeloX,2) + pow(targetVeloY,2));
-  double speedLimit = pow(sqrt(pow(xOffsetRemaining,2) + pow(yOffsetRemaining,2)),0.6) * speedLimitFctr;
-
-  // Limiting speed when close to target = brake
-  if (totalVelo > speedLimit) {
-    targetVeloX = sqrt(pow(speedLimit,2) / (1 + xyRelationship)) * posNegX;
-    targetVeloY = targetVeloX * xyRelationship;
-  }
-  
-  double veloErrorX = targetVeloX - curVeloX;
-  double veloErrorY = targetVeloY - curVeloY;
-
 
   // Conversions
   double yawDesiredRad     = DEG2RAD * yawDesired;
@@ -219,6 +213,46 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
 
   yawInRad   = PI/2 - yawInRad + ((12.6/180)*PI); // PID
   yawInDeg   = (yawInRad / (2*PI)) * 360;
+
+
+  // To check if error is positive or negative, needed later on when taking square root
+  if (xOffsetRemaining < 0){
+      int posNegX = -1;
+  } else {
+      int posNegX = 1;
+  }
+
+  accX = (uwbstruct.aY * cos(yawInRad) + uwbstruct.aX * sin(yawInRad))/accFctr;      // acceleration along x-axis of home frame
+  accY = (uwbstruct.aY * sin(yawInRad) - uwbstruct.aX * cos(yawInRad))/accFctr;      // acceleration along y-axis of home frame
+
+  //curVeloX += accX * cycleTimeInMs/1000;  // @TODO: Check acceleration directions
+  //curVeloY += accY * cycleTimeInMs/1000;
+
+  curPosX = uwbstruct.pX;
+  curPosY = uwbstruct.pY;
+
+  double curVeloXsmpl = (((curPosX - lastPosX) / cycleTimeInMs)/1000) * accFctr;  // @TODO: Check acceleration directions
+  double curVeloYsmpl = (((curPosY - lastPosY) / cycleTimeInMs)/1000) * accFctr;
+
+  curVeloX = curVeloXsmpl; 
+  curVeloY = curVeloYsmpl; 
+
+  double targetVeloX = xOffsetRemaining * veloFctr;
+  double targetVeloY = yOffsetRemaining * veloFctr;
+
+  double xyRelationship = targetVeloY/targetVeloX; // relationship between X and Y target velocities, needed later on
+
+  double totalVelo = abs(sqrt(pow(targetVeloX,2) + pow(targetVeloY,2)));
+  double speedLimit = abs(pow(sqrt(pow(xOffsetRemaining,2) + pow(yOffsetRemaining,2)),0.6) * speedLimitFctr);
+
+  // Limiting speed when close to target = brake
+  if (totalVelo > speedLimit) {
+    targetVeloX = sqrt(pow(speedLimit,2) / (1 + pow(xyRelationship,2))) * posNegX;
+    targetVeloY = targetVeloX * xyRelationship;
+  }
+  
+  double veloErrorX = targetVeloX - curVeloX;
+  double veloErrorY = targetVeloY - curVeloY;
   
   int   elapsedTimeInMs     = 0;
   int   withinBoundsCounter = 0;
@@ -298,10 +332,10 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     zOffsetRemaining = zOffsetDesired - localOffset.z;
     */
 
-    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf);                       // Get Uwb postion data and store to uwbstruct
-    xOffsetRemaining = (xOffsetDesired - uwbstruct.pX);                            // Set offset remaining using localoffset = uwbstruct
-    yOffsetRemaining = ((yOffsetDesired - uwbstruct.pY));                          // Set offset remaining using localoffset = uwbstruct
-    zOffsetRemaining = zOffsetDesired - uwbstruct.pZ;                              // Set offset remaining using localoffset = uwbstruct
+    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf, 0, 0);                 // Get Uwb postion data and store to uwbstruct
+    xOffsetRemaining = (xOffsetDesired - uwbstruct.pX);                             // Set offset remaining using localoffset = uwbstruct
+    yOffsetRemaining = ((yOffsetDesired - uwbstruct.pY));                           // Set offset remaining using localoffset = uwbstruct
+    zOffsetRemaining = zOffsetDesired - uwbstruct.pZ;                               // Set offset remaining using localoffset = uwbstruct
 
     if (xOffsetRemaining < 0){
         posNegX = -1;
@@ -309,19 +343,33 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
         posNegX = 1;
     }
 
-    curVeloX += uwbstruct.aX * cycleTimeInMs * 1000;  // @TODO: Check acceleration directions
-    curVeloY += uwbstruct.aY * cycleTimeInMs * 1000;
+    accX = (uwbstruct.aY * cos(yawInRad) + uwbstruct.aX * sin(yawInRad))/accFctr;      // acceleration along x-axis of home frame
+    accY = (uwbstruct.aY * sin(yawInRad) - uwbstruct.aX * cos(yawInRad))/accFctr;      // acceleration along y-axis of home frame
+
+    //curVeloX += accX * cycleTimeInMs/1000;  // @TODO: Check acceleration directions
+    //curVeloY += accY * cycleTimeInMs/1000;
+    
+    curPosX = uwbstruct.pX;
+    curPosY = uwbstruct.pY;
+    
+    if(curPosX != lastPosX && curPosY != lastPosY){
+      curVeloXsmpl = (((curPosX - lastPosX) / cycleTimeInMs)/1000) * accFctr;  // @TODO: Check acceleration directions
+      curVeloYsmpl = (((curPosY - lastPosY) / cycleTimeInMs)/1000) * accFctr;
+    }
+
+    curVeloX = (curVeloXsmpl * avgFctr1) + (curVeloX * avgFctr2); 
+    curVeloY = (curVeloYsmpl * avgFctr1) + (curVeloY * avgFctr2);
 
     targetVeloX = xOffsetRemaining * veloFctr;
     targetVeloY = yOffsetRemaining * veloFctr;
 
-    xyRelationship = abs(targetVeloY/targetVeloX);
+    xyRelationship = targetVeloY/targetVeloX;
 
-    totalVelo = sqrt(pow(targetVeloX,2) + pow(targetVeloY,2));
-    speedLimit = pow(sqrt(pow(xOffsetRemaining,2) + pow(yOffsetRemaining,2)),0.6) * speedLimitFctr;
+    totalVelo = abs(sqrt(pow(targetVeloX,2) + pow(targetVeloY,2)));
+    speedLimit = abs(pow(sqrt(pow(xOffsetRemaining,2) + pow(yOffsetRemaining,2)),0.6) * speedLimitFctr);
 
     if (totalVelo > speedLimit) {
-      targetVeloX = sqrt(pow(speedLimit,2) / (1 + xyRelationship)) * posNegX;
+      targetVeloX = sqrt(pow(speedLimit,2) / (1 + pow(xyRelationship,2))) * posNegX;
       targetVeloY = targetVeloX * xyRelationship;
     }
     
@@ -396,7 +444,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
         std::abs(yawInRad - yawDesiredRad) < yawThresholdInRad)
     {
       //! 1. We are within bounds; start incrementing our in-bound counter
-      withinBoundsCounter += cycleTimeInMs;
+      withinBoundsCounter += cycleTimeInMs;1/(ms_double.count()/1000)
     }
     else if (std::abs(xOffsetRemaining) < posThresholdInM &&
              std::abs(yOffsetRemaining) < posThresholdInM &&
@@ -430,8 +478,14 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
 
     lastVeloX = curVeloX; // PID start
     lastVeloY = curVeloY; // PID end
+
+    lastPosX =  curPosX;
+    lastPosY =  curPosY;
+
     auto t2 = high_resolution_clock::now();                                                     // Call function to measure exectuion time
     duration<double, std::milli> ms_double = t2 - t1;                                           // Getting number of milliseconds as a double
+    double dt = (ms_double.count()/1000);
+    /*
     std::cout 
     // << "lO.x " << localOffset.x << "    lO.y " << localOffset.y << "    lO.z " << localOffset.z                        // localOffset is used only with GPS data
     << "lO.x " << uwbstruct.pX << "    lO.y " << uwbstruct.pY << "    lO.z " << uwbstruct.pZ << "    lO.YawDeg " << yawInDeg   // uwbstruct is used only with UWB data
@@ -441,6 +495,16 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     // << "         Alt " << currentBroadcastGP.altitude << "    Lat " << currentBroadcastGP.latitude << "    Lon " << currentBroadcastGP.longitude
     // << "         GPS Health " << currentBroadcastGP.health
     << std::endl;
+    */
+    std::cout 
+    // << "lO.x " << localOffset.x << "    lO.y " << localOffset.y << "    lO.z " << localOffset.z                        // localOffset is used only with GPS data
+    << "lO.x " << uwbstruct.pX << "  lO.y " << uwbstruct.pY << "  lO.z " << uwbstruct.pZ << " SpeedLimit " << speedLimit   // uwbstruct is used only with UWB data
+    << "  xOR " << xOffsetRemaining << "    yOR " << yOffsetRemaining << " zOR " << zOffsetRemaining
+    << "  true/targetX " << std::setw(6) << curVeloX  << "/"<< std::setw(6) << targetVeloX << " true/targetY " << std::setw(6) << curVeloY << "/" << std::setw(6) << targetVeloY 
+    << "  rCmd " << rollCmd << "  pCmd " << pitchCmd
+    // << "         Alt " << currentBroadcastGP.altitude << "    Lat " << currentBroadcastGP.latitude << "    Lon " << currentBroadcastGP.longitude
+    // << "         GPS Health " << currentBroadcastGP.health
+    << std::endl;   
 
   }
 
