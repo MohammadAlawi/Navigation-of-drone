@@ -30,8 +30,6 @@
  * Edited With VIM
  */
 
-//TODO Take pictures and videos of the drone
-
 #include "flight_control_sample.hpp"
 
 using namespace DJI::OSDK;
@@ -63,7 +61,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   // the
   // mission
   int responseTimeout              = 1;
-  int controlFreqInHz              = 50; // Hz                                      // TODO: Check with Anton Originally 50Hz, changed to other frequency
+  int controlFreqInHz              = 50; // Hz                                      
   int cycleTimeInMs                = 1000 / controlFreqInHz;
   int outOfControlBoundsTimeLimit  = 10 * cycleTimeInMs; // 10 cycles
   int withinControlBoundsTimeReqmt = 50 * cycleTimeInMs; // 50 cycles
@@ -113,9 +111,9 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   double accX = 0;
   double accY = 0;
 
-  double posNegX = 0;       // TODO: Check with Anton
-  double positionCmdX = 0;  // TODO: Check with Anton
-  double positionCmdY = 0;  // TODO: Check with Anton
+  double posNegX = 0;       
+  double positionCmdX = 0;  
+  double positionCmdY = 0;  
 
   //double positionCmd = 0;
   double posCmdX = 0;
@@ -174,14 +172,14 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   std::endl;  // ++++ Print Zed 
   }
   */
-                       
-  for (int i = 0; i < 2; i++)                                                   // Testing purpose (Optional)
+              
+  for (int i = 0; i < 1; i++)                                                   // Testing purpose (Optional)
   {
-    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf, 0, 0);
+    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf, 0, 0, FlightTelemetry::GETPREVIOUSPOSITIONDATA::FALSE);
     std::cout << "X" <<uwbstruct.pX<< " Y" <<uwbstruct.pY<< " Z" <<uwbstruct.pZ<< std::endl;
     //sleep(1);
   }
-
+  
   lastPosX = uwbstruct.pX;  // PID start 
   lastPosY = uwbstruct.pY;  // PID end
   
@@ -331,11 +329,13 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     yOffsetRemaining = yOffsetDesired - localOffset.y;
     zOffsetRemaining = zOffsetDesired - localOffset.z;
     */
+    double previouspX = uwbstruct.pX;   // Store previous data
+    double previouspY = uwbstruct.pY;   // Store previous data
 
-    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf, 0, 0);                 // Get Uwb postion data and store to uwbstruct
-    xOffsetRemaining = (xOffsetDesired - uwbstruct.pX);                             // Set offset remaining using localoffset = uwbstruct
-    yOffsetRemaining = ((yOffsetDesired - uwbstruct.pY));                           // Set offset remaining using localoffset = uwbstruct
-    zOffsetRemaining = zOffsetDesired - uwbstruct.pZ;                               // Set offset remaining using localoffset = uwbstruct
+    uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf, previouspX, previouspY, FlightTelemetry::GETPREVIOUSPOSITIONDATA::TRUE);     // Get Uwb postion data and store to uwbstruct
+    xOffsetRemaining = (xOffsetDesired - uwbstruct.pX);                                                   // Set offset remaining using localoffset = uwbstruct
+    yOffsetRemaining = ((yOffsetDesired - uwbstruct.pY));                                                 // Set offset remaining using localoffset = uwbstruct
+    zOffsetRemaining = zOffsetDesired - uwbstruct.pZ;                                                     // Set offset remaining using localoffset = uwbstruct
 
     if (xOffsetRemaining < 0){
         posNegX = -1;

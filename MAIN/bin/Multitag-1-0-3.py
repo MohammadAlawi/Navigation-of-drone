@@ -271,8 +271,16 @@ if __name__ == "__main__":
                             algorithm, dimension, height)
     r.setup()
 
-    initialization = False                                                                      # Create variable which indicates initialization status
-    remote_id = None                                                                            # Add remote ID to be used for sensor data
+    initialization = False            # Create variable which indicates initialization status
+    remote_id = None                  # Add remote ID to be used for sensor data
+    
+    '''
+    prevPosition_x_raw = 0.0         # Store previous value
+    prevPosition_y_raw = 0.0         # Store previous value
+    prevPosition_z = 0.0             # Store previous value
+    '''
+    
+                       
 
     while True:
         #
@@ -318,6 +326,17 @@ if __name__ == "__main__":
             position_x_raw = (position1.x+position2.x)/2
             position_y_raw = (position1.y+position2.y)/2
             position_z = ((position1.z+15)+position2.z)/2
+            '''
+            if position1.x < 0.50 or position1.y == 0.50 or position1.z == 0.00:  # Eliminates zero values
+                print("Zero Values Detected")
+                position_x_raw = prevPosition_x_raw
+                position_y_raw = prevPosition_y_raw
+                position_z = prevPosition_z
+
+            prevPosition_x_raw = position_x_raw         # Store previous value
+            prevPosition_y_raw = position_y_raw         # Store previous value
+            prevPosition_z = position_z                 # Store previous value
+            '''
 
             initialize = False
             if initialize == False:
@@ -381,37 +400,40 @@ if __name__ == "__main__":
             
             # Piping START ******************************************************************************
             if status1 == POZYX_SUCCESS and status2 == POZYX_SUCCESS:
-                s = "pX{}+pY{}+pZ{}+aX{}+aY{}+aZ{}+eH{}+".format("%0.1f" % position_x, position_y, position_z,
-                sensor_data.linear_acceleration.x, sensor_data.linear_acceleration.y, sensor_data.linear_acceleration.z, sensor_data.euler_angles.heading)
-                #print("X ",position_x," Y ",position_y," Z ", position_z)
-                #print("STEP 1")
-                if initialization is False:                                                             # Start initialization if not done
-                    print("Piping Initialization Started")
-                    os.remove("Pipe.fifo")                                                              # Remove previous FIFO pipe
-                    path= "/home/uwb5/uwb/Onboard-SDK/build/bin/Pipe.fifo"                              # Add path to pipe file
-                    os.mkfifo(path)                                                                     # Create FIFO pipe
-                    print("Piping Initialization Finished")
-                    print("Ready to Run") 
+                if position_x > 0.5 and position_y > 0.5 and position_z > 0.05:
+                    s = "pX{}+pY{}+pZ{}+aX{}+aY{}+aZ{}+eH{}+".format("%0.1f" % position_x, position_y, position_z,
+                    sensor_data.linear_acceleration.x, sensor_data.linear_acceleration.y, sensor_data.linear_acceleration.z, sensor_data.euler_angles.heading)
+                    #print("X ",position_x," Y ",position_y," Z ", position_z)
+                    #print("STEP 1")
+                    if initialization is False:                                                             # Start initialization if not done
+                        print("Piping Initialization Started")
+                        os.remove("Pipe.fifo")                                                              # Remove previous FIFO pipe
+                        path= "/home/uwb5/uwb/Onboard-SDK/build/bin/Pipe.fifo"                              # Add path to pipe file
+                        os.mkfifo(path)                                                                     # Create FIFO pipe
+                        print("Piping Initialization Finished")
+                        print("Ready to Run") 
+                        fifo=open(path,'w')                                                                 # Open FIFO pipe
+                        initialization = True                                                               # Set value such as initialization occours only once                                                
+                                                                                    
+                    if network_id is None:
+                        network_id = 0
+                    #s = "POS ID {}, x(mm): {}, y(mm): {}, z(mm): {}".format("0x%0.4x" % network_id, position.x, position.y, position.z)
+                    #s = "ID{} X{} Y{} Z{}".format("%0.f" % position_x, position_y, position_z)
+                    #print("STEP 2.5")
+                    print(s)
                     fifo=open(path,'w')                                                                 # Open FIFO pipe
-                    initialization = True                                                               # Set value such as initialization occours only once                                                
-                                                                                
-                if network_id is None:
-                    network_id = 0
-                #s = "POS ID {}, x(mm): {}, y(mm): {}, z(mm): {}".format("0x%0.4x" % network_id, position.x, position.y, position.z)
-                #s = "ID{} X{} Y{} Z{}".format("%0.f" % position_x, position_y, position_z)
-                #print("STEP 2.5")
-                fifo=open(path,'w')                                                                 # Open FIFO pipe
-                fifo.write(s)                                                                       # Write to FIFO pipe
-                fifo.close()                                                                        # Close FIFO pipe                       
-                if osc_udp_client is not None:
-                    osc_udp_client.send_message("/position", [network_id, position_x, position_y, position_z])
-                #print(initialization)
-                #print("STEP 3")
-
+                    fifo.write(s)                                                                       # Write to FIFO pipe
+                    fifo.close()                                                                        # Close FIFO pipe                       
+                    if osc_udp_client is not None:
+                        osc_udp_client.send_message("/position", [network_id, position_x, position_y, position_z])
+                    #print(initialization)
+                    #print("STEP 3")
+                else:
+                    print("Zero Values Detected")
             else:
                 #printPublishErrorCode("positioning", tag_id)
-                s = "pX{}+pY{}+pZ{}+aX{}+aY{}+aZ{}+eH{}+".format("%0.1f" % position_x, position_y, position_z,
-                sensor_data.linear_acceleration.x, sensor_data.linear_acceleration.y, sensor_data.linear_acceleration.x, sensor_data.euler_angles.heading)
+                #s = "pX{}+pY{}+pZ{}+aX{}+aY{}+aZ{}+eH{}+".format("%0.1f" % position_x, position_y, position_z,
+                #sensor_data.linear_acceleration.x, sensor_data.linear_acceleration.y, sensor_data.linear_acceleration.x, sensor_data.euler_angles.heading)
                 #s = "POS ID {}, x(mm): {}, y(mm): {}, z(mm): {}".format("0x%0.4x" % network_id, position.x, position.y, position.z)
                 #s = "ID{} X{} Y{} Z{}".format("0x" % network_id, position.x, position.y, position.z)
                 print("FAULT IN TAG SYSTEM !!!")

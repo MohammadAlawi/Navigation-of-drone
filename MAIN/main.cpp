@@ -171,7 +171,7 @@ int main(int argc, char** argv)
     
     for (int i = 0; i < 100; i++)
     {
-      uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf, 0, 0);                         //TODO: Set lastPosX, lastPosY parameters to GetUwbPositionData
+      uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf, 0, 0, FlightTelemetry::GETPREVIOUSPOSITIONDATA::FALSE); 
       std::cout << "pX" <<uwbstruct.pX<< " pY" <<uwbstruct.pY<< " pZ" <<uwbstruct.pZ
                 << " aX"<<uwbstruct.aX<< " aY" <<uwbstruct.aY<< " aZ" <<uwbstruct.aZ
                 << " eH"<<uwbstruct.eH<<
@@ -233,14 +233,14 @@ int main(int argc, char** argv)
 
     char inputChar;
     int defineParameters  = 0;      // This used to define paramters    
-    float Xtarget         = 3.5;    // Initial value if not defined manually (X target offset from localization system origin)
+    float Xtarget         = 3.0 /*3.5*/;    // Initial value if not defined manually (X target offset from localization system origin)
     float Ytarget         = 2.6;    // Initial value if not defined manually (Y target offset from localization system origin)
     float Ztarget         = 0.3;    // Initial value if not defined manually (Z target offset from localization system origin)
-    float YawTarget       = 102.6;  // Initial value if not defined manually (Yaw target offset from localization system origin)
+    float YawTarget       = 90/*102.6*/;  // Initial value if not defined manually (Yaw target offset from localization system origin)
     float pgain           = 0.9;    // Initial value if not defined manually
     float igain           = 0.01;    // Initial value if not defined manually
     float dgain           = 0.3;    // Initial value if not defined manually
-    int timeoutInMilSec   = 15000;  // Initial value if not defined manually
+    int timeoutInMilSec   = 10000;  // Initial value if not defined manually
     float maxPitchDeg     = 5;      // Initial value if not defined manually (Max pitch in degrees)
     float maxRollDeg      = 5;      // Initial value if not defined manually (Max roll in degrees)
 
@@ -266,15 +266,19 @@ int main(int argc, char** argv)
         Z is locked to defined altidude from the takeoff point -> if z now is 2 and z next is 0.5 then vehicle will come down to 0.5m from the takeoff point
         */
         //vehicle->control->takeoff(1);
-        
+        /*
         for(int i = 0; i < 200; i++)
         {
           vehicle->control->attitudeAndVertPosCtrl(0, 0, YawTarget, 1.5);                    // -63 is facing away from window
           usleep(20000);
         }
-        std::cout << "Takeoff finished" << std::endl;
+        */
+        std::cout << "Task Started" << std::endl;
         moveByPositionOffset(vehicle, Xtarget, Ytarget, Ztarget, YawTarget, pgain, igain, dgain, timeoutInMilSec, maxRollDeg, maxPitchDeg, 0.5, 1.0);
-        
+        moveByPositionOffset(vehicle, 5.5, Ytarget, Ztarget, YawTarget, pgain, igain, dgain, timeoutInMilSec, maxRollDeg, maxPitchDeg, 0.5, 1.0);
+        moveByPositionOffset(vehicle, Xtarget, Ytarget, 0, YawTarget, pgain, igain, dgain, timeoutInMilSec, maxRollDeg, maxPitchDeg, 0.5, 1.0);
+        moveByPositionOffset(vehicle, 4.0, Ytarget, -0.5, YawTarget, pgain, igain, dgain, 10000, maxRollDeg, maxPitchDeg, 0.5, 1.0);
+ 	      moveByPositionOffset(vehicle, 4.0, Ytarget, -0.05, YawTarget, pgain, igain, dgain, 10000, maxRollDeg, maxPitchDeg, 0.5, 1.0);
         flightcommander->ForceLanding(vehicle);                                 // Call method from FlightCommander class that commands vehicle to force landing
         break;
 
@@ -378,7 +382,7 @@ int main(int argc, char** argv)
         //flighttelemetry->GetGlobalPositionData(vehicle, 1);
         for (unsigned long i = 0; i < 1000000; i++)
         {
-          uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf, 0, 0);                         //TODO: Set lastPosX, lastPosY parameters to GetUwbPositionData
+          uwbstruct = flighttelemetry->GetUwbPositionData(fd, buf, 0, 0, 0);                         
           std::cout << "pX" <<uwbstruct.pX<< " pY" <<uwbstruct.pY<< " pZ" <<uwbstruct.pZ
                     << " aX"<<uwbstruct.aX<< " aY" <<uwbstruct.aY<< " aZ" <<uwbstruct.aZ
                     << " eH"<<uwbstruct.eH<<

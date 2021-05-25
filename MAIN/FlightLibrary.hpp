@@ -63,10 +63,14 @@ namespace FlightLibrary
             float aZ;                                                                       // This member stores aZ value (Acceleration)
             float eH;                                                                       // This member stores eH value (Heading)
         }UwbStruct;
-        UwbStruct GetUwbPositionData(int fd, char buf[MAX_BUF], double lastPosX, double lastPosY);                            // This method gets local position data (X,Y,Z)
+        UwbStruct GetUwbPositionData(int fd, char buf[MAX_BUF], double previouspX, double previouspY, bool prevDataStatus);     // This method gets local position data (X,Y,Z)
         void setTxt(sl::float3 value, char* ptr_txt);                                       // This method gets rotation and translation in text format 
         void openCameraZed(sl::Camera &zed);                                                // ++++ This method initializes Zed camera + Changed function name (DJI have similar name in lib)
         std::pair<sl::float3 , sl::float3> getPositionZed(sl::Camera &zed, sl::Pose &camera_path, sl::float3 &translation, sl::float3 &rotation,  std::pair<sl::float3 , sl::float3> &ReturnPairPosRot);    // ++++ Name changed + Added scopes sl + changed to return type
+        typedef enum GETPREVIOUSPOSITIONDATA{
+            TRUE = 1,
+            FALSE = 0
+        }GETPREVIOUSPOSITIONDATA;
     };
 
     class FlightCommander

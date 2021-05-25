@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 	InitParameters init_parameters;
 	init_parameters.camera_resolution = RESOLUTION::HD2K;
 	// On Jetson the object detection combined with an heavy depth mode could reduce the frame rate too much
-	init_parameters.depth_mode = isJetson ? DEPTH_MODE::PERFORMANCE : DEPTH_MODE::ULTRA;
+	init_parameters.depth_mode = DEPTH_MODE::PERFORMANCE; //isJetson ? DEPTH_MODE::PERFORMANCE : DEPTH_MODE::ULTRA;
 	init_parameters.coordinate_system = COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP;
 	init_parameters.coordinate_units = UNIT::METER;
 	parseArgs(argc, argv, init_parameters);
@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
 	// Enable Positional tracking (mandatory for object detection)
 	PositionalTrackingParameters positional_tracking_parameters;
 	//If the camera is static, uncomment the following line to have better performances and boxes sticked to the ground.
-	//positional_tracking_parameters.set_as_static = true;
+	positional_tracking_parameters.set_as_static = true;
 	returned_state = zed.enablePositionalTracking(positional_tracking_parameters);
 	if (returned_state != ERROR_CODE::SUCCESS) {
 		print("enable Positional Tracking", returned_state, "\nExit program.");
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 	// Enable the Objects detection module
 	ObjectDetectionParameters obj_det_params;
 	obj_det_params.enable_tracking = true;
-	obj_det_params.detection_model = isJetson ? DETECTION_MODEL::MULTI_CLASS_BOX : DETECTION_MODEL::MULTI_CLASS_BOX_ACCURATE;
+	obj_det_params.detection_model = DETECTION_MODEL::MULTI_CLASS_BOX; // isJetson ? DETECTION_MODEL::MULTI_CLASS_BOX : DETECTION_MODEL::MULTI_CLASS_BOX_ACCURATE;
 
 	returned_state = zed.enableObjectDetection(obj_det_params);
 	if (returned_state != ERROR_CODE::SUCCESS) {
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
 	ObjectDetectionRuntimeParameters objectTracker_parameters_rt;
 	objectTracker_parameters_rt.detection_confidence_threshold = 35;
 	// To select a set of specific object classes, like persons, vehicles and animals for instance:
-	objectTracker_parameters_rt.object_class_filter = {OBJECT_CLASS::PERSON /*, OBJECT_CLASS::VEHICLE, OBJECT_CLASS::ANIMAL*/ };
+	objectTracker_parameters_rt.object_class_filter = {/*OBJECT_CLASS::PERSON ,*/ OBJECT_CLASS::VEHICLE /*, OBJECT_CLASS::ANIMAL*/ };
 	// To set a specific threshold
 	objectTracker_parameters_rt.object_class_detection_confidence_threshold[OBJECT_CLASS::PERSON] = 35;
 	//detection_parameters_rt.object_class_detection_confidence_threshold[OBJECT_CLASS::CAR] = 35;

@@ -66,9 +66,11 @@ void FlightTelemetry::GetGlobalPositionData(DJI::OSDK::Vehicle* vehicle, int res
     }
 }
 
-FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[MAX_BUF], double lastPosX, double lastPosY)
+FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[MAX_BUF], double previouspX, double previouspY, bool prevDataStatus)
 {
-    FlightTelemetry::UwbStruct data {0};
+    FlightTelemetry::UwbStruct data {0}; 
+    double positionalVariationLimit = 0.5;      // Defines maximum variation to previous position data If over, then previous healthy data is used
+    double positionDifference = 0;              // To store the position data difference
     
     float ConvertedFloat;
     read(fd, buf, MAX_BUF);
@@ -77,7 +79,7 @@ FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[
     std::size_t end = StringToGetSplitted.find("+");
     std::string SplittedString = StringToGetSplitted.substr(start+2, end-2);
     //std::cout << "String: " << SplittedString << std::endl;
-    if(SplittedString.size() == 0 || SplittedString == "-")
+    if(SplittedString.size() == 0 || SplittedString.size() >= 70 || SplittedString == "-")
     {
         std::cout <<"EMPTY or FAULTY string"<< std::endl;
         data.pX = data.pX;                                                    // Use previous string if string is empty
@@ -87,12 +89,25 @@ FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[
         ConvertedFloat = std::stof(SplittedString);
         data.pX = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
     }
-
+    
+    if(prevDataStatus == 1)                                 
+    {
+        positionDifference = data.pX - previouspX;
+        //std::cout << "data.pX " << data.pX << std::endl;
+        //std::cout << "previouspX " << previouspX << std::endl;
+        //std::cout << "positionDifference " << positionDifference << std::endl;
+        if(positionDifference >= positionalVariationLimit || positionDifference <= -positionalVariationLimit)         // If position difference bigger than specified then use previous healthy position data
+        {
+            data.pX = previouspX;
+            //std::cout << "Over specified value detected" << std::endl;
+        }
+    }
+    
     start = StringToGetSplitted.find("pY");
     end = StringToGetSplitted.find("+");
     SplittedString = StringToGetSplitted.substr(start+2, end-2);
     //std::cout << "String: " << SplittedString << std::endl;
-    if(SplittedString.size() == 0 || SplittedString == "-")
+    if(SplittedString.size() == 0 || SplittedString.size() >= 70 || SplittedString == "-")
     {
         std::cout <<"EMPTY or FAULTY string"<< std::endl;
         data.pY = data.pY;                                                    // Use previous string if string is empty
@@ -103,11 +118,24 @@ FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[
         data.pY = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
     }
 
+    if(prevDataStatus == 1)                                 
+    {
+        positionDifference = data.pY - previouspY;
+        //std::cout << "data.pX " << data.pX << std::endl;
+        //std::cout << "previouspX " << previouspX << std::endl;
+        //std::cout << "positionDifference " << positionDifference << std::endl;
+        if(positionDifference >= positionalVariationLimit || positionDifference <= -positionalVariationLimit)         // If position difference bigger than specified then use previous healthy position data
+        {
+            data.pY = previouspY;
+            //std::cout << "Over specified value detected" << std::endl;
+        }
+    }    
+
     start = StringToGetSplitted.find("pZ");
     end = StringToGetSplitted.find("+");
     SplittedString = StringToGetSplitted.substr(start+2, end-2);
     //std::cout << "String: " << SplittedString << std::endl;
-    if(SplittedString.size() == 0 || SplittedString == "-")
+    if(SplittedString.size() == 0 || SplittedString.size() >= 70 || SplittedString == "-")
     {
         std::cout <<"EMPTY or FAULTY string"<< std::endl;
         data.pZ = data.pZ;                                                    // Use previous string if string is empty
@@ -117,6 +145,20 @@ FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[
         ConvertedFloat = std::stof(SplittedString);
         data.pZ = ConvertedFloat/1000.0;                                                                         // Assign values to struct members
     }
+    /*
+    if(prevDataStatus == 1)                                 
+    {
+        positionDifference = data.pY - previouspY;
+        //std::cout << "data.pX " << data.pX << std::endl;
+        //std::cout << "previouspX " << previouspX << std::endl;
+        //std::cout << "positionDifference " << positionDifference << std::endl;
+        if(positionDifference >= positionalVariationLimit || positionDifference <= -positionalVariationLimit)         // If position difference bigger than specified then use previous healthy position data
+        {
+            data.pY = previouspY;
+            //std::cout << "Over specified value detected" << std::endl;
+        }
+    }  
+    */   
 
     start = StringToGetSplitted.find("aX");
     end = StringToGetSplitted.find("+");
@@ -294,7 +336,9 @@ FlightTelemetry::UwbStruct FlightTelemetry::GetUwbPositionData(int fd, char buf[
 
     //************* EXTENDED KALMAN FILTER IMPLEMENTATION END *************
 */
+    
     return data;                                                                                            // Return struct
+    
 }
 
 void FlightTelemetry::setTxt(sl::float3 value, char* ptr_txt) {
